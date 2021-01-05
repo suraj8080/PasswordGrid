@@ -56,16 +56,23 @@ public class StringListGridGenerator extends GridGenerator<List<String>, List<St
          */
         if(GridDataCreator.type.equals("Play me")) {
             for (int i = 0; i < grid.length; i++) {
+                String eastWestWord = getWordByDirection(i, 0, Direction.EAST, grid);
+                if(!GridDataCreator.isFullfilCriteria(eastWestWord))
+                    placeWordAt(i, 0, Direction.EAST, grid, GridDataCreator.getRandomWords(eastWestWord.length()-1));
+                Log.d("eastWestWord ", " i "+i +" j "+0 + " " + eastWestWord);
                 for (int j = 0; j < grid[i].length; j++) {
-                    String eastWestWord = getWordByDirection(i, j, Direction.EAST, grid);
-                    String northSouthWord = getWordByDirection(i, j, Direction.SOUTH, grid);
-                    String southEastNorthWestWord = getWordByDirection(i, j, SOUTH_EAST, grid);
-                    String southWestNorthEastWord = getWordByDirection(i, j, SOUTH_WEST, grid);
-
-                    //Log.d("eastWestWord ", " i "+i +" j "+j + " " + eastWestWord);
-                    //Log.d("northSouthWord ", " i "+i +" j "+j + " " + northSouthWord);
-                    //Log.d("southEastNorthWestWord ", " i " + i + " j " + j + " " + southEastNorthWestWord);
-                    Log.d("southWestNorthEastWord ", " i " + i + " j " + j + " " + southWestNorthEastWord);
+                    if(i==0) {
+                        String northSouthWord = getWordByDirection(0, j, Direction.SOUTH, grid);
+                        if(!GridDataCreator.isFullfilCriteria(northSouthWord))
+                            placeWordAt(0, j, Direction.SOUTH, grid, GridDataCreator.getRandomWords(northSouthWord.length()-1));
+                        Log.d("northSouthWord ", " i " + 0 + " j " + j + " " + northSouthWord);
+                    }if(i==0 && j==0) {
+                        String southEastNorthWestWord = getWordByDirection(i, j, SOUTH_EAST, grid);
+                        Log.d("southEastNorthWestWord ", " i " + i + " j " + j + " " + southEastNorthWestWord);
+                    }if(i==0 && j==grid[i].length-1) {
+                        String southWestNorthEastWord = getWordByDirection(i, j, SOUTH_WEST, grid);
+                         Log.d("southWestNorthEastWord ", " i " + i + " j " + j + " " + southWestNorthEastWord);
+                    }
                 }
             }
         }
@@ -128,7 +135,7 @@ public class StringListGridGenerator extends GridGenerator<List<String>, List<St
 
     /**
      * Check grid col dan row dir string word
-     * memungkinkan
+     *
      *
      * @param col starting column
      * @param row starting row

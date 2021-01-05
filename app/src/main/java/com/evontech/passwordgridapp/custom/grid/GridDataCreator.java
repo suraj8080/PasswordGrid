@@ -98,7 +98,7 @@ public class GridDataCreator {
 
         if(type.equals("Play me")) {
             Log.d("count "+count, " maxCharCount "+maxCharCount +" word size "+words.size());
-            if (isUpperCase && isLowerCase) {
+            /*if (isUpperCase && isLowerCase) {
                 int randomCase = getRandomIntRange(1,2);
                 if(randomCase==1)
                     stringList.addAll(getRandomUpperCaseWords(maxCharCount));
@@ -112,15 +112,17 @@ public class GridDataCreator {
             if (isSpecialCharacters)
                 stringList.addAll(getRandomSpecialWords(maxCharCount));
             if (isNumbers)
-                stringList.addAll(getRandomNumberWords(maxCharCount));
+                stringList.addAll(getRandomNumberWords(maxCharCount));*/
 
-        if(isUpperCase || isLowerCase){
+        //if(isUpperCase || isLowerCase){
         for (int i = 0; i < words.size(); i++) {
             if (stringList.size() >= count) break;
 
-            temp = words.get(i).getString();
+            //temp = words.get(i).getString();  //get random words with criteria set by user using a single method
+            temp = getRandomWords(maxCharCount-1);
             if (temp.length() <= maxCharCount) {
-                if(isUpperCase && isLowerCase){
+                stringList.add(temp);
+                /*if(isUpperCase && isLowerCase){
                     int randomCase = getRandomIntRange(1,2);
                     if(randomCase==1)
                         stringList.add(temp.toUpperCase());
@@ -129,14 +131,105 @@ public class GridDataCreator {
                     if (isUpperCase)
                         stringList.add(temp.toUpperCase());
                     else stringList.add(temp.toLowerCase());
-                        }
-                    }
-                }
+                }*/
             }
+        }
+          //  }
             Log.d("GridDataCreator stringList to attempts ", stringList.toString());
         }
         return stringList;
     }
+
+    public static String getRandomWords(int maxCharCount){
+        StringBuilder mString = new StringBuilder();
+            int randomCharCount = maxCharCount-1;//getRandomIntRange(1, maxCharCount-1);
+            int randomChar = 0;
+            if(isUpperCase) randomChar ++;
+            if(isLowerCase) randomChar ++;
+            if(isNumbers) randomChar ++;
+            if(isSpecialCharacters) randomChar ++;
+            for (int index = 0; index < randomCharCount; index++) {
+                int characterCase =  getRandomIntRange(1, randomChar);
+                //Log.d("characterCase "+characterCase, "randomChar "+randomChar);
+                    if (index == 1) {
+                        if(isUpperCase)
+                        mString = mString.append((char) getRandomIntRange(65, 90));
+                        else if(isLowerCase)
+                            mString = mString.append((char) getRandomIntRange(97, 122));
+                        else if(isSpecialCharacters){
+                            char c = (char) (new Random().nextInt(4) + 35);
+                            mString = mString.append(c);
+                        }else if(isNumbers)
+                            mString = mString.append(Character.forDigit(new Random().nextInt(10), 10));
+                    } else if (index == 2) {
+                        if(isLowerCase)
+                            mString = mString.append((char) getRandomIntRange(97, 122));
+                        else if(isUpperCase)
+                            mString = mString.append((char) getRandomIntRange(65, 90));
+                        else if(isSpecialCharacters){
+                            char c = (char) (new Random().nextInt(4) + 35);
+                            mString = mString.append(c);
+                        }else if(isNumbers)
+                            mString = mString.append(Character.forDigit(new Random().nextInt(10), 10));
+                    } else if (index == 3) {
+                        if(isSpecialCharacters){
+                            char c = (char) (new Random().nextInt(4) + 35);
+                            mString = mString.append(c);
+                        }else if(isNumbers)
+                            mString = mString.append(Character.forDigit(new Random().nextInt(10), 10));
+                        else if(isLowerCase)
+                            mString = mString.append((char) getRandomIntRange(97, 122));
+                        else if(isUpperCase)
+                            mString = mString.append((char) getRandomIntRange(65, 90));
+                    } else if (index == 4) {
+                        if(isNumbers)
+                            mString = mString.append(Character.forDigit(new Random().nextInt(10), 10));
+                        if(isSpecialCharacters){
+                            char c = (char) (new Random().nextInt(4) + 35);
+                            mString = mString.append(c);
+                        }else if(isLowerCase)
+                            mString = mString.append((char) getRandomIntRange(97, 122));
+                        else if(isUpperCase)
+                            mString = mString.append((char) getRandomIntRange(65, 90));
+                    }else {
+                        if(isUpperCase && characterCase==1)
+                            mString = mString.append((char) getRandomIntRange(65, 90));
+                        else if(isLowerCase && characterCase==2)
+                            mString = mString.append((char) getRandomIntRange(97, 122));
+                        else if(isSpecialCharacters && characterCase==3){
+                            char c = (char) (new Random().nextInt(4) + 35);
+                            mString = mString.append(c);
+                        }else if(isNumbers && characterCase==4)
+                            mString = mString.append(Character.forDigit(new Random().nextInt(10), 10));
+                    }
+            }
+        return mString.toString();
+    }
+
+    public static boolean isFullfilCriteria(String word){
+        char ch;
+        boolean capitalFlag = false;
+        boolean lowerCaseFlag = false;
+        boolean numberFlag = false;
+        boolean symbolFlag = false;
+        for(int i=0;i < word.length();i++) {
+            ch = word.charAt(i);
+            if(isNumbers && Character.isDigit(ch)) {
+                numberFlag = true;
+            } else if (isUpperCase && Character.isUpperCase(ch)) {
+                capitalFlag = true;
+            } else if (isLowerCase && Character.isLowerCase(ch)) {
+                lowerCaseFlag = true;
+            }else {
+                if(isSpecialCharacters)
+                symbolFlag = true;
+            }
+            if(numberFlag && capitalFlag && lowerCaseFlag && symbolFlag)
+                return true;
+        }
+        return false;
+    }
+
 
     private List<String> getRandomUpperCaseWords(int maxCharCount){
         List<String> stringUpperList = new ArrayList<>();
