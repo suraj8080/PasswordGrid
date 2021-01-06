@@ -12,10 +12,12 @@
     <string name="pref_numbercharacters">numbercharacters</string>
 
     <string name="pref_grid_direction">gridDirection</string>
+    <string name="pref_selected_direction">selectedDirection</string>
     <string name="pref_grid_pattern">gridPattern</string>
     <string name="pref_word_from_border">wordFromBorder</string>
     <string name="pref_row">pref_row</string>
     <string name="pref_col">col</string>
+    <string name="pref_password_length">passwordLength</string>
 
     <string name="pref_showGridLine">showGridLine</string>
     <string name="pref_snapToGrid">snapToGrid</string>

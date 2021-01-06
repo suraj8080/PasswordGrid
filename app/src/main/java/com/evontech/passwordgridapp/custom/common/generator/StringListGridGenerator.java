@@ -57,13 +57,13 @@ public class StringListGridGenerator extends GridGenerator<List<String>, List<St
         if(GridDataCreator.type.equals("Play me")) {
             for (int i = 0; i < grid.length; i++) {
                 String eastWestWord = getWordByDirection(i, 0, Direction.EAST, grid);
-                if(!GridDataCreator.isFullfilCriteria(eastWestWord))
+                if(!GridDataCreator.checkPasswordCriteria(eastWestWord).equals("true"))
                     placeWordAt(i, 0, Direction.EAST, grid, GridDataCreator.getRandomWords(eastWestWord.length()-1));
                 Log.d("eastWestWord ", " i "+i +" j "+0 + " " + eastWestWord);
                 for (int j = 0; j < grid[i].length; j++) {
                     if(i==0) {
                         String northSouthWord = getWordByDirection(0, j, Direction.SOUTH, grid);
-                        if(!GridDataCreator.isFullfilCriteria(northSouthWord))
+                        if(!GridDataCreator.checkPasswordCriteria(northSouthWord).equals("true"))
                             placeWordAt(0, j, Direction.SOUTH, grid, GridDataCreator.getRandomWords(northSouthWord.length()-1));
                         Log.d("northSouthWord ", " i " + 0 + " j " + j + " " + northSouthWord);
                     }if(i==0 && j==0) {

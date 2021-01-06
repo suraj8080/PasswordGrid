@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+    <LinearLayout
+        android:layout_gravity="center_horizontal"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:layout_marginTop="10dp">
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Choose Direction"
+            android:textAlignment="center"
+            android:textAppearance="@style/TextAppearance.AppCompat.Headline" />
+        <RadioGroup
+            android:id="@+id/radio_group_direction"
+            android:layout_margin="10dp"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+         <androidx.appcompat.widget.AppCompatRadioButton
+            android:id="@+id/cbHorizontal"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Horizontal" />
+        <androidx.appcompat.widget.AppCompatRadioButton
+            android:id="@+id/cbHorizontalReverse"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Horizontal Reverse" />
+        <androidx.appcompat.widget.AppCompatRadioButton
+            android:id="@+id/cbVertical"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Vertical" />
+        <androidx.appcompat.widget.AppCompatRadioButton
+            android:id="@+id/cbVerticalReverse"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Vertical Reverse" />
+        <androidx.appcompat.widget.AppCompatRadioButton
+            android:id="@+id/cbDiagonal"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Diagonal" />
+        <androidx.appcompat.widget.AppCompatRadioButton
+            android:id="@+id/cbDiagonalReverse"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Diagonal Reverse" />
+            </RadioGroup>
+        <androidx.appcompat.widget.AppCompatButton
+            android:id="@+id/buttonCancel"
+            android:layout_width="200dp"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_marginTop="5dp"
+            android:layout_marginBottom="15dp"
+            android:background="@drawable/button_background_rounded_corner"
+            android:text="Cancel"
+            android:textColor="#FFF" />
+    </LinearLayout>
+</ScrollView>

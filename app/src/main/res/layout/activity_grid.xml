@@ -9,21 +9,16 @@
     tools:context=".custom.grid.GridActivity">
 
     <RelativeLayout
-        android:layout_marginLeft="10dp"
-        android:layout_marginRight="10dp"
-        android:layout_marginBottom="5dp"
-        android:layout_marginTop="5dp"
+        android:layout_margin="5dp"
         android:layout_gravity="center"
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
         <LinearLayout
             android:background="@drawable/linear_layout_border"
-            android:layout_toLeftOf="@+id/btnReset"
+            android:layout_toLeftOf="@+id/relative_action_button"
             android:id="@+id/text_sel_layout"
             android:layout_width="match_parent"
             android:layout_height="40dp"
-            android:layout_marginRight="10dp"
-            android:layout_marginLeft="10dp"
             android:visibility="visible"
             android:layout_centerInParent="true"
             android:orientation="horizontal">
@@ -40,6 +35,10 @@
                 android:textSize="15sp"
                 android:text=""/>
             <TextView
+                android:textColorHighlight="@color/colorAccent"
+                android:selectAllOnFocus="true"
+                android:textSelectHandle="@color/colorAccent"
+                android:textIsSelectable="true"
                 android:gravity="center"
                 android:id="@+id/text_selection"
                 android:layout_width="match_parent"
@@ -50,15 +49,30 @@
                 android:textSize="15sp"
                 android:text=""/>
         </LinearLayout>
+        <RelativeLayout
+            android:layout_alignParentRight="true"
+            android:layout_centerVertical="true"
+            android:id="@+id/relative_action_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content">
             <androidx.appcompat.widget.AppCompatButton
-                android:layout_alignParentRight="true"
-                android:layout_centerVertical="true"
+                android:layout_marginLeft="5dp"
+                android:layout_marginRight="5dp"
                 android:background="@drawable/button_background_rounded_corner"
                 android:id="@+id/btnReset"
-                android:layout_width="100dp"
+                android:layout_width="wrap_content"
                 android:layout_height="40dp"
                 android:textColor="@color/white"
                 android:text="Clear"/>
+            <androidx.appcompat.widget.AppCompatButton
+                android:layout_toRightOf="@+id/btnReset"
+                android:background="@drawable/button_background_rounded_corner"
+                android:id="@+id/btnSave"
+                android:layout_width="wrap_content"
+                android:layout_height="40dp"
+                android:textColor="@color/white"
+                android:text="Save"/>
+        </RelativeLayout>
     </RelativeLayout>
 
 

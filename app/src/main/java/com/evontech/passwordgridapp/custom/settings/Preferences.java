@@ -22,10 +22,12 @@ public class Preferences {
     private static String KEY_SPECIAL_CHARACTERS;
     private static String KEY_NUMBERS;
     private static String KEY_GRID_DIRECTION;
+    private static String KEY_SELECTED_DIRECTION;
     private static String KEY_GRID_PATTERN;
     private static String KEY_WORD_FROM_BORDER;
     private static String KEY_ROW;
     private static String KEY_COL;
+    private static String KEY_PASSWORD_LENGTH;
 
     private SharedPreferences mPreferences;
 
@@ -39,11 +41,13 @@ public class Preferences {
         KEY_SPECIAL_CHARACTERS = context.getString(R.string.pref_specialCharacters);
         KEY_NUMBERS = context.getString(R.string.pref_numbercharacters);
         KEY_GRID_DIRECTION = context.getString(R.string.pref_grid_direction);
+        KEY_SELECTED_DIRECTION = context.getString(R.string.pref_selected_direction);
         KEY_GRID_PATTERN = context.getString(R.string.pref_grid_pattern);
         KEY_WORD_FROM_BORDER = context.getString(R.string.pref_word_from_border);
 
         KEY_ROW = context.getString(R.string.pref_row);
         KEY_COL = context.getString(R.string.pref_col);
+        KEY_PASSWORD_LENGTH = context.getString(R.string.pref_password_length);
     }
 
     public boolean showUpperCharacters() {
@@ -92,6 +96,15 @@ public class Preferences {
                 .apply();
     }
 
+    public String getSelectedDirection() {
+        return mPreferences.getString(KEY_SELECTED_DIRECTION, "");
+    }
+    public void selectDirection(String  direction) {
+        mPreferences.edit()
+                .putString(KEY_SELECTED_DIRECTION, direction)
+                .apply();
+    }
+
     public boolean showGridPattern() {
         return mPreferences.getBoolean(KEY_GRID_PATTERN, false);
     }
@@ -125,6 +138,15 @@ public class Preferences {
     public void setGridCol(int col) {
         mPreferences.edit()
                 .putInt(KEY_COL, col)
+                .apply();
+    }
+
+    public int getPasswordLength() {
+        return mPreferences.getInt(KEY_PASSWORD_LENGTH, 0);
+    }
+    public void setPasswordLength(int length) {
+        mPreferences.edit()
+                .putInt(KEY_PASSWORD_LENGTH, length)
                 .apply();
     }
 

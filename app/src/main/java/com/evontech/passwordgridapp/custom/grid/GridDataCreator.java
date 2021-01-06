@@ -206,8 +206,9 @@ public class GridDataCreator {
         return mString.toString();
     }
 
-    public static boolean isFullfilCriteria(String word){
+    public static String checkPasswordCriteria(String word){
         char ch;
+        String passwordAlert = "";
         boolean capitalFlag = false;
         boolean lowerCaseFlag = false;
         boolean numberFlag = false;
@@ -225,9 +226,14 @@ public class GridDataCreator {
                 symbolFlag = true;
             }
             if(numberFlag && capitalFlag && lowerCaseFlag && symbolFlag)
-                return true;
+                return "true";
         }
-        return false;
+        if(!capitalFlag) passwordAlert = "The generated password has neglected to include uppercase characters";
+        else if(!lowerCaseFlag) passwordAlert = "The generated password has neglected to include lowercase characters";
+        else if(!numberFlag) passwordAlert = "The generated password has neglected to include number characters";
+        else passwordAlert = "The generated password has neglected to include symbol characters";
+        Log.d("passwordAlert ", passwordAlert);
+        return passwordAlert;
     }
 
 

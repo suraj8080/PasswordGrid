@@ -6,6 +6,7 @@ import androidx.appcompat.widget.AppCompatEditText;
 import android.content.Intent;
 import android.os.Bundle;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
@@ -71,6 +72,7 @@ public class GridCriteriaActivity extends AppCompatActivity {
                 else if(!mPreferences.showUpperCharacters() && !mPreferences.showLowerCharacters() && !mPreferences.showNumberCharacters() && !mPreferences.showSpecialCharacters())
                     Toast.makeText(GridCriteriaActivity.this, "Select atleast one checkbox", Toast.LENGTH_SHORT).show();
                 else{
+                    mPreferences.setPasswordLength(Integer.parseInt(etPassword.getText().toString()));
                     mPreferences.setGridCol(Integer.parseInt(etPassword.getText().toString()));
                     startGridPlay(Integer.parseInt(etPassword.getText().toString()));
                 }
@@ -111,6 +113,11 @@ public class GridCriteriaActivity extends AppCompatActivity {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                 mPreferences.setGridDirection(isChecked);
+                if(isChecked) {
+                    mPreferences.setGridPattern(false);
+                    mPreferences.setWordFromBorder(false);
+                    updateCheckBox();
+                }
             }
         });
         checkBox_pattern.setChecked(mPreferences.showGridPattern());
@@ -118,6 +125,11 @@ public class GridCriteriaActivity extends AppCompatActivity {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                 mPreferences.setGridPattern(isChecked);
+                if(isChecked) {
+                    mPreferences.setGridDirection(false);
+                    mPreferences.setWordFromBorder(false);
+                    updateCheckBox();
+                }
             }
         });
         checkBox_word_from_border.setChecked(mPreferences.showWordFromBorder());
@@ -125,10 +137,20 @@ public class GridCriteriaActivity extends AppCompatActivity {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                 mPreferences.setWordFromBorder(isChecked);
+                if(isChecked) {
+                    mPreferences.setGridPattern(false);
+                    mPreferences.setGridDirection(false);
+                    updateCheckBox();
+                }
             }
         });
 
+    }
 
+    private void updateCheckBox(){
+        checkBox_word_from_border.setChecked(mPreferences.showWordFromBorder());
+        checkBox_pattern.setChecked(mPreferences.showGridPattern());
+        checkBox_grid_direction.setChecked(mPreferences.showgridDirection());
     }
 
     private void startGridPlay(int length){
