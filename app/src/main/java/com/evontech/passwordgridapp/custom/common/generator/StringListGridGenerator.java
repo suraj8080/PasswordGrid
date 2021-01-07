@@ -180,6 +180,15 @@ public class StringListGridGenerator extends GridGenerator<List<String>, List<St
         }
     }
 
+    public static void placeRandomWordAt(int row, int col, Direction dir, char gridArr[][], String word) {
+        for (int i = 0; i < word.length(); i++) {
+            gridArr[row][col] = word.charAt(i);
+
+            col += dir.xOff;
+            row += dir.yOff;
+        }
+    }
+
     private String getWordByDirection(int row, int col, Direction dir, char gridArr[][]){
         StringBuilder word = new StringBuilder();
         /*

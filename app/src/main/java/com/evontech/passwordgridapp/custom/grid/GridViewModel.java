@@ -139,7 +139,7 @@ public class GridViewModel extends ViewModel {
             setGameState(new Generating(rowCount, colCount, "Play me"));
 
             Observable.create((ObservableOnSubscribe<GridData>) emitter -> {
-                List<Word> wordList = mWordDataSource.getWords();
+                List<Word> wordList = new ArrayList<>(); //mWordDataSource.getWords();
                 Log.d("wordList ", wordList.size()+"");
                 GridDataCreator.setGridGenerationCriteria(isUpperCase, isLowerCase, isNumbers, isSpecialCharacters);
                 GridData gr = mGridDataCreator.newGridData(wordList, rowCount, colCount, "Play me");

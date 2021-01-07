@@ -92,46 +92,15 @@ public class GridDataCreator {
     }
 
     private List<String> getStringListFromWord(List<Word> words, int count, int maxCharCount) {
-        count = Math.min(count, words.size());
         List<String> stringList = new ArrayList<>();
         String temp;
 
         if(type.equals("Play me")) {
             Log.d("count "+count, " maxCharCount "+maxCharCount +" word size "+words.size());
-            /*if (isUpperCase && isLowerCase) {
-                int randomCase = getRandomIntRange(1,2);
-                if(randomCase==1)
-                    stringList.addAll(getRandomUpperCaseWords(maxCharCount));
-                else
-                    stringList.addAll(getRandomLowercaseWords(maxCharCount));
-            }else {
-                if (isUpperCase)
-                    stringList.addAll(getRandomUpperCaseWords(maxCharCount));
-                else stringList.addAll(getRandomLowercaseWords(maxCharCount));
-            }
-            if (isSpecialCharacters)
-                stringList.addAll(getRandomSpecialWords(maxCharCount));
-            if (isNumbers)
-                stringList.addAll(getRandomNumberWords(maxCharCount));*/
-
-        //if(isUpperCase || isLowerCase){
-        for (int i = 0; i < words.size(); i++) {
-            if (stringList.size() >= count) break;
-
-            //temp = words.get(i).getString();  //get random words with criteria set by user using a single method
+        for (int i = 0; i < count; i++) {
             temp = getRandomWords(maxCharCount-1);
             if (temp.length() <= maxCharCount) {
                 stringList.add(temp);
-                /*if(isUpperCase && isLowerCase){
-                    int randomCase = getRandomIntRange(1,2);
-                    if(randomCase==1)
-                        stringList.add(temp.toUpperCase());
-                    else stringList.add(temp.toLowerCase());
-                }else {
-                    if (isUpperCase)
-                        stringList.add(temp.toUpperCase());
-                    else stringList.add(temp.toLowerCase());
-                }*/
             }
         }
           //  }

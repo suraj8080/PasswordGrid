@@ -5,11 +5,16 @@ import android.graphics.Color;
 import android.graphics.Paint;
 import android.os.Bundle;
 import android.os.Handler;
+import android.text.TextUtils;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.BounceInterpolator;
+import android.view.animation.DecelerateInterpolator;
+import android.view.animation.Interpolator;
+import android.view.animation.LinearInterpolator;
 import android.widget.CompoundButton;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
@@ -27,8 +32,10 @@ import com.evontech.passwordgridapp.custom.FullscreenActivity;
 import com.evontech.passwordgridapp.custom.PasswordGridApp;
 import com.evontech.passwordgridapp.custom.common.Direction;
 import com.evontech.passwordgridapp.custom.common.Util;
+import com.evontech.passwordgridapp.custom.common.generator.StringListGridGenerator;
 import com.evontech.passwordgridapp.custom.mcustom.LetterBoard;
 import com.evontech.passwordgridapp.custom.mcustom.StreakView;
+import com.evontech.passwordgridapp.custom.models.Grid;
 import com.evontech.passwordgridapp.custom.models.GridData;
 import com.evontech.passwordgridapp.custom.models.UsedWord;
 import com.evontech.passwordgridapp.custom.settings.Preferences;
@@ -106,6 +113,7 @@ public class GridActivity extends FullscreenActivity {
     private int mainBoardEndCol;
     private boolean isSingleCellSelected;
     private StringBuilder wordFromBorder;
+    private int selectedColor;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -123,6 +131,7 @@ public class GridActivity extends FullscreenActivity {
         //mLetterBoard.getStreakView().setEnableOverrideStreakLineColor(getPreferences().grayscale());
         mLetterBoard.getStreakView().setOverrideStreakLineColor(mGrayColor);
         mLetterBoard.getStreakView().setInteractive(true);
+        if(getPreferences().showGridPattern())
         mLetterBoard.getStreakView().setRememberStreakLine(true);
         mLetterBoard.getGridLineBackground().setVisibility(View.VISIBLE);
         mLetterBoard.setGridLineVisibility(true);
@@ -137,14 +146,17 @@ public class GridActivity extends FullscreenActivity {
                 int row = streakLine.getStartIndex().row;
                 int col = streakLine.getStartIndex().col;
                 Log.d("GridActivity ", "start row: "+row +" start col: "+col);
+                if(!getPreferences().showGridPattern())
                 mTextSelection.setText(str);
             }
             @Override
             public void onSelectionDrag(StreakView.StreakLine streakLine, String str) {
                 myScrollView.setEnableScrolling(false);
                 if (str.isEmpty()) {
+                    if(!getPreferences().showGridPattern())
                     mTextSelection.setText("...");
                 } else {
+                    if(!getPreferences().showGridPattern())
                     mTextSelection.setText(str);
                 }
             }
@@ -153,29 +165,37 @@ public class GridActivity extends FullscreenActivity {
                 int row = streakLine.getEndIndex().row;
                 int col = streakLine.getEndIndex().col;
                 Log.d("GridActivity ", "end row: "+row +" end col: "+col);
+                Log.d("GridActivity ", "str: "+str);
                 mViewModel.answerWord(str, STREAK_LINE_MAPPER.revMap(streakLine), true /*getPreferences().reverseMatching()*/);
-                if (str.isEmpty()) {
-                    mTextSelection.setText("");
-                    mLetterBoard.popStreakLine();
-                }else {
-                    mTextSelection.setText(str);
-                    checkPasswordCriteria(str);
-                    Log.d("passwordEntropyBits ", calculateEntropyBits(str.length(),getUsedSymbolLength()) +"");
-                    isSingleCellSelected = false;
-                }
 
                 if(row == streakLine.getStartIndex().row && col == streakLine.getStartIndex().col && !isSingleCellSelected) {
                     mainBoardStartRow = row;
                     mainBoardStartCol = col;
-                    mLetterBoard.addStreakLine(streakLine);
                     if(getPreferences().showgridDirection()){
-                        showDirectionDialog();
-                    }else isSingleCellSelected = true;
+                        selectedColor = streakLine.getColor();
+                        if(!TextUtils.isEmpty(getPreferences().getSelectedDirection()))
+                            onDirectionSelection();
+                     //   else
+                    //    showDirectionDialog();
+                    }else if(getPreferences().showGridPattern()){
+                        if(!mLetterBoard.getStreakView().getmLines().contains(streakLine))
+                        mLetterBoard.addStreakLine(streakLine);
+                        char [][] mainboard = mLetterAdapter.getGrid();
+                        StringBuilder tempStr = new StringBuilder(mTextSelection.getText().toString());
+                        mTextSelection.setText(tempStr.append(mainboard[row][col]));
+                        Log.d("mLetterBoard all lines ", mLetterBoard.getStreakView().getmLines().size()+"");
+                    }else if(getPreferences().showWordFromBorder()){
+                        mLetterBoard.removeAllStreakLine();
+                        mTextSelection.setText("");
+                        mTextFromBorder.setText("");
+                        wordFromBorder = new StringBuilder();
+                    }  else isSingleCellSelected = true;
                 }else if(row == streakLine.getStartIndex().row && col == streakLine.getStartIndex().col && isSingleCellSelected){
                     mainBoardEndRow = row;
                     mainBoardEndCol = col;
                     isSingleCellSelected = false;
                     StreakView.StreakLine newStreakLine = new StreakView.StreakLine();
+                    newStreakLine.setColor(streakLine.getColor());
                     newStreakLine.getStartIndex().set(mainBoardStartRow,mainBoardStartCol);
                     newStreakLine.getEndIndex().set(mainBoardEndRow,mainBoardEndCol);
                     mLetterBoard.removeAllStreakLine();
@@ -183,7 +203,28 @@ public class GridActivity extends FullscreenActivity {
                         String selectedPwd = Util.getStringInRange(mLetterAdapter, newStreakLine.getStartIndex(), newStreakLine.getEndIndex());
                         mLetterBoard.addStreakLine(newStreakLine);
                         mTextSelection.setText(selectedPwd);
-                        checkPasswordCriteria(selectedPwd);
+                        checkPasswordCriteria(selectedPwd, newStreakLine);
+                    }
+                }else if(getPreferences().showgridDirection() || getPreferences().showGridPattern() || getPreferences().showWordFromBorder()){
+                    if(getPreferences().showGridPattern()) {
+                        mLetterBoard.removeAllStreakLine();
+                        mTextSelection.setText("");
+                    }else if(getPreferences().showgridDirection() || getPreferences().showWordFromBorder()){
+                        mLetterBoard.removeAllStreakLine();
+                        mTextSelection.setText("");
+                        mTextFromBorder.setText("");
+                        wordFromBorder = new StringBuilder();
+                    }
+                }
+                else {
+                    if (str.isEmpty()) {
+                        mTextSelection.setText("");
+                        mLetterBoard.popStreakLine();
+                    } else {
+                        mTextSelection.setText(str);
+                        checkPasswordCriteria(str, streakLine);
+                        Log.d("passwordEntropyBits ", calculateEntropyBits(str.length(), getUsedSymbolLength()) + "");
+                        isSingleCellSelected = false;
                     }
                 }
                 myScrollView.setEnableScrolling(true);
@@ -324,58 +365,31 @@ public class GridActivity extends FullscreenActivity {
         mButtonSave.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                checkPasswordCriteria(mTextSelection.getText().toString());
+                checkPasswordCriteria(mTextSelection.getText().toString(), null);
             }
         });
     }
 
-    private void checkPasswordCriteria(String password){
+    private void checkPasswordCriteria(String password, StreakView.StreakLine streakLine){
         String passwordAlert = GridDataCreator.checkPasswordCriteria(password);
         if(!passwordAlert.equals("true")) {
-            Toast.makeText(GridActivity.this, "Alert: " + passwordAlert, Toast.LENGTH_LONG).show();
+            if(password.length()>=getPreferences().getPasswordLength()){ //replace it automatically when password select actual length but not get desired password
+                if(streakLine!=null) {
+                    Direction direction = Direction.fromLine(streakLine.getStartIndex(), streakLine.getEndIndex());
+                    //Log.d("password direction ", direction+"");
+                    String randomPassword = GridDataCreator.getRandomWords(password.length());
+                    Log.d("new randomPassword ", randomPassword+"");
+                    char[][] tempArray = mLetterAdapter.getGrid().clone();
+                    StringListGridGenerator.placeRandomWordAt(streakLine.getStartIndex().row, streakLine.getStartIndex().col, direction,tempArray ,randomPassword);
+                    mLetterAdapter.setGrid(tempArray);
+                    mTextSelection.setText(randomPassword);
+                }
+            }else Toast.makeText(GridActivity.this, "Alert: " + passwordAlert, Toast.LENGTH_LONG).show();
         }
         else if(password.length()< getPreferences().getPasswordLength())
             Toast.makeText(GridActivity.this, "Alert: generated password length is less than password criteria",Toast.LENGTH_LONG).show();
         else //if(passwordAlert.equals("true") && mTextSelection.getText().toString().length()>= getPreferences().getPasswordLength())
             Toast.makeText(GridActivity.this, "Your grid will stored in secure database ",Toast.LENGTH_LONG).show();
-    }
-
-    private void showDirectionDialog(){
-        ViewGroup viewGroup = findViewById(android.R.id.content);
-        View dialogView = LayoutInflater.from(this).inflate(R.layout.direction_dialog, viewGroup, false);
-        AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setView(dialogView);
-        AlertDialog alertDialog = builder.create();
-        alertDialog.show();
-        RadioGroup radioGroup = (RadioGroup) dialogView.findViewById(R.id.radio_group_direction);
-        radioGroup.clearCheck();
-        radioGroup.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
-            @Override
-            public void onCheckedChanged(RadioGroup group, int checkedId) {
-                RadioButton rb = (RadioButton) group.findViewById(checkedId);
-                if (rb !=null && checkedId==R.id.cbHorizontal)
-                    getPreferences().selectDirection("EAST");
-                else if (rb !=null && checkedId==R.id.cbHorizontalReverse)
-                    getPreferences().selectDirection("WEST");
-                else if (rb !=null && checkedId==R.id.cbVertical)
-                    getPreferences().selectDirection("SOUTH");
-                else if (rb !=null && checkedId==R.id.cbVerticalReverse)
-                    getPreferences().selectDirection("NORTH");
-                else if (rb !=null && checkedId==R.id.cbDiagonal)
-                    getPreferences().selectDirection("SOUTH_EAST");
-                else if (rb !=null && checkedId==R.id.cbDiagonalReverse)
-                    getPreferences().selectDirection("SOUTH_WEST");
-                alertDialog.dismiss();
-                onDirectionSelection();
-            }
-        });
-        AppCompatButton buttonCancel = dialogView.findViewById(R.id.buttonCancel);
-        buttonCancel.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                alertDialog.dismiss();
-            }
-        });
     }
 
     private void onDirectionSelection(){
@@ -424,6 +438,7 @@ public class GridActivity extends FullscreenActivity {
         else if(endCol<0)
             endCol = 0;
         StreakView.StreakLine newStreakLine = new StreakView.StreakLine();
+        newStreakLine.setColor(selectedColor);
         newStreakLine.getStartIndex().set(mainBoardStartRow,mainBoardStartCol);
         newStreakLine.getEndIndex().set(endRow,endCol);
         mLetterBoard.removeAllStreakLine();
@@ -431,7 +446,7 @@ public class GridActivity extends FullscreenActivity {
             String selectedPwd = Util.getStringInRange(mLetterAdapter, newStreakLine.getStartIndex(), newStreakLine.getEndIndex());
             mLetterBoard.addStreakLine(newStreakLine);
             mTextSelection.setText(selectedPwd);
-            checkPasswordCriteria(selectedPwd);
+            checkPasswordCriteria(selectedPwd, newStreakLine);
         }
     }
 
@@ -502,19 +517,20 @@ public class GridActivity extends FullscreenActivity {
         params.setMargins(topBorderLeftMargin, 0, 0, 0);
         //Log.d("topBorderLeftMargin ", ""+topBorderLeftMargin);
         mLetterBoardTop.setLayoutParams(params);
-
         if (boardWidth > screenWidth) {
             float scale = (float)screenWidth / (float)boardWidth;
             mLetterBoardLeft.scale(scale, scale);
             mLetterBoard.scale(scale, scale);
             mLetterBoardTop.scale(scale, scale);
 
-            /*mLetterBoard.animate()
-                    .scaleX(scale)
-                    .scaleY(scale)
-                    .setDuration(100)
-                    .setInterpolator(new DecelerateInterpolator())
-                    .start();*/
+            if(isInitialized) {
+               /* mLetterBoardTop.animate()
+                        .scaleX(scale)
+                        .scaleY(scale)
+                        .setDuration(400)
+                        .setInterpolator(new DecelerateInterpolator())
+                        .start();*/
+            }
         }
          if(!isInitialized) {
             isInitialized = true;
@@ -660,4 +676,5 @@ public class GridActivity extends FullscreenActivity {
 
         return length;
     }
+
 }

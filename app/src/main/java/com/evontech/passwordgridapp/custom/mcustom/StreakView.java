@@ -269,12 +269,15 @@ public class StreakView extends View {
         mRect = new RectF();
     }
 
+    public Stack<StreakLine> getmLines() {
+        return mLines;
+    }
 
     private class OnTouchProcessedListener implements TouchProcessor.OnTouchProcessed {
 
         @Override
         public void onDown(MotionEvent event) {
-            if(!mLines.isEmpty())
+            if(!mLines.isEmpty() && !mRememberStreakLine)
             mLines.pop();
 
             if (!mRememberStreakLine) {
@@ -284,7 +287,7 @@ public class StreakView extends View {
             else {
                 mLines.push(new StreakLine());
             }
-
+            Log.d("StreakView all lines ", mLines.size()+"");
             StreakLine line = mLines.peek();
 
             int colIdx = mGrid.getColIndex((int) event.getX());
