@@ -46,8 +46,9 @@ public class StringListGridGenerator extends GridGenerator<List<String>, List<St
                 if (usedCount >= dataInput.size())
                     break;
             }
+            Util.fillNullCharWidthRandom(grid);
         }
-        Util.fillNullCharWidthRandom(grid);
+
 
         /*
         iterate grids here and pick each cells horizontal, verticals and diagonals set of characters
@@ -59,19 +60,19 @@ public class StringListGridGenerator extends GridGenerator<List<String>, List<St
                 String eastWestWord = getWordByDirection(i, 0, Direction.EAST, grid);
                 if(!GridDataCreator.checkPasswordCriteria(eastWestWord).equals("true"))
                     placeWordAt(i, 0, Direction.EAST, grid, GridDataCreator.getRandomWords(eastWestWord.length()-1));
-                Log.d("eastWestWord ", " i "+i +" j "+0 + " " + eastWestWord);
+               // Log.d("eastWestWord ", " i "+i +" j "+0 + " " + eastWestWord);
                 for (int j = 0; j < grid[i].length; j++) {
                     if(i==0) {
                         String northSouthWord = getWordByDirection(0, j, Direction.SOUTH, grid);
                         if(!GridDataCreator.checkPasswordCriteria(northSouthWord).equals("true"))
                             placeWordAt(0, j, Direction.SOUTH, grid, GridDataCreator.getRandomWords(northSouthWord.length()-1));
-                        Log.d("northSouthWord ", " i " + 0 + " j " + j + " " + northSouthWord);
+                      //  Log.d("northSouthWord ", " i " + 0 + " j " + j + " " + northSouthWord);
                     }if(i==0 && j==0) {
                         String southEastNorthWestWord = getWordByDirection(i, j, SOUTH_EAST, grid);
-                        Log.d("southEastNorthWestWord ", " i " + i + " j " + j + " " + southEastNorthWestWord);
+                      //  Log.d("southEastNorthWestWord ", " i " + i + " j " + j + " " + southEastNorthWestWord);
                     }if(i==0 && j==grid[i].length-1) {
                         String southWestNorthEastWord = getWordByDirection(i, j, SOUTH_WEST, grid);
-                         Log.d("southWestNorthEastWord ", " i " + i + " j " + j + " " + southWestNorthEastWord);
+                         //Log.d("southWestNorthEastWord ", " i " + i + " j " + j + " " + southWestNorthEastWord);
                     }
                 }
             }

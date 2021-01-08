@@ -119,12 +119,20 @@ public class GridViewModel extends ViewModel {
         if (!(mCurrentState instanceof Generating)) {
             setGameState(new Loading(gid));
 
-            mGridDataSource.getGameData(gid, gameRound -> {
+            mGridDataSource.getGameData(gid, gameRound -> { // %3t%X$80ZR
                 mCurrentGridData = new GridDataMapper().map(gameRound);
+
+                GridDataCreator.setGridGenerationCriteria(isUpperCase, isLowerCase, isNumbers, isSpecialCharacters);
+                List<Word> leftWordList = new ArrayList<Word>();
+                List<Word> topWordList = new ArrayList<Word>();
+                mCurrentLeftData = mGridDataCreator.newGridData(leftWordList, mCurrentGridData.getGrid().getRowCount(), 1, "Left Borders");
+                mCurrentTopData = mGridDataCreator.newGridData(topWordList, 1, mCurrentGridData.getGrid().getRowCount(), "Top Borders");
+
                 setGameState(new Playing(mCurrentGridData));
             });
         }
     }
+
 
     public void setGridGenerationCriteria(boolean isUpperCase, boolean isLowerCase, boolean isNumbers, boolean isSpecialCharacters){
             this.isUpperCase = isUpperCase;
@@ -145,9 +153,9 @@ public class GridViewModel extends ViewModel {
                 GridData gr = mGridDataCreator.newGridData(wordList, rowCount, colCount, "Play me");
                 List<Word> leftWordList = new ArrayList<Word>();
                 List<Word> topWordList = new ArrayList<Word>();
+                long gid = mGridDataSource.saveGameData(new GridDataMapper().revMap(gr));
                 mCurrentLeftData = mGridDataCreator.newGridData(leftWordList, rowCount, 1, "Left Borders");
                 mCurrentTopData = mGridDataCreator.newGridData(topWordList, 1, colCount, "Top Borders");
-                long gid = mGridDataSource.saveGameData(new GridDataMapper().revMap(gr));
                 gr.setId((int) gid);
                 emitter.onNext(gr);
                 emitter.onComplete();
@@ -161,17 +169,26 @@ public class GridViewModel extends ViewModel {
         }
     }
 
+    public void updateGridData(){
+        mGridDataSource.saveGameData(new GridDataMapper().revMap(mCurrentGridData));
+    }
+
+    public void removeAllStreakLines(){
+        mGridDataSource.deleteAllLines(mCurrentGridData.getId());
+    }
+
     public void answerWord(String answerStr, UsedWord.AnswerLine answerLine, boolean reverseMatching) {   //helpful while saving password after selection
         UsedWord correctWord = mCurrentGridData.markWordAsAnswered(answerStr, answerLine, reverseMatching); //for loading same grid with password in future
+        correctWord.setId(mCurrentGridData.getId());
 
-        boolean correct = correctWord != null;
-        mOnAnswerResult.setValue(new AnswerResult(correct, correctWord != null ? correctWord.getId() : -1));
-        if (correct) {
+        //boolean correct = correctWord != null;
+        //mOnAnswerResult.setValue(new AnswerResult(correct, correctWord != null ? correctWord.getId() : -1));
+        //if (correct) {
             mGridDataSource.markWordAsAnswered(correctWord);
-            if (mCurrentGridData.isFinished()) {
+           /* if (mCurrentGridData.isFinished()) {
                 setGameState(new Finished(mCurrentGridData));
-            }
-        }
+            }*/
+        //}
     }
 
     public LiveData<GameState> getOnGameState() {

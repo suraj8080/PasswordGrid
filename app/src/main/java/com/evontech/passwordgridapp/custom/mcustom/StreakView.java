@@ -177,6 +177,7 @@ public class StreakView extends View {
 
     @Override
     public boolean onTouchEvent(MotionEvent event) {
+        //Log.d("mInteractive ", mInteractive+"");
         if (mInteractive)
             return mTouchProcessor.onTouchEvent(event);
         return super.onTouchEvent(event);
@@ -302,7 +303,6 @@ public class StreakView extends View {
                 line.start.set(event.getX() , event.getY());
                 line.end.set(event.getX() , event.getY());
             }
-
             if (mInteractionListener != null)
                 mInteractionListener.onTouchBegin(line);
             invalidate();

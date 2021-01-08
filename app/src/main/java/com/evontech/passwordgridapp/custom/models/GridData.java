@@ -66,21 +66,22 @@ public class GridData {
     }
 
     public UsedWord markWordAsAnswered(String word, UsedWord.AnswerLine answerLine, boolean enableReverse) {
-        String answerStrRev = Util.getReverseString(word);
-        for (UsedWord usedWord : mUsedWords) {
+        //String answerStrRev = Util.getReverseString(word);
+       // for (UsedWord usedWord : mUsedWords) {
 
-            if (usedWord.isAnswered()) continue;
+       //     if (usedWord.isAnswered()) continue;
 
-            String currUsedWord = usedWord.getString();
-            if (currUsedWord.equalsIgnoreCase(word) ||
-                    (currUsedWord.equalsIgnoreCase( answerStrRev ) && enableReverse)) {
-
+        //    String currUsedWord = usedWord.getString();
+       //     if (currUsedWord.equalsIgnoreCase(word) ||
+       //             (currUsedWord.equalsIgnoreCase( answerStrRev ) && enableReverse)) {
+                UsedWord usedWord = new UsedWord();
+                usedWord.setString(word);
                 usedWord.setAnswered(true);
                 usedWord.setAnswerLine(answerLine);
                 return usedWord;
-            }
-        }
-        return null;
+            //}
+      //  }
+        //return null;
     }
 
     public int getAnsweredWordsCount() {

@@ -166,7 +166,6 @@ public class GridActivity extends FullscreenActivity {
                 int col = streakLine.getEndIndex().col;
                 Log.d("GridActivity ", "end row: "+row +" end col: "+col);
                 Log.d("GridActivity ", "str: "+str);
-                mViewModel.answerWord(str, STREAK_LINE_MAPPER.revMap(streakLine), true /*getPreferences().reverseMatching()*/);
 
                 if(row == streakLine.getStartIndex().row && col == streakLine.getStartIndex().col && !isSingleCellSelected) {
                     mainBoardStartRow = row;
@@ -329,6 +328,8 @@ public class GridActivity extends FullscreenActivity {
         if (extras != null) {
             if (extras.containsKey(EXTRA_GAME_ROUND_ID)) {
                 int gid = extras.getInt(EXTRA_GAME_ROUND_ID);
+                Preferences preferences = getPreferences();
+                mViewModel.setGridGenerationCriteria(preferences.showUpperCharacters(), preferences.showLowerCharacters(),preferences.showNumberCharacters(), preferences.showSpecialCharacters());
                 mViewModel.loadGameRound(gid);
             } else {
                 rowCount = extras.getInt(EXTRA_ROW_COUNT);
@@ -353,6 +354,7 @@ public class GridActivity extends FullscreenActivity {
                 //mViewModel.stopGame();
                 mTextSelection.setText("");
                 //mLetterAdapter.setGrid(null);
+                mViewModel.removeAllStreakLines(); // delete from local storage for this grid
                 mLetterBoard.removeAllStreakLine();
                 mLetterBoardLeft.removeAllStreakLine();
                 mLetterBoardTop.removeAllStreakLine();
@@ -379,17 +381,23 @@ public class GridActivity extends FullscreenActivity {
                     //Log.d("password direction ", direction+"");
                     String randomPassword = GridDataCreator.getRandomWords(password.length());
                     Log.d("new randomPassword ", randomPassword+"");
-                    char[][] tempArray = mLetterAdapter.getGrid().clone();
+                    char[][] tempArray = mLetterAdapter.getGrid().clone();  // update griddata and streakline in db also
                     StringListGridGenerator.placeRandomWordAt(streakLine.getStartIndex().row, streakLine.getStartIndex().col, direction,tempArray ,randomPassword);
                     mLetterAdapter.setGrid(tempArray);
                     mTextSelection.setText(randomPassword);
+                    mViewModel.answerWord(randomPassword, STREAK_LINE_MAPPER.revMap(streakLine), true /*getPreferences().reverseMatching()*/);
+                    mViewModel.updateGridData();
                 }
             }else Toast.makeText(GridActivity.this, "Alert: " + passwordAlert, Toast.LENGTH_LONG).show();
         }
         else if(password.length()< getPreferences().getPasswordLength())
             Toast.makeText(GridActivity.this, "Alert: generated password length is less than password criteria",Toast.LENGTH_LONG).show();
-        else //if(passwordAlert.equals("true") && mTextSelection.getText().toString().length()>= getPreferences().getPasswordLength())
-            Toast.makeText(GridActivity.this, "Your grid will stored in secure database ",Toast.LENGTH_LONG).show();
+        else {//if(passwordAlert.equals("true") && mTextSelection.getText().toString().length()>= getPreferences().getPasswordLength())
+            Toast.makeText(GridActivity.this, "Your grid will stored in secure database ", Toast.LENGTH_LONG).show();
+            if(streakLine!=null)
+            mViewModel.answerWord(password, STREAK_LINE_MAPPER.revMap(streakLine), true /*getPreferences().reverseMatching()*/);
+            mViewModel.updateGridData();
+        }
     }
 
     private void onDirectionSelection(){
@@ -484,16 +492,34 @@ public class GridActivity extends FullscreenActivity {
     }
 
     private void onGameRoundLoaded(GridData gridData) {
-        if (gridData.isFinished()) {
+       /* if (gridData.isFinished()) {
             setGameAsAlreadyFinished();
-        }
+        }*/
 
+        rowCount = gridData.getGrid().getRowCount();
+        colCount = gridData.getGrid().getColCount();
         doneLoadingContent();  //call it accordingly
 
         showLetterGrid(gridData.getGrid().getArray());
         mLetterBoard.setVisibility(View.VISIBLE);
         mLetterBoardTop.setVisibility(View.VISIBLE);
         mLetterBoardLeft.setVisibility(View.VISIBLE);
+
+        for (UsedWord word: gridData.getUsedWords()) {
+            if(word.isAnswered()){
+                Log.d("savedPassword ", word.getString());
+                UsedWord.AnswerLine line = word.getAnswerLine();
+                StreakView.StreakLine newStreakLine = new StreakView.StreakLine();
+                newStreakLine.setColor(line.color);
+                newStreakLine.getStartIndex().set(line.startRow,line.startCol);
+                newStreakLine.getEndIndex().set(line.endRow,line.endCol);
+                if(Direction.fromLine(newStreakLine.getStartIndex(), newStreakLine.getEndIndex()) != Direction.NONE){
+                    mLetterBoard.addStreakLine(newStreakLine);
+                    mTextSelection.setText(word.getString());
+                }
+            }
+
+        }
 
         //doneLoadingContent();
     }

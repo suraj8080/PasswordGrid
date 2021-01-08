@@ -223,6 +223,7 @@ public class GridCriteriaActivity extends AppCompatActivity {
         Intent intent = new Intent(this, GridActivity.class);
         intent.putExtra(GridActivity.EXTRA_ROW_COUNT, length);
         intent.putExtra(GridActivity.EXTRA_COL_COUNT, length);
+        //intent.putExtra(GridActivity.EXTRA_GAME_ROUND_ID, 619);
         startActivity(intent);
         overridePendingTransition(R.anim.slide_in, R.anim.slide_out);
     }

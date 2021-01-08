@@ -3,6 +3,7 @@ package com.evontech.passwordgridapp.custom.data.sqlite;
 import android.content.ContentValues;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.util.Log;
 
 import com.evontech.passwordgridapp.custom.data.GridDataSource;
 import com.evontech.passwordgridapp.custom.data.entity.GridDataEntity;
@@ -52,6 +53,7 @@ public class GridDataSQLiteDataSource implements GridDataSource {
             ent.setGridRowCount(c.getInt(3));
             ent.setGridColCount(c.getInt(4));
             ent.setGridData(c.getString(5));
+            Log.d("Getting GridData ", c.getString(5));
             ent.setUsedWords(getUsedWords(gid));
         }
         c.close();
@@ -94,25 +96,41 @@ public class GridDataSQLiteDataSource implements GridDataSource {
         values.put(com.evontech.passwordgridapp.custom.data.sqlite.DbContract.GameRound.COL_DURATION, gameRound.getDuration());
         values.put(com.evontech.passwordgridapp.custom.data.sqlite.DbContract.GameRound.COL_GRID_ROW_COUNT, gameRound.getGridRowCount());
         values.put(com.evontech.passwordgridapp.custom.data.sqlite.DbContract.GameRound.COL_GRID_COL_COUNT, gameRound.getGridColCount());
+        Log.d("Saving GridData ", gameRound.getGridData());
         values.put(com.evontech.passwordgridapp.custom.data.sqlite.DbContract.GameRound.COL_GRID_DATA, gameRound.getGridData());
 
-        long gid = db.insert(com.evontech.passwordgridapp.custom.data.sqlite.DbContract.GameRound.TABLE_NAME, "null", values);
+        long gid;
+        if(gameRound.getId()>0){
+            gid = gameRound.getId();
+            String where = com.evontech.passwordgridapp.custom.data.sqlite.DbContract.GameRound._ID + "=?";
+            String whereArgs[] = {String.valueOf(gid)};
+            int updateStatus = db.update(com.evontech.passwordgridapp.custom.data.sqlite.DbContract.GameRound.TABLE_NAME, values,where, whereArgs);
+            Log.d("updateStatus ", ""+updateStatus);
+        }else {
+             gid = db.insert(com.evontech.passwordgridapp.custom.data.sqlite.DbContract.GameRound.TABLE_NAME, "null", values);
+            Log.d("insertStatus ", ""+gid);
+        }
         gameRound.setId((int) gid);
 
-        for (UsedWord usedWord : gameRound.getUsedWords()) {
-            values.clear();
-            values.put(com.evontech.passwordgridapp.custom.data.sqlite.DbContract.UsedWord.COL_GAME_ROUND_ID, gid);
-            values.put(com.evontech.passwordgridapp.custom.data.sqlite.DbContract.UsedWord.COL_WORD_STRING, usedWord.getString());
-            values.put(com.evontech.passwordgridapp.custom.data.sqlite.DbContract.UsedWord.COL_IS_MYSTERY, usedWord.isMystery() ? "true" : "false");
-            values.put(com.evontech.passwordgridapp.custom.data.sqlite.DbContract.UsedWord.COL_REVEAL_COUNT, usedWord.getRevealCount());
-            if (usedWord.getAnswerLine() != null) {
-                values.put(com.evontech.passwordgridapp.custom.data.sqlite.DbContract.UsedWord.COL_ANSWER_LINE_DATA, usedWord.getAnswerLine().toString());
-                values.put(com.evontech.passwordgridapp.custom.data.sqlite.DbContract.UsedWord.COL_LINE_COLOR, usedWord.getAnswerLine().color);
-            }
+        /*if(gameRound.getUsedWords()!=null) {
+            for (UsedWord usedWord : gameRound.getUsedWords()) {
+                //if(!getUsedWords((int) gid).contains(usedWord)){
+                values.clear();
+                //if(usedWord.isAnswered()) {
+                values.put(com.evontech.passwordgridapp.custom.data.sqlite.DbContract.UsedWord.COL_GAME_ROUND_ID, gid);
+                values.put(com.evontech.passwordgridapp.custom.data.sqlite.DbContract.UsedWord.COL_WORD_STRING, usedWord.getString());
+                values.put(com.evontech.passwordgridapp.custom.data.sqlite.DbContract.UsedWord.COL_IS_MYSTERY, usedWord.isMystery() ? "true" : "false");
+                values.put(com.evontech.passwordgridapp.custom.data.sqlite.DbContract.UsedWord.COL_REVEAL_COUNT, usedWord.getRevealCount());
+                if (usedWord.getAnswerLine() != null) {
+                    values.put(com.evontech.passwordgridapp.custom.data.sqlite.DbContract.UsedWord.COL_ANSWER_LINE_DATA, usedWord.getAnswerLine().toString());
+                    values.put(com.evontech.passwordgridapp.custom.data.sqlite.DbContract.UsedWord.COL_LINE_COLOR, usedWord.getAnswerLine().color);
+                }
 
-            long insertedId = db.insert(com.evontech.passwordgridapp.custom.data.sqlite.DbContract.UsedWord.TABLE_NAME, "null", values);
-            usedWord.setId((int) insertedId);
-        }
+                long insertedId = db.insert(com.evontech.passwordgridapp.custom.data.sqlite.DbContract.UsedWord.TABLE_NAME, "null", values);
+                usedWord.setId((int) insertedId);
+              //  }
+            }
+        }*/
 
         return gid;
     }
@@ -126,6 +144,14 @@ public class GridDataSQLiteDataSource implements GridDataSource {
         db.delete(com.evontech.passwordgridapp.custom.data.sqlite.DbContract.GameRound.TABLE_NAME, sel, selArgs);
 
         sel = com.evontech.passwordgridapp.custom.data.sqlite.DbContract.UsedWord.COL_GAME_ROUND_ID + "=?";
+        db.delete(com.evontech.passwordgridapp.custom.data.sqlite.DbContract.UsedWord.TABLE_NAME, sel, selArgs);
+    }
+
+    @Override
+    public void deleteAllLines(int gid) {
+        SQLiteDatabase db = mHelper.getWritableDatabase();
+        String selArgs[] = {String.valueOf(gid)};
+        String sel = com.evontech.passwordgridapp.custom.data.sqlite.DbContract.UsedWord.COL_GAME_ROUND_ID + "=?";
         db.delete(com.evontech.passwordgridapp.custom.data.sqlite.DbContract.UsedWord.TABLE_NAME, sel, selArgs);
     }
 
@@ -155,10 +181,19 @@ public class GridDataSQLiteDataSource implements GridDataSource {
         values.put(com.evontech.passwordgridapp.custom.data.sqlite.DbContract.UsedWord.COL_ANSWER_LINE_DATA, usedWord.getAnswerLine().toString());
         values.put(com.evontech.passwordgridapp.custom.data.sqlite.DbContract.UsedWord.COL_LINE_COLOR, usedWord.getAnswerLine().color);
 
-        String where = com.evontech.passwordgridapp.custom.data.sqlite.DbContract.UsedWord._ID + "=?";
-        String whereArgs[] = {String.valueOf(usedWord.getId())};
+        values.put(com.evontech.passwordgridapp.custom.data.sqlite.DbContract.UsedWord.COL_GAME_ROUND_ID, usedWord.getId());
+        values.put(com.evontech.passwordgridapp.custom.data.sqlite.DbContract.UsedWord.COL_WORD_STRING, usedWord.getString());
+        long insertedId = db.insert(com.evontech.passwordgridapp.custom.data.sqlite.DbContract.UsedWord.TABLE_NAME, "null", values);
+        usedWord.setId((int) insertedId);
+        Log.d("Line updateStatus ", ""+insertedId);
 
-        db.update(com.evontech.passwordgridapp.custom.data.sqlite.DbContract.UsedWord.TABLE_NAME, values, where, whereArgs);
+        /*String where = com.evontech.passwordgridapp.custom.data.sqlite.DbContract.UsedWord._ID + "=?";
+        String whereArgs[] = {String.valueOf(usedWord.getId())};
+        Log.d("Anser_Line_Data "+usedWord.getAnswerLine().toString(), "COL_LINE_COLOR "+usedWord.getAnswerLine().color);
+        Log.d("GridId ", ""+usedWord.getId());
+
+        int updateStatus = db.update(com.evontech.passwordgridapp.custom.data.sqlite.DbContract.UsedWord.TABLE_NAME, values, where, whereArgs);
+        Log.d("Line updateStatus ", ""+updateStatus);*/
     }
 
     private String getGameDataInfoQuery(int gid) {

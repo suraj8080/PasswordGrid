@@ -25,6 +25,7 @@ public class GridDataMapper extends Mapper<GridDataEntity, GridData> {
             new StringGridGenerator().setGrid(obj.getGridData(), grid.getArray());
         }
 
+        if(obj.getUsedWords()!=null && obj.getUsedWords().size()>0)
         gr.addUsedWords(obj.getUsedWords());
 
         return gr;
@@ -44,7 +45,7 @@ public class GridDataMapper extends Mapper<GridDataEntity, GridData> {
             ent.setGridColCount(obj.getGrid().getColCount());
             ent.setGridData(obj.getGrid().toString());
         }
-
+        if(obj.getUsedWords()!=null && obj.getUsedWords().size()>0)
         ent.setUsedWords(obj.getUsedWords());
 
         return ent;

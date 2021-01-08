@@ -53,9 +53,7 @@ public class GridDataCreator {
                 new StringListGridGenerator()
                         .setGrid(getStringListFromWord(words, 100, maxCharCount), grid.getArray());
 
-        Log.d("GridDataCreator final usedStrings ", usedStrings.toString());
-
-        gridData.addUsedWords(buildUsedWordFromString(usedStrings));
+       // Log.d("GridDataCreator final usedStrings ", usedStrings.toString());
         gridData.setGrid(grid);
         if (name == null || name.isEmpty()) {
             String name1 = "Puzzle " +
