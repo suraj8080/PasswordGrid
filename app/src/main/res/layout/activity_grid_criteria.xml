@@ -1,11 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:orientation="vertical"
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:id="@+id/linear_top"
     android:background="@color/white">
 
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
     <RelativeLayout
         android:layout_margin="10dp"
         android:layout_width="match_parent"
@@ -34,7 +37,18 @@
             android:layout_height="40dp"/>
     </RelativeLayout>
 
+    <TextView
+        android:layout_marginTop="5dp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginRight="10dp"
+        android:layout_marginLeft="10dp"
+        android:textColor="@color/black"
+        android:textStyle="bold"
+        android:textSize="15sp"
+        android:text="Password Criteria"/>
     <LinearLayout
+        android:layout_marginTop="5dp"
         android:layout_marginRight="10dp"
         android:layout_marginLeft="10dp"
         android:weightSum="2"
@@ -60,21 +74,6 @@
                 android:layout_height="wrap_content"
                 android:textColor="@color/black"
                 android:text="Lowercase characters?"/>
-            <androidx.appcompat.widget.AppCompatCheckBox
-                android:id="@+id/cb_grid_direction"
-                android:textSize="12sp"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:textColor="@color/black"
-                android:text="Select grid square + direction?"/>
-            <androidx.appcompat.widget.AppCompatCheckBox
-                android:id="@+id/cb_word_from_border"
-                android:textSize="12sp"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:textColor="@color/black"
-                android:text="Select word from characters in the border?"/>
-
         </LinearLayout>
         <LinearLayout
             android:layout_weight="1"
@@ -95,6 +94,59 @@
                 android:layout_height="wrap_content"
                 android:textColor="@color/black"
                 android:text="Symbol characters?"/>
+        </LinearLayout>
+    </LinearLayout>
+
+    <TextView
+        android:layout_marginTop="5dp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginRight="10dp"
+        android:layout_marginLeft="10dp"
+        android:textColor="@color/black"
+        android:textStyle="bold"
+        android:textSize="15sp"
+        android:text="Password Choosen Options"/>
+    <LinearLayout
+        android:layout_marginTop="5dp"
+        android:layout_marginRight="10dp"
+        android:layout_marginLeft="10dp"
+        android:weightSum="2"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+        <LinearLayout
+            android:layout_weight="1"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+            <androidx.appcompat.widget.AppCompatCheckBox
+                android:id="@+id/cb_grid_direction"
+                android:textSize="12sp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="@color/black"
+                android:text="Select grid square + direction?"/>
+            <androidx.appcompat.widget.AppCompatCheckBox
+                android:id="@+id/cb_word_from_border"
+                android:textSize="12sp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="@color/black"
+                android:text="Select word from characters in the border?"/>
+            <androidx.appcompat.widget.AppCompatCheckBox
+                android:id="@+id/cb_draging_manually"
+                android:textSize="12sp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="@color/black"
+                android:text="Dragging manually?"/>
+        </LinearLayout>
+        <LinearLayout
+            android:layout_weight="1"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
             <androidx.appcompat.widget.AppCompatCheckBox
                 android:id="@+id/cb_pattern"
                 android:textSize="12sp"
@@ -102,7 +154,15 @@
                 android:layout_height="wrap_content"
                 android:textColor="@color/black"
                 android:text="Select pattern on grid?"/>
+            <androidx.appcompat.widget.AppCompatCheckBox
+                android:id="@+id/cb_start_end_grid"
+                android:textSize="12sp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="@color/black"
+                android:text="Choosing start and an end grid square?"/>
         </LinearLayout>
+    </LinearLayout>
 
     </LinearLayout>
-</LinearLayout>
+</ScrollView>

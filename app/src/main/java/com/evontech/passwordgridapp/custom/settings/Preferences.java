@@ -24,6 +24,8 @@ public class Preferences {
     private static String KEY_GRID_DIRECTION;
     private static String KEY_SELECTED_DIRECTION;
     private static String KEY_GRID_PATTERN;
+    private static String KEY_DRAG_MANUALLY;
+    private static String KEY_START_END_GRID;
     private static String KEY_WORD_FROM_BORDER;
     private static String KEY_ROW;
     private static String KEY_COL;
@@ -44,6 +46,8 @@ public class Preferences {
         KEY_SELECTED_DIRECTION = context.getString(R.string.pref_selected_direction);
         KEY_GRID_PATTERN = context.getString(R.string.pref_grid_pattern);
         KEY_WORD_FROM_BORDER = context.getString(R.string.pref_word_from_border);
+        KEY_DRAG_MANUALLY = context.getString(R.string.pref_drag_manually);
+        KEY_START_END_GRID = context.getString(R.string.pref_start_end_grid);
 
         KEY_ROW = context.getString(R.string.pref_row);
         KEY_COL = context.getString(R.string.pref_col);
@@ -111,6 +115,24 @@ public class Preferences {
     public void setGridPattern(boolean status) {
         mPreferences.edit()
                 .putBoolean(KEY_GRID_PATTERN, status)
+                .apply();
+    }
+
+    public boolean selectedStartEndGrid() {
+        return mPreferences.getBoolean(KEY_START_END_GRID, false);
+    }
+    public void setStartEndGrid(boolean status) {
+        mPreferences.edit()
+                .putBoolean(KEY_START_END_GRID, status)
+                .apply();
+    }
+
+    public boolean selectedDragManually() {
+        return mPreferences.getBoolean(KEY_DRAG_MANUALLY, false);
+    }
+    public void setDragManually(boolean status) {
+        mPreferences.edit()
+                .putBoolean(KEY_DRAG_MANUALLY, status)
                 .apply();
     }
 

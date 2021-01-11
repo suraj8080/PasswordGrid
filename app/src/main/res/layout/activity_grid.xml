@@ -108,8 +108,15 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content">
 
+            <ImageView
+                android:visibility="gone"
+                android:src="@drawable/ic_baseline_settings_24"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/iv_settings"/>
+
             <com.evontech.passwordgridapp.custom.mcustom.LetterBoard
-                android:layout_marginLeft="32dp"
+                android:layout_toRightOf="@+id/iv_settings"
                 android:visibility="gone"
                 android:id="@+id/top_letter_board"
                 android:layout_width="wrap_content"

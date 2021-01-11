@@ -51,7 +51,7 @@ public class StreakView extends View {
     private SnapType mSnapToGrid;
     private TouchProcessor mTouchProcessor;
     private boolean mInteractive;
-    private boolean mRememberStreakLine;
+    private boolean mRememberStreakLine, mDraggingManually;
     private Stack<StreakLine> mLines;
     private OnInteractionListener mInteractionListener;
     private boolean mEnableOverrideStreakLineColor;
@@ -129,6 +129,10 @@ public class StreakView extends View {
 
     public void setRememberStreakLine(boolean rememberStreakLine) {
         mRememberStreakLine = rememberStreakLine;
+    }
+
+    public void setmDraggingManually(boolean draggingManually){
+        mDraggingManually = draggingManually;
     }
 
     private void pushStreakLine(StreakLine streakLine, boolean snapToGrid) {
@@ -249,6 +253,7 @@ public class StreakView extends View {
         mGrid = null;
         mSnapToGrid = SnapType.NONE;
         mRememberStreakLine = false;
+        mDraggingManually = false;
         mInteractive = false;
 
         if (attrs != null) {
@@ -278,7 +283,7 @@ public class StreakView extends View {
 
         @Override
         public void onDown(MotionEvent event) {
-            if(!mLines.isEmpty() && !mRememberStreakLine)
+            if(!mLines.isEmpty() && !mRememberStreakLine || !mLines.isEmpty() && mDraggingManually)
             mLines.pop();
 
             if (!mRememberStreakLine) {

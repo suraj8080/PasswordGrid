@@ -41,12 +41,18 @@ public class GridCriteriaActivity extends AppCompatActivity {
     AppCompatCheckBox checkBox_number;
     @BindView(R.id.cb_special)
     AppCompatCheckBox checkBox_special;
+
     @BindView(R.id.cb_grid_direction)
     AppCompatCheckBox checkBox_grid_direction;
     @BindView(R.id.cb_pattern)
     AppCompatCheckBox checkBox_pattern;
     @BindView(R.id.cb_word_from_border)
     AppCompatCheckBox checkBox_word_from_border;
+    @BindView(R.id.cb_draging_manually)
+    AppCompatCheckBox checkBox_drag_manually;
+    @BindView(R.id.cb_start_end_grid)
+    AppCompatCheckBox checkBox_start_end_grid;
+
     @BindView(R.id.btnGenerateGrid)
     Button btnGenerateGrid;
     @BindView(R.id.etPassword)
@@ -123,6 +129,8 @@ public class GridCriteriaActivity extends AppCompatActivity {
                 if(isChecked) {
                     mPreferences.setGridPattern(false);
                     mPreferences.setWordFromBorder(false);
+                    mPreferences.setDragManually(false);
+                    mPreferences.setStartEndGrid(false);
                     updateCheckBox();
                     showDirectionDialog();
                 }
@@ -136,6 +144,8 @@ public class GridCriteriaActivity extends AppCompatActivity {
                 if(isChecked) {
                     mPreferences.setGridDirection(false);
                     mPreferences.setWordFromBorder(false);
+                    mPreferences.setDragManually(false);
+                    mPreferences.setStartEndGrid(false);
                     updateCheckBox();
                 }
             }
@@ -148,6 +158,37 @@ public class GridCriteriaActivity extends AppCompatActivity {
                 if(isChecked) {
                     mPreferences.setGridPattern(false);
                     mPreferences.setGridDirection(false);
+                    mPreferences.setDragManually(false);
+                    mPreferences.setStartEndGrid(false);
+                    updateCheckBox();
+                }
+            }
+        });
+
+        checkBox_drag_manually.setChecked(mPreferences.selectedDragManually());
+        checkBox_drag_manually.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                mPreferences.setDragManually(isChecked);
+                if(isChecked) {
+                    mPreferences.setGridPattern(false);
+                    mPreferences.setGridDirection(false);
+                    mPreferences.setWordFromBorder(false);
+                    mPreferences.setStartEndGrid(false);
+                    updateCheckBox();
+                }
+            }
+        });
+        checkBox_start_end_grid.setChecked(mPreferences.selectedStartEndGrid());
+        checkBox_start_end_grid.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                mPreferences.setStartEndGrid(isChecked);
+                if(isChecked) {
+                    mPreferences.setGridPattern(false);
+                    mPreferences.setGridDirection(false);
+                    mPreferences.setWordFromBorder(false);
+                    mPreferences.setDragManually(false);
                     updateCheckBox();
                 }
             }
@@ -159,6 +200,8 @@ public class GridCriteriaActivity extends AppCompatActivity {
         checkBox_word_from_border.setChecked(mPreferences.showWordFromBorder());
         checkBox_pattern.setChecked(mPreferences.showGridPattern());
         checkBox_grid_direction.setChecked(mPreferences.showgridDirection());
+        checkBox_drag_manually.setChecked(mPreferences.selectedDragManually());
+        checkBox_start_end_grid.setChecked(mPreferences.selectedStartEndGrid());
     }
 
     private void showDirectionDialog(){
@@ -193,17 +236,18 @@ public class GridCriteriaActivity extends AppCompatActivity {
             @Override
             public void onCheckedChanged(RadioGroup group, int checkedId) {
                 RadioButton rb = (RadioButton) group.findViewById(checkedId);
-                if (rb !=null && checkedId==R.id.cbHorizontal)
+                Log.d("checkId ", rb.getText().toString());
+                if (checkedId==R.id.cbHorizontal)
                    mPreferences.selectDirection("EAST");
-                else if (rb !=null && checkedId==R.id.cbHorizontalReverse)
+                else if (checkedId==R.id.cbHorizontalReverse)
                     mPreferences.selectDirection("WEST");
-                else if (rb !=null && checkedId==R.id.cbVertical)
+                else if (checkedId==R.id.cbVertical)
                     mPreferences.selectDirection("SOUTH");
-                else if (rb !=null && checkedId==R.id.cbVerticalReverse)
+                else if (checkedId==R.id.cbVerticalReverse)
                     mPreferences.selectDirection("NORTH");
-                else if (rb !=null && checkedId==R.id.cbDiagonal)
+                else if (checkedId==R.id.cbDiagonal)
                     mPreferences.selectDirection("SOUTH_EAST");
-                else if (rb !=null && checkedId==R.id.cbDiagonalReverse)
+                else if (checkedId==R.id.cbDiagonalReverse)
                     mPreferences.selectDirection("SOUTH_WEST");
                 alertDialog.dismiss();
                // onDirectionSelection();
