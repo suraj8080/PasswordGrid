@@ -83,7 +83,7 @@ public class GridCriteriaActivity extends AppCompatActivity {
                 else if(Integer.parseInt(etPassword.getText().toString()) >26)
                     Toast.makeText(GridCriteriaActivity.this, "Password length cannot be greater than 26", Toast.LENGTH_SHORT).show();
                 else if(!mPreferences.showUpperCharacters() && !mPreferences.showLowerCharacters() && !mPreferences.showNumberCharacters() && !mPreferences.showSpecialCharacters())
-                    Toast.makeText(GridCriteriaActivity.this, "Select atleast one checkbox", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(GridCriteriaActivity.this, "Select atleast one criteria", Toast.LENGTH_SHORT).show();
                 else{
                     mPreferences.setPasswordLength(Integer.parseInt(etPassword.getText().toString()));
                     mPreferences.setGridCol(Integer.parseInt(etPassword.getText().toString()));
@@ -193,6 +193,10 @@ public class GridCriteriaActivity extends AppCompatActivity {
                 }
             }
         });
+
+        if(!mPreferences.showWordFromBorder() && !mPreferences.showgridDirection() && !mPreferences.showGridPattern() && !mPreferences.selectedStartEndGrid() && !mPreferences.selectedDragManually()){
+            checkBox_drag_manually.setChecked(true); //set default selection method here.
+        }
 
     }
 

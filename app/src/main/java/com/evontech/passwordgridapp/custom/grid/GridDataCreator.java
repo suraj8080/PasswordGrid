@@ -15,6 +15,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 import java.util.Random;
+import java.util.regex.Pattern;
 
 import static com.evontech.passwordgridapp.custom.common.Util.getRandomIntRange;
 
@@ -109,7 +110,7 @@ public class GridDataCreator {
 
     public static String getRandomWords(int maxCharCount){
         StringBuilder mString = new StringBuilder();
-            int randomCharCount = maxCharCount-1;//getRandomIntRange(1, maxCharCount-1);
+            int randomCharCount = maxCharCount;//getRandomIntRange(1, maxCharCount-1);
             int randomChar = 0;
             if(isUpperCase) randomChar ++;
             if(isLowerCase) randomChar ++;
@@ -182,14 +183,17 @@ public class GridDataCreator {
         boolean symbolFlag = false;
         for(int i=0;i < word.length();i++) {
             ch = word.charAt(i);
-            if(isNumbers && Character.isDigit(ch)) {
+            Log.d("isUpperCase ", ""+Character.isUpperCase(ch));
+            if(!isNumbers || Character.isDigit(ch)) {
                 numberFlag = true;
-            } else if (isUpperCase && Character.isUpperCase(ch)) {
+            } if (!isUpperCase || Character.isUpperCase(ch)) {
                 capitalFlag = true;
-            } else if (isLowerCase && Character.isLowerCase(ch)) {
+            } if (!isLowerCase || Character.isLowerCase(ch)) {
                 lowerCaseFlag = true;
-            }else {
-                if(isSpecialCharacters)
+            }
+            Pattern regex = Pattern.compile("[$&+,:;=\\\\?@#|/'<>.^*()%!-]");
+            if(!isSpecialCharacters || regex.matcher(""+ch).find()) { //need to change !isSpecialCharacters with pattern matching..
+                //if(isSpecialCharacters)
                 symbolFlag = true;
             }
             if(numberFlag && capitalFlag && lowerCaseFlag && symbolFlag)
@@ -198,8 +202,8 @@ public class GridDataCreator {
         if(!capitalFlag) passwordAlert = "The generated password has neglected to include uppercase characters";
         else if(!lowerCaseFlag) passwordAlert = "The generated password has neglected to include lowercase characters";
         else if(!numberFlag) passwordAlert = "The generated password has neglected to include number characters";
-        else passwordAlert = "The generated password has neglected to include symbol characters";
-        Log.d("passwordAlert ", passwordAlert);
+        else if(!symbolFlag) passwordAlert = "The generated password has neglected to include symbol characters";
+        Log.d("passwordAlert ", passwordAlert+"");
         return passwordAlert;
     }
 

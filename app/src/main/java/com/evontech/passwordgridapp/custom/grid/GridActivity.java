@@ -389,7 +389,7 @@ public class GridActivity extends FullscreenActivity {
                 if(streakLine!=null) {
                     Direction direction = Direction.fromLine(streakLine.getStartIndex(), streakLine.getEndIndex());
                     //Log.d("password direction ", direction+"");
-                    String randomPassword = GridDataCreator.getRandomWords(password.length());
+                    String randomPassword = GridDataCreator.getRandomWords(password.length()-1);
                     Log.d("new randomPassword ", randomPassword+"");
                     char[][] tempArray = mLetterAdapter.getGrid().clone();  // update griddata and streakline in db also
                     StringListGridGenerator.placeRandomWordAt(streakLine.getStartIndex().row, streakLine.getStartIndex().col, direction,tempArray ,randomPassword);
