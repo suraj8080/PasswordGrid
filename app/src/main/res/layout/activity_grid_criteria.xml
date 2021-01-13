@@ -106,7 +106,7 @@
         android:textColor="@color/black"
         android:textStyle="bold"
         android:textSize="15sp"
-        android:text="Password Choosen Options"/>
+        android:text="Password Chosen Options"/>
     <LinearLayout
         android:layout_marginTop="5dp"
         android:layout_marginRight="10dp"

@@ -183,7 +183,7 @@ public class GridDataCreator {
         boolean symbolFlag = false;
         for(int i=0;i < word.length();i++) {
             ch = word.charAt(i);
-            Log.d("isUpperCase ", ""+Character.isUpperCase(ch));
+           // Log.d("isUpperCase ", ""+Character.isUpperCase(ch));
             if(!isNumbers || Character.isDigit(ch)) {
                 numberFlag = true;
             } if (!isUpperCase || Character.isUpperCase(ch)) {

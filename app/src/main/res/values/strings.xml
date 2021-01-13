@@ -12,11 +12,13 @@
     <string name="pref_numbercharacters">numbercharacters</string>
 
     <string name="pref_grid_direction">gridDirection</string>
-    <string name="pref_selected_direction">selectedDirection</string>
+    <string name="pref_default_selected_direction">selectedDefaultDirection</string>
+    <string name="pref_user_selected_direction">selectedUserDirection</string>
     <string name="pref_grid_pattern">gridPattern</string>
     <string name="pref_word_from_border">wordFromBorder</string>
     <string name="pref_drag_manually">dragManually</string>
     <string name="pref_start_end_grid">startEndGrid</string>
+    <string name="pref_user_selected_chosen_option">userSelectedChosenOption</string>
     <string name="pref_row">pref_row</string>
     <string name="pref_col">col</string>
     <string name="pref_password_length">passwordLength</string>

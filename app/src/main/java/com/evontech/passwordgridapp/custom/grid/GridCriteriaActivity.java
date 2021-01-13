@@ -22,7 +22,11 @@ import android.widget.Toast;
 import com.evontech.passwordgridapp.R;
 import com.evontech.passwordgridapp.custom.FullscreenActivity;
 import com.evontech.passwordgridapp.custom.PasswordGridApp;
+import com.evontech.passwordgridapp.custom.common.Util;
 import com.evontech.passwordgridapp.custom.settings.Preferences;
+
+import java.util.Random;
+
 import javax.inject.Inject;
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -71,8 +75,8 @@ public class GridCriteriaActivity extends AppCompatActivity {
         ButterKnife.bind(this);
         ((PasswordGridApp) getApplication()).getAppComponent().inject(this);
 
-        if(mPreferences.getGridCol()>0)
-            etPassword.setText(String.valueOf(mPreferences.getGridCol()));
+        if(mPreferences.getPasswordLength()>0)
+            etPassword.setText(String.valueOf(mPreferences.getPasswordLength()));
         btnGenerateGrid.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -120,11 +124,25 @@ public class GridCriteriaActivity extends AppCompatActivity {
                 mPreferences.setNumberCharacters(isChecked);
             }
         });
+        //set default selection method here.
+        if(!mPreferences.showSpecialCharacters() && !mPreferences.showUpperCharacters() && !mPreferences.showLowerCharacters() && !mPreferences.showNumberCharacters() ){
+            checkBox_special.setChecked(true);
+            checkBox_uppercaese.setChecked(true);
+            checkBox_lowercaese.setChecked(true);
+            checkBox_number.setChecked(true);
+        }
+        if(mPreferences.getPasswordLength()<1){
+            mPreferences.setPasswordLength(15);
+            mPreferences.setGridCol(15);
+            etPassword.setText(String.valueOf(mPreferences.getPasswordLength()));
+        }
+
 
         checkBox_grid_direction.setChecked(mPreferences.showgridDirection());
         checkBox_grid_direction.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                Log.d("buttonView ", buttonView.getText()+"");
                 mPreferences.setGridDirection(isChecked);
                 if(isChecked) {
                     mPreferences.setGridPattern(false);
@@ -140,6 +158,7 @@ public class GridCriteriaActivity extends AppCompatActivity {
         checkBox_pattern.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                Log.d("buttonView ", buttonView.getText()+"");
                 mPreferences.setGridPattern(isChecked);
                 if(isChecked) {
                     mPreferences.setGridDirection(false);
@@ -154,6 +173,7 @@ public class GridCriteriaActivity extends AppCompatActivity {
         checkBox_word_from_border.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                Log.d("buttonView ", buttonView.getText()+"");
                 mPreferences.setWordFromBorder(isChecked);
                 if(isChecked) {
                     mPreferences.setGridPattern(false);
@@ -169,6 +189,7 @@ public class GridCriteriaActivity extends AppCompatActivity {
         checkBox_drag_manually.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                Log.d("buttonView ", buttonView.getText()+"");
                 mPreferences.setDragManually(isChecked);
                 if(isChecked) {
                     mPreferences.setGridPattern(false);
@@ -183,6 +204,7 @@ public class GridCriteriaActivity extends AppCompatActivity {
         checkBox_start_end_grid.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                Log.d("buttonView ", buttonView.getText()+"");
                 mPreferences.setStartEndGrid(isChecked);
                 if(isChecked) {
                     mPreferences.setGridPattern(false);
@@ -193,9 +215,37 @@ public class GridCriteriaActivity extends AppCompatActivity {
                 }
             }
         });
+        //set default selection method here.
+        if(!mPreferences.userSelectedChosenOption()){
+            int randomSelectionOption = Util.getRandomIntRange(1,5);
+            switch (randomSelectionOption){
+                case 1:
+                    checkBox_drag_manually.setChecked(true);
+                    mPreferences.setUserSelectedChosenOption(false);
+                    Log.d("onRandom ", mPreferences.userSelectedChosenOption()+"");
+                    break;
+                case 2:
+                    checkBox_start_end_grid.setChecked(true);
+                    mPreferences.setUserSelectedChosenOption(false);
+                    Log.d("onRandom ", mPreferences.userSelectedChosenOption()+"");
+                    break;
+                case 3:
+                    checkBox_grid_direction.setChecked(true);
+                    mPreferences.setUserSelectedChosenOption(false);
+                    Log.d("onRandom ", mPreferences.userSelectedChosenOption()+"");
+                    break;
+                case 4:
+                    checkBox_pattern.setChecked(true);
+                    mPreferences.setUserSelectedChosenOption(false);
+                    Log.d("onRandom ", mPreferences.userSelectedChosenOption()+"");
+                    break;
+                case 5:
+                    checkBox_word_from_border.setChecked(true);
+                    mPreferences.setUserSelectedChosenOption(false);
+                    Log.d("onRandom ", mPreferences.userSelectedChosenOption()+"");
+                    break;
+            }
 
-        if(!mPreferences.showWordFromBorder() && !mPreferences.showgridDirection() && !mPreferences.showGridPattern() && !mPreferences.selectedStartEndGrid() && !mPreferences.selectedDragManually()){
-            checkBox_drag_manually.setChecked(true); //set default selection method here.
         }
 
     }
@@ -206,8 +256,17 @@ public class GridCriteriaActivity extends AppCompatActivity {
         checkBox_grid_direction.setChecked(mPreferences.showgridDirection());
         checkBox_drag_manually.setChecked(mPreferences.selectedDragManually());
         checkBox_start_end_grid.setChecked(mPreferences.selectedStartEndGrid());
+        mPreferences.setUserSelectedChosenOption(true);
+        Log.d("onSelected ", mPreferences.userSelectedChosenOption()+"");
+
     }
 
+    private RadioButton cbHorizontal;
+    private RadioButton cbHorizontalReverse;
+    private RadioButton cbVertical;
+    private RadioButton cbVerticalReverse;
+    private RadioButton cbDiagonal;
+    private RadioButton cbDiagonalReverse;
     private void showDirectionDialog(){
         ViewGroup viewGroup = findViewById(android.R.id.content);
         View dialogView = LayoutInflater.from(this).inflate(R.layout.direction_dialog, viewGroup, false);
@@ -217,28 +276,19 @@ public class GridCriteriaActivity extends AppCompatActivity {
         alertDialog.show();
         RadioGroup radioGroup = (RadioGroup) dialogView.findViewById(R.id.radio_group_direction);
         radioGroup.clearCheck();
-        String savedDirection = mPreferences.getSelectedDirection();
-        if(TextUtils.isEmpty(savedDirection)) { //default direction
-            mPreferences.selectDirection("EAST");
-            savedDirection = "EAST";
-        }
-        Log.d("savedDirection ", savedDirection);
-        RadioButton cbHorizontal = (RadioButton) radioGroup.findViewById(R.id.cbHorizontal);
-        if(savedDirection.equals("EAST")) cbHorizontal.setChecked(true);
-        RadioButton cbHorizontalReverse = (RadioButton) radioGroup.findViewById(R.id.cbHorizontalReverse);
-        if(savedDirection.equals("WEST")) cbHorizontalReverse.setChecked(true);
-        RadioButton cbVertical = (RadioButton) radioGroup.findViewById(R.id.cbVertical);
-        if(savedDirection.equals("SOUTH")) cbVertical.setChecked(true);
-        RadioButton cbVerticalReverse = (RadioButton) radioGroup.findViewById(R.id.cbVerticalReverse);
-        if(savedDirection.equals("NORTH")) cbVerticalReverse.setChecked(true);
-        RadioButton cbDiagonal = (RadioButton) radioGroup.findViewById(R.id.cbDiagonal);
-        if(savedDirection.equals("SOUTH_EAST")) cbDiagonal.setChecked(true);
-        RadioButton cbDiagonalReverse = (RadioButton) radioGroup.findViewById(R.id.cbDiagonalReverse);
-        if(savedDirection.equals("SOUTH_WEST")) cbDiagonalReverse.setChecked(true);
+         cbHorizontal = (RadioButton) radioGroup.findViewById(R.id.cbHorizontal);
+         cbHorizontalReverse = (RadioButton) radioGroup.findViewById(R.id.cbHorizontalReverse);
+         cbVertical = (RadioButton) radioGroup.findViewById(R.id.cbVertical);
+         cbVerticalReverse = (RadioButton) radioGroup.findViewById(R.id.cbVerticalReverse);
+         cbDiagonal = (RadioButton) radioGroup.findViewById(R.id.cbDiagonal);
+         cbDiagonalReverse = (RadioButton) radioGroup.findViewById(R.id.cbDiagonalReverse);
+
+         ramdomiseDirection();
 
         radioGroup.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(RadioGroup group, int checkedId) {
+                mPreferences.setUserSelectedDirection(true);
                 RadioButton rb = (RadioButton) group.findViewById(checkedId);
                 Log.d("checkId ", rb.getText().toString());
                 if (checkedId==R.id.cbHorizontal)
@@ -266,6 +316,76 @@ public class GridCriteriaActivity extends AppCompatActivity {
         });
     }
 
+    private void ramdomiseDirection(){
+        if(!mPreferences.userSelectedDirection()) { //default direction
+            int randomSelectionOption = Util.getRandomIntRange(1,6);
+            switch (randomSelectionOption){
+                case 1:
+                    cbHorizontal.setChecked(true);
+                    mPreferences.selectDirection("EAST");
+                    mPreferences.setUserSelectedDirection(false);
+                    break;
+                case 2:
+                    cbHorizontalReverse.setChecked(true);
+                    mPreferences.selectDirection("WEST");
+                    mPreferences.setUserSelectedDirection(false);
+                    break;
+                case 3:
+                    cbVertical.setChecked(true);
+                    mPreferences.selectDirection("SOUTH");
+                    mPreferences.setUserSelectedDirection(false);
+                    break;
+                case 4:
+                    cbVerticalReverse.setChecked(true);
+                    mPreferences.selectDirection("NORTH");
+                    mPreferences.setUserSelectedDirection(false);
+                    break;
+                case 5:
+                    cbDiagonal.setChecked(true);
+                    mPreferences.selectDirection("SOUTH_EAST");
+                    mPreferences.setUserSelectedDirection(false);
+                    break;
+                case 6:
+                    cbDiagonalReverse.setChecked(true);
+                    mPreferences.selectDirection("SOUTH_WEST");
+                    mPreferences.setUserSelectedDirection(false);
+                    break;
+            }
+        }else {
+            String selectedDirection = mPreferences.getSelectedDirection();
+            if (!TextUtils.isEmpty(selectedDirection)) {
+                switch (selectedDirection) {
+                    case "EAST":
+                        cbHorizontal.setChecked(true);
+                        break;
+                    case "WEST":
+                        cbHorizontalReverse.setChecked(true);
+                        break;
+                    case "SOUTH":
+                        cbVertical.setChecked(true);
+                        break;
+                    case "NORTH":
+                        cbVerticalReverse.setChecked(true);
+                        break;
+                    case "SOUTH_EAST":
+                        cbDiagonal.setChecked(true);
+                        break;
+                    case "SOUTH_WEST":
+                        cbDiagonalReverse.setChecked(true);
+                        break;
+                }
+
+            }
+        }
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        if(mPreferences.showgridDirection() && !mPreferences.userSelectedDirection() && cbHorizontal!=null){
+            ramdomiseDirection();
+        }
+    }
 
     private void startGridPlay(int length){
         Intent intent = new Intent(this, GridActivity.class);

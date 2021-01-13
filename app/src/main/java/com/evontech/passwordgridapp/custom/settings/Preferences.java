@@ -22,11 +22,13 @@ public class Preferences {
     private static String KEY_SPECIAL_CHARACTERS;
     private static String KEY_NUMBERS;
     private static String KEY_GRID_DIRECTION;
-    private static String KEY_SELECTED_DIRECTION;
+    private static String KEY_DEFAULT_SELECTED_DIRECTION;
+    private static String KEY_USER_SELECTED_DIRECTION;
     private static String KEY_GRID_PATTERN;
     private static String KEY_DRAG_MANUALLY;
     private static String KEY_START_END_GRID;
     private static String KEY_WORD_FROM_BORDER;
+    private static String KEY_USER_SELECTED_CHOSEN_OPTION;
     private static String KEY_ROW;
     private static String KEY_COL;
     private static String KEY_PASSWORD_LENGTH;
@@ -43,9 +45,11 @@ public class Preferences {
         KEY_SPECIAL_CHARACTERS = context.getString(R.string.pref_specialCharacters);
         KEY_NUMBERS = context.getString(R.string.pref_numbercharacters);
         KEY_GRID_DIRECTION = context.getString(R.string.pref_grid_direction);
-        KEY_SELECTED_DIRECTION = context.getString(R.string.pref_selected_direction);
+        KEY_DEFAULT_SELECTED_DIRECTION = context.getString(R.string.pref_default_selected_direction);
+        KEY_USER_SELECTED_DIRECTION = context.getString(R.string.pref_user_selected_direction);
         KEY_GRID_PATTERN = context.getString(R.string.pref_grid_pattern);
         KEY_WORD_FROM_BORDER = context.getString(R.string.pref_word_from_border);
+        KEY_USER_SELECTED_CHOSEN_OPTION = context.getString(R.string.pref_user_selected_chosen_option);
         KEY_DRAG_MANUALLY = context.getString(R.string.pref_drag_manually);
         KEY_START_END_GRID = context.getString(R.string.pref_start_end_grid);
 
@@ -101,11 +105,20 @@ public class Preferences {
     }
 
     public String getSelectedDirection() {
-        return mPreferences.getString(KEY_SELECTED_DIRECTION, "");
+        return mPreferences.getString(KEY_DEFAULT_SELECTED_DIRECTION, "");
     }
     public void selectDirection(String  direction) {
         mPreferences.edit()
-                .putString(KEY_SELECTED_DIRECTION, direction)
+                .putString(KEY_DEFAULT_SELECTED_DIRECTION, direction)
+                .apply();
+    }
+
+    public boolean userSelectedDirection() {
+        return mPreferences.getBoolean(KEY_USER_SELECTED_DIRECTION, false);
+    }
+    public void setUserSelectedDirection(boolean status) {
+        mPreferences.edit()
+                .putBoolean(KEY_USER_SELECTED_DIRECTION, status)
                 .apply();
     }
 
@@ -127,12 +140,12 @@ public class Preferences {
                 .apply();
     }
 
-    public boolean selectedDragManually() {
-        return mPreferences.getBoolean(KEY_DRAG_MANUALLY, false);
+    public boolean userSelectedChosenOption() {
+        return mPreferences.getBoolean(KEY_USER_SELECTED_CHOSEN_OPTION, false);
     }
-    public void setDragManually(boolean status) {
+    public void setUserSelectedChosenOption(boolean status) {
         mPreferences.edit()
-                .putBoolean(KEY_DRAG_MANUALLY, status)
+                .putBoolean(KEY_USER_SELECTED_CHOSEN_OPTION, status)
                 .apply();
     }
 
@@ -142,6 +155,15 @@ public class Preferences {
     public void setWordFromBorder(boolean status) {
         mPreferences.edit()
                 .putBoolean(KEY_WORD_FROM_BORDER, status)
+                .apply();
+    }
+
+    public boolean selectedDragManually() {
+        return mPreferences.getBoolean(KEY_DRAG_MANUALLY, false);
+    }
+    public void setDragManually(boolean status) {
+        mPreferences.edit()
+                .putBoolean(KEY_DRAG_MANUALLY, status)
                 .apply();
     }
 
