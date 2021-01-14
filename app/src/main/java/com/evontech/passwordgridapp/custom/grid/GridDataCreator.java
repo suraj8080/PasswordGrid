@@ -95,7 +95,7 @@ public class GridDataCreator {
         String temp;
 
         if(type.equals("Play me")) {
-            Log.d("count "+count, " maxCharCount "+maxCharCount +" word size "+words.size());
+           // Log.d("count "+count, " maxCharCount "+maxCharCount +" word size "+words.size());
         for (int i = 0; i < count; i++) {
             temp = getRandomWords(maxCharCount-1);
             if (temp.length() <= maxCharCount) {
@@ -103,7 +103,7 @@ public class GridDataCreator {
             }
         }
           //  }
-            Log.d("GridDataCreator stringList to attempts ", stringList.toString());
+          //  Log.d("GridDataCreator stringList to attempts ", stringList.toString());
         }
         return stringList;
     }

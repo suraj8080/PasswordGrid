@@ -132,8 +132,8 @@ public class GridCriteriaActivity extends AppCompatActivity {
             checkBox_number.setChecked(true);
         }
         if(mPreferences.getPasswordLength()<1){
-            mPreferences.setPasswordLength(15);
-            mPreferences.setGridCol(15);
+            mPreferences.setPasswordLength(14);
+            mPreferences.setGridCol(14);
             etPassword.setText(String.valueOf(mPreferences.getPasswordLength()));
         }
 
@@ -142,7 +142,7 @@ public class GridCriteriaActivity extends AppCompatActivity {
         checkBox_grid_direction.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                Log.d("buttonView ", buttonView.getText()+"");
+               // Log.d("buttonView ", buttonView.getText()+"");
                 mPreferences.setGridDirection(isChecked);
                 if(isChecked) {
                     mPreferences.setGridPattern(false);
@@ -158,7 +158,7 @@ public class GridCriteriaActivity extends AppCompatActivity {
         checkBox_pattern.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                Log.d("buttonView ", buttonView.getText()+"");
+                //Log.d("buttonView ", buttonView.getText()+"");
                 mPreferences.setGridPattern(isChecked);
                 if(isChecked) {
                     mPreferences.setGridDirection(false);
@@ -173,7 +173,7 @@ public class GridCriteriaActivity extends AppCompatActivity {
         checkBox_word_from_border.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                Log.d("buttonView ", buttonView.getText()+"");
+                //Log.d("buttonView ", buttonView.getText()+"");
                 mPreferences.setWordFromBorder(isChecked);
                 if(isChecked) {
                     mPreferences.setGridPattern(false);
@@ -189,7 +189,7 @@ public class GridCriteriaActivity extends AppCompatActivity {
         checkBox_drag_manually.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                Log.d("buttonView ", buttonView.getText()+"");
+               // Log.d("buttonView ", buttonView.getText()+"");
                 mPreferences.setDragManually(isChecked);
                 if(isChecked) {
                     mPreferences.setGridPattern(false);
@@ -204,7 +204,7 @@ public class GridCriteriaActivity extends AppCompatActivity {
         checkBox_start_end_grid.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                Log.d("buttonView ", buttonView.getText()+"");
+                //Log.d("buttonView ", buttonView.getText()+"");
                 mPreferences.setStartEndGrid(isChecked);
                 if(isChecked) {
                     mPreferences.setGridPattern(false);
@@ -222,27 +222,27 @@ public class GridCriteriaActivity extends AppCompatActivity {
                 case 1:
                     checkBox_drag_manually.setChecked(true);
                     mPreferences.setUserSelectedChosenOption(false);
-                    Log.d("onRandom ", mPreferences.userSelectedChosenOption()+"");
+                   // Log.d("onRandom ", mPreferences.userSelectedChosenOption()+"");
                     break;
                 case 2:
                     checkBox_start_end_grid.setChecked(true);
                     mPreferences.setUserSelectedChosenOption(false);
-                    Log.d("onRandom ", mPreferences.userSelectedChosenOption()+"");
+                   // Log.d("onRandom ", mPreferences.userSelectedChosenOption()+"");
                     break;
                 case 3:
                     checkBox_grid_direction.setChecked(true);
                     mPreferences.setUserSelectedChosenOption(false);
-                    Log.d("onRandom ", mPreferences.userSelectedChosenOption()+"");
+                    //Log.d("onRandom ", mPreferences.userSelectedChosenOption()+"");
                     break;
                 case 4:
                     checkBox_pattern.setChecked(true);
                     mPreferences.setUserSelectedChosenOption(false);
-                    Log.d("onRandom ", mPreferences.userSelectedChosenOption()+"");
+                    //Log.d("onRandom ", mPreferences.userSelectedChosenOption()+"");
                     break;
                 case 5:
                     checkBox_word_from_border.setChecked(true);
                     mPreferences.setUserSelectedChosenOption(false);
-                    Log.d("onRandom ", mPreferences.userSelectedChosenOption()+"");
+                    //Log.d("onRandom ", mPreferences.userSelectedChosenOption()+"");
                     break;
             }
 
@@ -257,7 +257,7 @@ public class GridCriteriaActivity extends AppCompatActivity {
         checkBox_drag_manually.setChecked(mPreferences.selectedDragManually());
         checkBox_start_end_grid.setChecked(mPreferences.selectedStartEndGrid());
         mPreferences.setUserSelectedChosenOption(true);
-        Log.d("onSelected ", mPreferences.userSelectedChosenOption()+"");
+        //Log.d("onSelected ", mPreferences.userSelectedChosenOption()+"");
 
     }
 
@@ -290,7 +290,7 @@ public class GridCriteriaActivity extends AppCompatActivity {
             public void onCheckedChanged(RadioGroup group, int checkedId) {
                 mPreferences.setUserSelectedDirection(true);
                 RadioButton rb = (RadioButton) group.findViewById(checkedId);
-                Log.d("checkId ", rb.getText().toString());
+                //Log.d("checkId ", rb.getText().toString());
                 if (checkedId==R.id.cbHorizontal)
                    mPreferences.selectDirection("EAST");
                 else if (checkedId==R.id.cbHorizontalReverse)
@@ -302,7 +302,7 @@ public class GridCriteriaActivity extends AppCompatActivity {
                 else if (checkedId==R.id.cbDiagonal)
                     mPreferences.selectDirection("SOUTH_EAST");
                 else if (checkedId==R.id.cbDiagonalReverse)
-                    mPreferences.selectDirection("SOUTH_WEST");
+                    mPreferences.selectDirection("NORTH_WEST");
                 alertDialog.dismiss();
                // onDirectionSelection();
             }
@@ -347,7 +347,7 @@ public class GridCriteriaActivity extends AppCompatActivity {
                     break;
                 case 6:
                     cbDiagonalReverse.setChecked(true);
-                    mPreferences.selectDirection("SOUTH_WEST");
+                    mPreferences.selectDirection("NORTH_WEST");
                     mPreferences.setUserSelectedDirection(false);
                     break;
             }
@@ -370,7 +370,7 @@ public class GridCriteriaActivity extends AppCompatActivity {
                     case "SOUTH_EAST":
                         cbDiagonal.setChecked(true);
                         break;
-                    case "SOUTH_WEST":
+                    case "NORTH_WEST":
                         cbDiagonalReverse.setChecked(true);
                         break;
                 }
@@ -389,8 +389,8 @@ public class GridCriteriaActivity extends AppCompatActivity {
 
     private void startGridPlay(int length){
         Intent intent = new Intent(this, GridActivity.class);
-        intent.putExtra(GridActivity.EXTRA_ROW_COUNT, length);
-        intent.putExtra(GridActivity.EXTRA_COL_COUNT, length);
+        intent.putExtra(GridActivity.EXTRA_ROW_COUNT, 26);
+        intent.putExtra(GridActivity.EXTRA_COL_COUNT, 26);
         //intent.putExtra(GridActivity.EXTRA_GAME_ROUND_ID, 619);
         startActivity(intent);
         overridePendingTransition(R.anim.slide_in, R.anim.slide_out);

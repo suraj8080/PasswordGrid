@@ -1,6 +1,5 @@
 package com.evontech.passwordgridapp.custom.grid;
 
-import android.content.DialogInterface;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.os.Bundle;
@@ -8,24 +7,12 @@ import android.os.Handler;
 import android.text.TextUtils;
 import android.util.DisplayMetrics;
 import android.util.Log;
-import android.view.LayoutInflater;
 import android.view.View;
-import android.view.ViewGroup;
-import android.view.animation.BounceInterpolator;
-import android.view.animation.DecelerateInterpolator;
-import android.view.animation.Interpolator;
-import android.view.animation.LinearInterpolator;
-import android.widget.CompoundButton;
-import android.widget.RadioButton;
-import android.widget.RadioGroup;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.widget.AppCompatButton;
-import androidx.appcompat.widget.AppCompatCheckBox;
-import androidx.appcompat.widget.AppCompatRadioButton;
 import androidx.lifecycle.ViewModelProviders;
 import com.evontech.passwordgridapp.R;
 import com.evontech.passwordgridapp.custom.FullscreenActivity;
@@ -35,7 +22,6 @@ import com.evontech.passwordgridapp.custom.common.Util;
 import com.evontech.passwordgridapp.custom.common.generator.StringListGridGenerator;
 import com.evontech.passwordgridapp.custom.mcustom.LetterBoard;
 import com.evontech.passwordgridapp.custom.mcustom.StreakView;
-import com.evontech.passwordgridapp.custom.models.Grid;
 import com.evontech.passwordgridapp.custom.models.GridData;
 import com.evontech.passwordgridapp.custom.models.UsedWord;
 import com.evontech.passwordgridapp.custom.settings.Preferences;
@@ -114,6 +100,7 @@ public class GridActivity extends FullscreenActivity {
     private boolean isSingleCellSelected;
     private StringBuilder wordFromBorder;
     private int selectedColor;
+    private boolean isDefaultPasswordGenerated;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -396,47 +383,171 @@ public class GridActivity extends FullscreenActivity {
         }else if(getPreferences().showWordFromBorder()){
 
         }
+        isDefaultPasswordGenerated = true;
     }
 
     private void generateDefault_DragManual_StartEndGrid(){
         int randomDirection = Util.getRandomIntRange(1,3);
-        int passwordLength = getPreferences().getPasswordLength();
+        int passwordLength = getPreferences().getPasswordLength()-1;
         Log.d("randomDirection ", ""+randomDirection);
         int randomForwordReverse;
+        int randomRowIndex;
+        int randomColIndex;
         selectedColor = Util.getRandomColorWithAlpha(170);
         switch (randomDirection){
             case 1: //horizontal
-                int randomRowIndex = Util.getRandomIntRange(0, rowCount-1);
+                randomRowIndex = Util.getRandomIntRange(0, rowCount-1);
+                randomColIndex = Util.getRandomIntRange(0, colCount-1);
                 randomForwordReverse = Util.getRandomIntRange(1,2);
-                if(randomForwordReverse==1) drawUsingDirection(randomRowIndex, 0, randomRowIndex, passwordLength);
-                else drawUsingDirection(randomRowIndex, passwordLength-1, randomRowIndex, 0);
-                if(randomRowIndex>=8) {
-                    int scrollY = topBorderLeftMargin  - (int) Util.convertDpToPx(this, 10);
-                    myScrollView.post(new Runnable() {
-                        @Override
-                        public void run() {
-                            //myScrollView.fullScroll(View.FOCUS_DOWN);
-                            myScrollView.setScrollY((scrollY * randomRowIndex));
-                        }
-                    });
-                }
+                if(randomForwordReverse==1) drawUsingDirection(randomRowIndex, randomColIndex, randomRowIndex, randomColIndex+passwordLength);
+                else drawUsingDirection(randomRowIndex, randomColIndex, randomRowIndex, randomColIndex-passwordLength);
+                scrollByPosition(randomRowIndex);
                 break;
             case 2: //vertical
-                int randomColIndex = Util.getRandomIntRange(0, colCount-1);
+                randomRowIndex = Util.getRandomIntRange(0, rowCount-1);
+                randomColIndex = Util.getRandomIntRange(0, colCount-1);
                 randomForwordReverse = Util.getRandomIntRange(1,2);
-                if(randomForwordReverse==1) drawUsingDirection(0, randomColIndex, passwordLength, randomColIndex);
-                else drawUsingDirection(passwordLength-1, randomColIndex, 0, randomColIndex);
+                if(randomForwordReverse==1) drawUsingDirection(randomRowIndex, randomColIndex, randomRowIndex+passwordLength, randomColIndex);
+                else drawUsingDirection(randomRowIndex, randomColIndex, randomRowIndex-passwordLength, randomColIndex);
+                if(randomForwordReverse==1) scrollByPosition(randomRowIndex);
+                else scrollByPosition(randomRowIndex-passwordLength);
                 break;
             case 3: //diagonal
+                randomRowIndex = Util.getRandomIntRange(0, rowCount-1);
+                randomColIndex = Util.getRandomIntRange(0, colCount-1);
                 randomForwordReverse = Util.getRandomIntRange(1,2);
-                if(randomForwordReverse==1) drawUsingDirection(0, 0, passwordLength, passwordLength);
-                else drawUsingDirection(passwordLength-1, passwordLength-1, 0, 0);
+                if(randomForwordReverse==1) drawUsingDirection(randomRowIndex, randomColIndex, randomRowIndex+passwordLength, randomColIndex+passwordLength);
+                else drawUsingDirection(randomRowIndex, randomColIndex, randomRowIndex-passwordLength, randomColIndex-passwordLength);
+                if(randomForwordReverse==1) scrollByPosition(randomRowIndex);
+                else scrollByPosition(randomRowIndex-passwordLength);
                 break;
         }
     }
 
+    private void onDirectionSelection(int startRow, int startCol){
+        String direction = getPreferences().getSelectedDirection();
+        int passwordLength = getPreferences().getPasswordLength()-1;
+        if(direction.equals("EAST")){
+            drawUsingDirection(startRow, startCol, startRow, startCol+passwordLength);
+            if(!isDefaultPasswordGenerated)
+                scrollByPosition(startRow);
+        }else if(direction.equals("WEST")){
+            drawUsingDirection(startRow, startCol, startRow, startCol-passwordLength);
+            if(!isDefaultPasswordGenerated)
+                scrollByPosition(startRow);
+        }else if(direction.equals("SOUTH")){
+            drawUsingDirection(startRow, startCol, startRow+passwordLength, startCol);
+            //if(startRow>=8)
+            scrollByPosition(startRow);
+        }else if(direction.equals("NORTH")){
+            drawUsingDirection(startRow, startCol, startRow-passwordLength, startCol);
+            scrollByPosition(startRow-passwordLength);
+        }else if(direction.equals("SOUTH_EAST")){
+            if(startRow==rowCount-1 || startCol==colCount-1){
+                mLetterBoard.popStreakLine();
+                mTextSelection.setText("");
+            }else {
+                int endRow = startRow;
+                int endCol = startCol;
+                while (endRow < (startRow + passwordLength) && endCol < (startCol + passwordLength)) {
+                    endRow++;
+                    endCol++;
+                    if ((endRow - startRow) >= passwordLength)
+                        break;
+                }
+                Log.d("endRow " + endRow, "endRow " + endCol);
+                drawUsingDirection(startRow, startCol, endRow, endCol);
+                //if(startRow>=8)
+                scrollByPosition(startRow);
+            }
+        }else if(direction.equals("NORTH_WEST")){
+            if(startRow==0 || startCol==0){
+                mLetterBoard.popStreakLine();
+                mTextSelection.setText("");
+            }else {
+                int endRow = startRow;
+                int endCol = startCol;
+                while (endRow > startRow - passwordLength && endCol > startCol - passwordLength) {
+                    endRow--;
+                    endCol--;
+                    if ((startRow - endRow) >= passwordLength)
+                        break;
+                }
+                Log.d("endRow " + endRow, "endRow " + endCol);
+                drawUsingDirection(startRow, startCol, endRow, endCol);
+                scrollByPosition(endRow);
+            }
+        }
+    }
 
-    private void checkPasswordCriteria(String password, StreakView.StreakLine streakLine){
+    private void scrollByPosition(int randomRowIndex){
+        int scrollY = topBorderLeftMargin  - (int) Util.convertDpToPx(this, 10);
+        myScrollView.post(new Runnable() {
+            @Override
+            public void run() {
+                //myScrollView.fullScroll(View.FOCUS_DOWN);
+                myScrollView.setScrollY((scrollY * randomRowIndex));
+            }
+        });
+    }
+
+    private void drawUsingDirection(int startRow, int startCol, int endRow, int endCol){
+        int newLineStartRow = startRow, newLineStartCol = startCol, newLineEndRow = endRow, newLineEndCol = endCol;
+        Log.d("drawUsingDirection before startRow "+startRow +" startCol "+startCol, " endRow "+endRow  + " endCol "+endCol);
+
+        if(endRow>=rowCount) newLineEndRow = rowCount-1;
+        else if(endRow<0) newLineEndRow = 0;
+        if(endCol>=colCount) newLineEndCol = colCount-1;
+        else if(endCol<0) newLineEndCol = 0;
+        if(startRow<0) newLineStartRow = 0;
+        else if(startRow>=rowCount) newLineStartRow = rowCount-1;
+        if(startCol>=colCount) newLineStartCol = colCount-1;
+        else if(startCol<0) newLineStartCol = 0;
+        Log.d("drawUsingDirection after startRow "+newLineStartRow +" startCol "+newLineStartCol, " endRow "+newLineEndRow  + " endCol "+newLineEndCol);
+
+        StreakView.StreakLine newStreakLine = new StreakView.StreakLine();
+        newStreakLine.setColor(selectedColor);
+        newStreakLine.getStartIndex().set(newLineStartRow,newLineStartCol);
+        newStreakLine.getEndIndex().set(newLineEndRow,newLineEndCol);
+        Direction direction = Direction.fromLine(newStreakLine.getStartIndex(), newStreakLine.getEndIndex());
+        Log.d("drawUsingDirection ", direction.name());
+        mLetterBoard.removeAllStreakLine();
+        if(direction != Direction.NONE){
+            String firstPartPwd = Util.getStringInRange(mLetterAdapter, newStreakLine.getStartIndex(), newStreakLine.getEndIndex());
+            String lastPartPwd="";
+            mLetterBoard.addStreakLine(newStreakLine);
+            /*if(direction == Direction.EAST && (endCol-newLineEndCol)>0){
+                StreakView.StreakLine newStreakLine1 = new StreakView.StreakLine();
+                newStreakLine1.setColor(selectedColor);
+                newStreakLine1.getStartIndex().set(newLineStartRow, 0);
+                newStreakLine1.getEndIndex().set(newLineStartRow, (endCol-newLineEndCol)-1);
+                lastPartPwd = Util.getStringInRange(mLetterAdapter, newStreakLine1.getStartIndex(), newStreakLine1.getEndIndex());
+                mLetterBoard.addStreakLine(newStreakLine1);
+            }else if(direction == Direction.WEST && endCol<0){
+                StreakView.StreakLine newStreakLine1 = new StreakView.StreakLine();
+                newStreakLine1.setColor(selectedColor);
+                newStreakLine1.getStartIndex().set(newLineStartRow, colCount-1);
+                newStreakLine1.getEndIndex().set(newLineStartRow, (colCount+endCol));
+                mLetterBoard.addStreakLine(newStreakLine1);
+                lastPartPwd = Util.getStringInRange(mLetterAdapter, newStreakLine1.getStartIndex(), newStreakLine1.getEndIndex());
+            }else if(direction == Direction.SOUTH){
+
+            }else if(direction == Direction.NORTH){
+
+            }else if(direction == Direction.SOUTH_EAST){
+
+            }else if(direction == Direction.NORTH_WEST){
+
+            }*/
+            mTextSelection.setText(firstPartPwd.concat(lastPartPwd));
+            checkPasswordCriteria(firstPartPwd.concat(lastPartPwd), newStreakLine);
+        }else {
+            mLetterBoard.popStreakLine();
+            mTextSelection.setText("");
+        }
+    }
+
+    private void checkPasswordCriteria(String password,  StreakView.StreakLine streakLine){
         String passwordAlert = GridDataCreator.checkPasswordCriteria(password);
         if(!passwordAlert.equals("true")) {
             if(password.length()>=getPreferences().getPasswordLength()){ //replace it automatically when password select actual length but not get desired password
@@ -461,65 +572,6 @@ public class GridActivity extends FullscreenActivity {
             if(streakLine!=null)
             mViewModel.answerWord(password, STREAK_LINE_MAPPER.revMap(streakLine), true /*getPreferences().reverseMatching()*/);
             mViewModel.updateGridData();
-        }
-    }
-
-    private void onDirectionSelection(int startRow, int startCol){
-        String direction = getPreferences().getSelectedDirection();
-        int passwordLength = getPreferences().getPasswordLength()-1;
-        if(direction.equals("EAST")){
-            drawUsingDirection(startRow, startCol, startRow, startCol+passwordLength);
-        }else if(direction.equals("WEST")){
-            drawUsingDirection(startRow, startCol, startRow, startCol-passwordLength);
-        }else if(direction.equals("SOUTH")){
-            drawUsingDirection(startRow, startCol, startRow+passwordLength, startCol);
-        }else if(direction.equals("NORTH")){
-            drawUsingDirection(startRow, startCol, startRow-passwordLength, startCol);
-        }else if(direction.equals("SOUTH_EAST")){
-            int endRow = startRow;
-            int endCol = startCol;
-            while (endRow<rowCount-1 && endCol<colCount-1){
-                endRow ++;
-                endCol ++;
-                if((endRow-startRow)>=passwordLength)
-                    break;
-            }
-            Log.d("mainBoardEndRow "+endRow, "mainBoardEndCol "+endCol);
-            drawUsingDirection(startRow, startCol, endRow, endCol);
-        }else if(direction.equals("SOUTH_WEST")){
-            int endRow = startRow;
-            int endCol = startCol;
-            while (endRow>0 && endCol>0){
-                endRow --;
-                endCol --;
-                if((endRow-startRow)>=passwordLength)
-                    break;
-            }
-            Log.d("mainBoardEndRow "+endRow, "mainBoardEndCol "+endCol);
-            drawUsingDirection(startRow, startCol, endRow, endCol);
-        }
-    }
-
-    private void drawUsingDirection(int startRow, int startCol, int endRow, int endCol){
-        Log.d("startRow "+startRow +" startCol "+startCol, " endRow "+endRow  + " endCol "+endCol);
-        if(endRow>=rowCount)
-            endRow = rowCount-1;
-        else if(endRow<0)
-            endRow = 0;
-        if(endCol>=colCount)
-            endCol = colCount-1;
-        else if(endCol<0)
-            endCol = 0;
-        StreakView.StreakLine newStreakLine = new StreakView.StreakLine();
-        newStreakLine.setColor(selectedColor);
-        newStreakLine.getStartIndex().set(startRow,startCol);
-        newStreakLine.getEndIndex().set(endRow,endCol);
-        mLetterBoard.removeAllStreakLine();
-        if(Direction.fromLine(newStreakLine.getStartIndex(), newStreakLine.getEndIndex()) != Direction.NONE){
-            String selectedPwd = Util.getStringInRange(mLetterAdapter, newStreakLine.getStartIndex(), newStreakLine.getEndIndex());
-            mLetterBoard.addStreakLine(newStreakLine);
-            mTextSelection.setText(selectedPwd);
-            checkPasswordCriteria(selectedPwd, newStreakLine);
         }
     }
 
