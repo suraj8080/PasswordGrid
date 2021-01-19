@@ -215,6 +215,7 @@ public class StringListGridGenerator extends GridGenerator<List<String>, List<St
                 startRow --;
                 startCol --;
             }
+            //Log.d("gridLength ",""+gridArr.length);
             while (startRow<gridArr.length && startCol<gridArr.length){
                 word.append(gridArr[startRow][startCol]);
                 startRow ++;

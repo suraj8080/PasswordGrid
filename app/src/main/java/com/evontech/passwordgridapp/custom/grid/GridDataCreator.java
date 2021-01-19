@@ -110,16 +110,16 @@ public class GridDataCreator {
 
     public static String getRandomWords(int maxCharCount){
         StringBuilder mString = new StringBuilder();
-            int randomCharCount = maxCharCount;//getRandomIntRange(1, maxCharCount-1);
+            //int randomCharCount = maxCharCount;//getRandomIntRange(1, maxCharCount-1);
             int randomChar = 0;
             if(isUpperCase) randomChar ++;
             if(isLowerCase) randomChar ++;
             if(isNumbers) randomChar ++;
             if(isSpecialCharacters) randomChar ++;
-            for (int index = 0; index < randomCharCount; index++) {
+            for (int index = 0; index < maxCharCount; index++) {
                 int characterCase =  getRandomIntRange(1, randomChar);
                 //Log.d("characterCase "+characterCase, "randomChar "+randomChar);
-                    if (index == 1) {
+                    if (index == 0) {
                         if(isUpperCase)
                         mString = mString.append((char) getRandomIntRange(65, 90));
                         else if(isLowerCase)
@@ -129,7 +129,7 @@ public class GridDataCreator {
                             mString = mString.append(c);
                         }else if(isNumbers)
                             mString = mString.append(Character.forDigit(new Random().nextInt(10), 10));
-                    } else if (index == 2) {
+                    } else if (index == 1) {
                         if(isLowerCase)
                             mString = mString.append((char) getRandomIntRange(97, 122));
                         else if(isUpperCase)
@@ -139,7 +139,7 @@ public class GridDataCreator {
                             mString = mString.append(c);
                         }else if(isNumbers)
                             mString = mString.append(Character.forDigit(new Random().nextInt(10), 10));
-                    } else if (index == 3) {
+                    } else if (index == 2) {
                         if(isSpecialCharacters){
                             char c = (char) (new Random().nextInt(4) + 35);
                             mString = mString.append(c);
@@ -149,10 +149,10 @@ public class GridDataCreator {
                             mString = mString.append((char) getRandomIntRange(97, 122));
                         else if(isUpperCase)
                             mString = mString.append((char) getRandomIntRange(65, 90));
-                    } else if (index == 4) {
+                    } else if (index == 3) {
                         if(isNumbers)
                             mString = mString.append(Character.forDigit(new Random().nextInt(10), 10));
-                        if(isSpecialCharacters){
+                        else if(isSpecialCharacters){
                             char c = (char) (new Random().nextInt(4) + 35);
                             mString = mString.append(c);
                         }else if(isLowerCase)
@@ -171,7 +171,9 @@ public class GridDataCreator {
                             mString = mString.append(Character.forDigit(new Random().nextInt(10), 10));
                     }
             }
-        return mString.toString();
+        int randomDirection = getRandomIntRange(1, 2);
+            if(randomDirection==1) return mString.reverse().toString();
+            else return mString.toString();
     }
 
     public static String checkPasswordCriteria(String word){

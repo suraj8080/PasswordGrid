@@ -65,6 +65,10 @@ public class GridCriteriaActivity extends AppCompatActivity {
     @Inject
     Preferences mPreferences;
 
+    /*
+
+     */
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         requestWindowFeature(Window.FEATURE_NO_TITLE);
@@ -91,6 +95,7 @@ public class GridCriteriaActivity extends AppCompatActivity {
                 else{
                     mPreferences.setPasswordLength(Integer.parseInt(etPassword.getText().toString()));
                     mPreferences.setGridCol(Integer.parseInt(etPassword.getText().toString()));
+                    mPreferences.setGridRow(Integer.parseInt(etPassword.getText().toString()));
                     startGridPlay(Integer.parseInt(etPassword.getText().toString()));
                 }
             }
@@ -389,8 +394,10 @@ public class GridCriteriaActivity extends AppCompatActivity {
 
     private void startGridPlay(int length){
         Intent intent = new Intent(this, GridActivity.class);
-        intent.putExtra(GridActivity.EXTRA_ROW_COUNT, 26);
-        intent.putExtra(GridActivity.EXTRA_COL_COUNT, 26);
+        //intent.putExtra(GridActivity.EXTRA_ROW_COUNT, mPreferences.getGridRow());
+        //intent.putExtra(GridActivity.EXTRA_COL_COUNT, mPreferences.getGridCol());
+        intent.putExtra(GridActivity.EXTRA_ROW_COUNT, 12);
+        intent.putExtra(GridActivity.EXTRA_COL_COUNT, 12);
         //intent.putExtra(GridActivity.EXTRA_GAME_ROUND_ID, 619);
         startActivity(intent);
         overridePendingTransition(R.anim.slide_in, R.anim.slide_out);
