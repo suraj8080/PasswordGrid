@@ -1,12 +1,15 @@
 package com.evontech.passwordgridapp.custom.grid;
 
 import android.Manifest;
+import android.content.Context;
+import android.content.ContextWrapper;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
+import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Bundle;
@@ -41,6 +44,8 @@ import com.evontech.passwordgridapp.custom.settings.ViewModelFactory;
 
 import java.io.File;
 import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -295,6 +300,7 @@ public class GridActivity extends FullscreenActivity {
 
                         StreakView.StreakLine newStreakLine = new StreakView.StreakLine();
                         int occurrence = (int) wordFromBorder.chars().filter(ch -> ch == topborder[row][col]).count()-1;
+                        if(occurrence>rowCount-1) occurrence = (occurrence % (rowCount));
                         newStreakLine.getStartIndex().set(occurrence, topBorderStartCol);
                         newStreakLine.getEndIndex().set(occurrence, col);
                         mLetterBoard.addStreakLine(newStreakLine);
@@ -396,6 +402,7 @@ public class GridActivity extends FullscreenActivity {
                 mTextFromBorder.setText("");
                 wordFromBorder = new StringBuilder();
                 //mViewModel.generateNewGameRound(rowCount, colCount);
+                //generateDefaultPassword();
             }
         });
         mButtonSave.setOnClickListener(new View.OnClickListener() {
@@ -404,6 +411,7 @@ public class GridActivity extends FullscreenActivity {
                 List<String> pwdList = new ArrayList<>();
                 pwdList.add(mTextSelection.getText().toString());
                 checkPasswordCriteria(pwdList);//checkPasswordCriteria(mTextSelection.getText().toString(), null);
+
                 /*if(ContextCompat.checkSelfPermission(GridActivity.this,
                         Manifest.permission.WRITE_EXTERNAL_STORAGE)
                         != PackageManager.PERMISSION_GRANTED) {
@@ -426,29 +434,33 @@ public class GridActivity extends FullscreenActivity {
         Date now = new Date();
         android.text.format.DateFormat.format("yyyy-MM-dd_hh:mm:ss", now);
 
-        try {
-            // image naming and path  to include sd card  appending name you choose for file
-            String mPath = Environment.getExternalStorageDirectory().toString() + "/" + now + ".jpg";
+        if (Environment.MEDIA_MOUNTED.equals(Environment.getExternalStorageState())) {
+            try {
+                // FileOutputStream stream = null;
+                File dir = new File(Environment.getExternalStorageDirectory().getAbsolutePath() + "/PasswordGridApp");
+                dir.mkdir();
+                // image naming and path  to include sd card  appending name you choose for file
+                String mPath = Environment.getExternalStorageDirectory().toString() + "/" + now + ".jpg";
 
-            // create bitmap screen capture
-            View v1 = getWindow().getDecorView().getRootView();
-            v1.setDrawingCacheEnabled(true);
-            //Bitmap bitmap = getBitmapFromView(myScrollView, myScrollView.getChildAt(0).getHeight(), myScrollView.getChildAt(0).getWidth());
-            Bitmap bitmap = Bitmap.createBitmap(v1.getDrawingCache());
-            v1.setDrawingCacheEnabled(false);
+                // create bitmap screen capture
+                //View mView = getWindow().getDecorView().getRootView();
+                View mView = myScrollView.getChildAt(0);//.getRootView();
+                mView.setDrawingCacheEnabled(true);
+                Bitmap bitmap = getBitmapFromView(mView, mView.getHeight(), mView.getWidth()); // try to get visible + invisible part.
+                //Bitmap bitmap = Bitmap.createBitmap(mView.getDrawingCache()); // visible whole screen
+                mView.setDrawingCacheEnabled(false);
 
-            File imageFile = new File(mPath);
-
-            FileOutputStream outputStream = new FileOutputStream(imageFile);
-            int quality = 100;
-            bitmap.compress(Bitmap.CompressFormat.JPEG, quality, outputStream);
-            outputStream.flush();
-            outputStream.close();
-
-            openScreenshot(imageFile);
-        } catch (Throwable e) {
-            // Several error may come out with file handling or DOM
-            e.printStackTrace();
+                File imageFile = new File(mPath);
+                FileOutputStream outputStream = new FileOutputStream(imageFile);
+                int quality = 100;
+                bitmap.compress(Bitmap.CompressFormat.JPEG, quality, outputStream);
+                outputStream.flush();
+                outputStream.close();
+                openScreenshot(imageFile); //open when image saved in file
+            } catch (Throwable e) {
+                // Several error may come out with file handling or DOM
+                e.printStackTrace();
+            }
         }
     }
 
@@ -483,11 +495,99 @@ public class GridActivity extends FullscreenActivity {
             selectedColor = Util.getRandomColorWithAlpha(170);
             onDirectionSelection(randomRowIndex,randomColIndex, "");
         }else if(getPreferences().showGridPattern()){
-
+            generateDefault_GridPattern();
         }else if(getPreferences().showWordFromBorder()){
-
+            generateDefault_WordFromBorder();
         }
         isDefaultPasswordGenerated = true;
+    }
+
+    private void generateDefault_WordFromBorder(){
+        String defaultPwd = "SECUREPASSWORD";
+        char [][] mainboard = mLetterAdapter.getGrid();
+        char[] ch  = defaultPwd.toCharArray();
+        for(char c : ch){
+            int temp_integer = 64; //for upper case
+            int index = ((int)c -temp_integer)-1;
+            if((int)c <=90 & (int)c >=65)
+                Log.d("alphabet "+c, " at "+index);
+            wordFromBorder = wordFromBorder.append(c);
+            StreakView.StreakLine newStreakLine = new StreakView.StreakLine();
+            int occurrence = (int) wordFromBorder.chars().filter(chr -> chr == c).count()-1;
+            Log.d("occurrence ", ""+occurrence);
+            newStreakLine.getStartIndex().set(occurrence, index);
+            newStreakLine.getEndIndex().set(occurrence, index);
+            mLetterBoard.addStreakLine(newStreakLine);
+            StringBuilder strPwd = new StringBuilder(mTextSelection.getText().toString());
+            mTextSelection.setText(strPwd.append(mainboard[occurrence][index]).toString());
+            mTextFromBorder.setText(wordFromBorder.toString());
+            mLetterBoardTop.removeAllStreakLine();
+        }
+    }
+
+    private void generateDefault_GridPattern(){
+        char [][] mainboard = mLetterAdapter.getGrid();
+        char [][] mPattern;
+        int randomPattern = Util.getRandomIntRange(1,5);
+        Log.d("randomPattern ", ""+randomPattern);
+        switch (randomPattern) {
+            case 1:
+            mPattern = new char[][]{
+                    {'2', '2', '2', '2','2'},
+                    {'0', '0', '0', '2','0'},
+                    {'0', '0', '2', '0','0'},
+                    {'0', '2', '0', '0','0'},
+                    {'2', '2', '2', '2','2'}};
+                break;
+            case 2:
+                mPattern = new char[][]{
+                        {'2', '2', '2', '2'},
+                        {'2', '0', '0', '2'},
+                        {'2', '2', '2', '2'},
+                        {'2', '0', '0', '2'},
+                        {'2', '2', '2', '2'}};
+                break;
+            case 3:
+                mPattern = new char[][]{
+                        {'2', '2', '2', '2'},
+                        {'2', '0', '0', '0'},
+                        {'2', '0', '0', '0'},
+                        {'2', '0', '0', '0'},
+                        {'2', '2', '2', '2'}};
+                break;
+            case 4:
+                mPattern = new char[][]{
+                        {'2', '2', '2', '2'},
+                        {'2', '0', '0', '2'},
+                        {'2', '0', '0', '2'},
+                        {'2', '0', '0', '2'},
+                        {'2', '2', '2', '2'}};
+            break;
+            default:
+                mPattern = new char[][]{
+                        {'2', '2', '2', '2'},
+                        {'2', '0', '0', '2'},
+                        {'2', '2', '2', '2'},
+                        {'2', '0', '0', '2'},
+                        {'1', '0', '0', '1'}};
+                break;
+        }
+        //Log.d("row ", (mPattern.length)+"");
+        //Log.d("col ",  (mPattern[0].length)+"");
+        int randomStartRow = Util.getRandomIntRange(0,rowCount-(mPattern.length));
+        int randomStartCol = Util.getRandomIntRange(0, colCount-(mPattern[0].length));
+        for(int i=0;i<mPattern.length;i++){
+            for (int j=0;j<mPattern[i].length;j++){
+                if(mPattern[i][j]!='0') {
+                    StreakView.StreakLine newStreakLine = new StreakView.StreakLine();
+                    newStreakLine.getStartIndex().set(randomStartRow+i, randomStartCol+j);
+                    newStreakLine.getEndIndex().set(randomStartRow+i, randomStartCol+j);
+                    mLetterBoard.addStreakLine(newStreakLine);
+                    StringBuilder strPwd = new StringBuilder(mTextSelection.getText().toString());
+                    mTextSelection.setText(strPwd.append(mainboard[randomStartRow+i][randomStartCol+j]).toString());
+                }
+            }
+        }
     }
 
     private void generateDefault_DragManual_StartEndGrid(){

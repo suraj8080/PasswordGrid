@@ -68,10 +68,10 @@ public class StringListGridGenerator extends GridGenerator<List<String>, List<St
                             placeWordAt(0, j, Direction.SOUTH, grid, GridDataCreator.getRandomWords(northSouthWord.length()-1));
                       //  Log.d("northSouthWord ", " i " + 0 + " j " + j + " " + northSouthWord);
                     }if(i==0 && j==0) {
-                        String southEastNorthWestWord = getWordByDirection(i, j, SOUTH_EAST, grid);
+                        //String southEastNorthWestWord = getWordByDirection(i, j, SOUTH_EAST, grid);
                       //  Log.d("southEastNorthWestWord ", " i " + i + " j " + j + " " + southEastNorthWestWord);
                     }if(i==0 && j==grid[i].length-1) {
-                        String southWestNorthEastWord = getWordByDirection(i, j, SOUTH_WEST, grid);
+                       // String southWestNorthEastWord = getWordByDirection(i, j, SOUTH_WEST, grid);
                          //Log.d("southWestNorthEastWord ", " i " + i + " j " + j + " " + southWestNorthEastWord);
                     }
                 }

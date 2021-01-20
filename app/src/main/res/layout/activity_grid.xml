@@ -18,6 +18,7 @@
             android:layout_toLeftOf="@+id/relative_action_button"
             android:id="@+id/text_sel_layout"
             android:layout_width="match_parent"
+            android:weightSum="2"
             android:layout_height="40dp"
             android:visibility="visible"
             android:layout_centerInParent="true"
@@ -27,13 +28,15 @@
                 android:layout_marginLeft="10dp"
                 android:gravity="center"
                 android:id="@+id/text_chooseFromBorder"
-                android:layout_width="wrap_content"
+                android:layout_width="0dp"
+                android:layout_weight="1"
                 android:layout_height="40dp"
                 android:textAlignment="center"
                 android:textColor="@android:color/black"
                 android:textStyle="bold"
-                android:textSize="15sp"
-                android:text=""/>
+                android:textSize="12sp"
+                android:text=""
+                android:layout_marginRight="5dp"/>
             <TextView
                 android:textColorHighlight="@color/colorAccent"
                 android:selectAllOnFocus="true"
@@ -41,12 +44,13 @@
                 android:textIsSelectable="true"
                 android:gravity="center"
                 android:id="@+id/text_selection"
-                android:layout_width="match_parent"
+                android:layout_weight="1"
+                android:layout_width="0dp"
                 android:layout_height="40dp"
                 android:textAlignment="center"
                 android:textColor="@android:color/black"
                 android:textStyle="bold"
-                android:textSize="15sp"
+                android:textSize="12sp"
                 android:text=""/>
         </LinearLayout>
         <RelativeLayout

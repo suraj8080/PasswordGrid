@@ -396,8 +396,9 @@ public class GridCriteriaActivity extends AppCompatActivity {
         Intent intent = new Intent(this, GridActivity.class);
         //intent.putExtra(GridActivity.EXTRA_ROW_COUNT, mPreferences.getGridRow());
         //intent.putExtra(GridActivity.EXTRA_COL_COUNT, mPreferences.getGridCol());
-        intent.putExtra(GridActivity.EXTRA_ROW_COUNT, 12);
-        intent.putExtra(GridActivity.EXTRA_COL_COUNT, 12);
+        intent.putExtra(GridActivity.EXTRA_ROW_COUNT, 15);
+        if(mPreferences.showWordFromBorder()) intent.putExtra(GridActivity.EXTRA_COL_COUNT, 26);
+        else intent.putExtra(GridActivity.EXTRA_COL_COUNT, 15);
         //intent.putExtra(GridActivity.EXTRA_GAME_ROUND_ID, 619);
         startActivity(intent);
         overridePendingTransition(R.anim.slide_in, R.anim.slide_out);
