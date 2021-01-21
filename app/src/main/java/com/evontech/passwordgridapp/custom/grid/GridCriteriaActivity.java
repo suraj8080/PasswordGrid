@@ -1,5 +1,6 @@
 package com.evontech.passwordgridapp.custom.grid;
 
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.AppCompatButton;
@@ -7,7 +8,9 @@ import androidx.appcompat.widget.AppCompatCheckBox;
 import androidx.appcompat.widget.AppCompatEditText;
 import android.content.Intent;
 import android.os.Bundle;
+import android.text.Editable;
 import android.text.TextUtils;
+import android.text.TextWatcher;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -45,7 +48,6 @@ public class GridCriteriaActivity extends AppCompatActivity {
     AppCompatCheckBox checkBox_number;
     @BindView(R.id.cb_special)
     AppCompatCheckBox checkBox_special;
-
     @BindView(R.id.cb_grid_direction)
     AppCompatCheckBox checkBox_grid_direction;
     @BindView(R.id.cb_pattern)
@@ -56,18 +58,14 @@ public class GridCriteriaActivity extends AppCompatActivity {
     AppCompatCheckBox checkBox_drag_manually;
     @BindView(R.id.cb_start_end_grid)
     AppCompatCheckBox checkBox_start_end_grid;
-
     @BindView(R.id.btnGenerateGrid)
     Button btnGenerateGrid;
     @BindView(R.id.etPassword)
     AppCompatEditText etPassword;
-
     @Inject
     Preferences mPreferences;
-
-    /*
-
-     */
+    private int changeInGridGeneration;
+    private boolean isSettingRequest;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -79,24 +77,47 @@ public class GridCriteriaActivity extends AppCompatActivity {
         ButterKnife.bind(this);
         ((PasswordGridApp) getApplication()).getAppComponent().inject(this);
 
+        etPassword.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) { }
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) { }
+            @Override
+            public void afterTextChanged(Editable s) {
+                if(!TextUtils.isEmpty(s)) {
+                    int pLength = Integer.parseInt(String.valueOf(s));
+                    if(pLength<8) pLength = 8;
+                    if(pLength>26) pLength = 26;
+                    mPreferences.setPasswordLength(pLength);
+                    mPreferences.setGridCol(pLength);
+                    mPreferences.setGridRow(pLength);
+                    Log.d("Editable ", String.valueOf(pLength));
+                }else mPreferences.setPasswordLength(8);
+            }
+        });
+
         if(mPreferences.getPasswordLength()>0)
             etPassword.setText(String.valueOf(mPreferences.getPasswordLength()));
         btnGenerateGrid.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if(TextUtils.isEmpty(etPassword.getText().toString())) {
-                    Toast.makeText(GridCriteriaActivity.this, "Enter password length", Toast.LENGTH_SHORT).show();
-                }else if(Integer.parseInt(etPassword.getText().toString()) <8)
-                    Toast.makeText(GridCriteriaActivity.this, "Password length cannot be less than 8", Toast.LENGTH_SHORT).show();
-                else if(Integer.parseInt(etPassword.getText().toString()) >26)
-                    Toast.makeText(GridCriteriaActivity.this, "Password length cannot be greater than 26", Toast.LENGTH_SHORT).show();
-                else if(!mPreferences.showUpperCharacters() && !mPreferences.showLowerCharacters() && !mPreferences.showNumberCharacters() && !mPreferences.showSpecialCharacters())
-                    Toast.makeText(GridCriteriaActivity.this, "Select atleast one criteria", Toast.LENGTH_SHORT).show();
-                else{
-                    mPreferences.setPasswordLength(Integer.parseInt(etPassword.getText().toString()));
-                    mPreferences.setGridCol(Integer.parseInt(etPassword.getText().toString()));
-                    mPreferences.setGridRow(Integer.parseInt(etPassword.getText().toString()));
-                    startGridPlay(Integer.parseInt(etPassword.getText().toString()));
+                if(isSettingRequest){
+                    backPressed();
+                }else {
+                    if (mPreferences.getPasswordLength() < 8) {
+                        Toast.makeText(GridCriteriaActivity.this, "Enter password length", Toast.LENGTH_SHORT).show();
+                    } else if (mPreferences.getPasswordLength() < 8)
+                        Toast.makeText(GridCriteriaActivity.this, "Password length cannot be less than 8", Toast.LENGTH_SHORT).show();
+                    else if (mPreferences.getPasswordLength() > 26)
+                        Toast.makeText(GridCriteriaActivity.this, "Password length cannot be greater than 26", Toast.LENGTH_SHORT).show();
+                    else if (!mPreferences.showUpperCharacters() && !mPreferences.showLowerCharacters() && !mPreferences.showNumberCharacters() && !mPreferences.showSpecialCharacters())
+                        Toast.makeText(GridCriteriaActivity.this, "Select atleast one criteria", Toast.LENGTH_SHORT).show();
+                    else {
+                        //mPreferences.setPasswordLength(Integer.parseInt(etPassword.getText().toString()));
+                        mPreferences.setGridCol(mPreferences.getPasswordLength());
+                        mPreferences.setGridRow(mPreferences.getPasswordLength());
+                        startGrid(mPreferences.getPasswordLength());
+                    }
                 }
             }
         });
@@ -154,9 +175,9 @@ public class GridCriteriaActivity extends AppCompatActivity {
                     mPreferences.setWordFromBorder(false);
                     mPreferences.setDragManually(false);
                     mPreferences.setStartEndGrid(false);
-                    updateCheckBox();
                     showDirectionDialog();
                 }
+                updateCheckBox();
             }
         });
         checkBox_pattern.setChecked(mPreferences.showGridPattern());
@@ -170,8 +191,8 @@ public class GridCriteriaActivity extends AppCompatActivity {
                     mPreferences.setWordFromBorder(false);
                     mPreferences.setDragManually(false);
                     mPreferences.setStartEndGrid(false);
-                    updateCheckBox();
                 }
+                updateCheckBox();
             }
         });
         checkBox_word_from_border.setChecked(mPreferences.showWordFromBorder());
@@ -185,8 +206,8 @@ public class GridCriteriaActivity extends AppCompatActivity {
                     mPreferences.setGridDirection(false);
                     mPreferences.setDragManually(false);
                     mPreferences.setStartEndGrid(false);
-                    updateCheckBox();
                 }
+                updateCheckBox();
             }
         });
 
@@ -201,8 +222,8 @@ public class GridCriteriaActivity extends AppCompatActivity {
                     mPreferences.setGridDirection(false);
                     mPreferences.setWordFromBorder(false);
                     mPreferences.setStartEndGrid(false);
-                    updateCheckBox();
                 }
+                updateCheckBox();
             }
         });
         checkBox_start_end_grid.setChecked(mPreferences.selectedStartEndGrid());
@@ -216,43 +237,47 @@ public class GridCriteriaActivity extends AppCompatActivity {
                     mPreferences.setGridDirection(false);
                     mPreferences.setWordFromBorder(false);
                     mPreferences.setDragManually(false);
-                    updateCheckBox();
                 }
+                updateCheckBox();
             }
         });
+
+        setDefaultChosenOption();
+    }
+
+    private void setDefaultChosenOption(){
         //set default selection method here.
         if(!mPreferences.userSelectedChosenOption()){
             int randomSelectionOption = Util.getRandomIntRange(1,5);
             switch (randomSelectionOption){
                 case 1:
-                    checkBox_drag_manually.setChecked(true);
                     mPreferences.setUserSelectedChosenOption(false);
-                   // Log.d("onRandom ", mPreferences.userSelectedChosenOption()+"");
+                    checkBox_drag_manually.setChecked(true);
+                    // Log.d("onRandom ", mPreferences.userSelectedChosenOption()+"");
                     break;
                 case 2:
-                    checkBox_start_end_grid.setChecked(true);
                     mPreferences.setUserSelectedChosenOption(false);
-                   // Log.d("onRandom ", mPreferences.userSelectedChosenOption()+"");
+                    checkBox_start_end_grid.setChecked(true);
+                    // Log.d("onRandom ", mPreferences.userSelectedChosenOption()+"");
                     break;
                 case 3:
-                    checkBox_grid_direction.setChecked(true);
                     mPreferences.setUserSelectedChosenOption(false);
+                    checkBox_grid_direction.setChecked(true);
                     //Log.d("onRandom ", mPreferences.userSelectedChosenOption()+"");
                     break;
                 case 4:
-                    checkBox_pattern.setChecked(true);
                     mPreferences.setUserSelectedChosenOption(false);
+                    checkBox_pattern.setChecked(true);
                     //Log.d("onRandom ", mPreferences.userSelectedChosenOption()+"");
                     break;
                 case 5:
-                    checkBox_word_from_border.setChecked(true);
                     mPreferences.setUserSelectedChosenOption(false);
+                    checkBox_word_from_border.setChecked(true);
                     //Log.d("onRandom ", mPreferences.userSelectedChosenOption()+"");
                     break;
             }
 
         }
-
     }
 
     private void updateCheckBox(){
@@ -262,6 +287,12 @@ public class GridCriteriaActivity extends AppCompatActivity {
         checkBox_drag_manually.setChecked(mPreferences.selectedDragManually());
         checkBox_start_end_grid.setChecked(mPreferences.selectedStartEndGrid());
         mPreferences.setUserSelectedChosenOption(true);
+        if(!mPreferences.showWordFromBorder() && !mPreferences.showGridPattern() && !mPreferences.showgridDirection() && !mPreferences.selectedDragManually() && !mPreferences.selectedStartEndGrid()){
+            Log.d("unselected all ", "true");
+            mPreferences.setUserSelectedChosenOption(false);
+            setDefaultChosenOption();
+        }
+
         //Log.d("onSelected ", mPreferences.userSelectedChosenOption()+"");
 
     }
@@ -390,17 +421,54 @@ public class GridCriteriaActivity extends AppCompatActivity {
         if(mPreferences.showgridDirection() && !mPreferences.userSelectedDirection() && cbHorizontal!=null){
             ramdomiseDirection();
         }
+        Bundle extras = getIntent().getExtras();
+        if (extras != null ) {
+            if(extras.getBoolean("settingRequest")) {
+                btnGenerateGrid.setText("Back");
+                isSettingRequest = true;
+                if(mPreferences.showUpperCharacters()) changeInGridGeneration ++;
+                if(mPreferences.showLowerCharacters()) changeInGridGeneration ++;
+                if(mPreferences.showNumberCharacters()) changeInGridGeneration ++;
+                if(mPreferences.showSpecialCharacters()) changeInGridGeneration ++;
+                changeInGridGeneration = changeInGridGeneration + mPreferences.getPasswordLength();
+            }
+        }
     }
 
-    private void startGridPlay(int length){
+    private void startGrid(int length){
         Intent intent = new Intent(this, GridActivity.class);
-        //intent.putExtra(GridActivity.EXTRA_ROW_COUNT, mPreferences.getGridRow());
-        //intent.putExtra(GridActivity.EXTRA_COL_COUNT, mPreferences.getGridCol());
-        intent.putExtra(GridActivity.EXTRA_ROW_COUNT, 15);
+        intent.putExtra(GridActivity.EXTRA_ROW_COUNT, mPreferences.getGridRow());
+        intent.putExtra(GridActivity.EXTRA_COL_COUNT, mPreferences.getGridCol());
         if(mPreferences.showWordFromBorder()) intent.putExtra(GridActivity.EXTRA_COL_COUNT, 26);
-        else intent.putExtra(GridActivity.EXTRA_COL_COUNT, 15);
-        //intent.putExtra(GridActivity.EXTRA_GAME_ROUND_ID, 619);
+        //intent.putExtra(GridActivity.EXTRA_GRID_ID, 619);
         startActivity(intent);
         overridePendingTransition(R.anim.slide_in, R.anim.slide_out);
+    }
+
+    @Override
+    public void onBackPressed() {
+        if(isSettingRequest) backPressed();
+        super.onBackPressed();
+    }
+
+    private void backPressed(){
+            if(mPreferences.showUpperCharacters()) changeInGridGeneration --;
+            if(mPreferences.showLowerCharacters()) changeInGridGeneration --;
+            if(mPreferences.showNumberCharacters()) changeInGridGeneration --;
+            if(mPreferences.showSpecialCharacters()) changeInGridGeneration --;
+            changeInGridGeneration = changeInGridGeneration - mPreferences.getPasswordLength();
+            Log.d("changeInGridGeneration ", ""+changeInGridGeneration);
+            Intent intent = new Intent();
+            if(changeInGridGeneration!=0) {
+                Log.d("EXTRA_ROW_COUNT ", mPreferences.getGridRow()+"");
+                Log.d("EXTRA_COL_COUNT ", mPreferences.getGridCol()+"");
+                Log.d("passwordLength ", mPreferences.getPasswordLength()+"");
+                intent.putExtra("changeInGridGeneration", true);
+                intent.putExtra(GridActivity.EXTRA_ROW_COUNT, mPreferences.getGridRow());
+                intent.putExtra(GridActivity.EXTRA_COL_COUNT, mPreferences.getGridCol());
+                if(mPreferences.showWordFromBorder()) intent.putExtra(GridActivity.EXTRA_COL_COUNT, 26);
+            }
+            setResult(RESULT_OK,intent);
+            finish();
     }
 }

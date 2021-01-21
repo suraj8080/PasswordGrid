@@ -1,15 +1,11 @@
 package com.evontech.passwordgridapp.custom.grid;
 
-import android.Manifest;
-import android.content.Context;
-import android.content.ContextWrapper;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
-import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Bundle;
@@ -19,13 +15,14 @@ import android.text.TextUtils;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.View;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.annotation.Nullable;
 import androidx.appcompat.widget.AppCompatButton;
-import androidx.core.app.ActivityCompat;
-import androidx.core.content.ContextCompat;
 import androidx.lifecycle.ViewModelProviders;
 import com.evontech.passwordgridapp.R;
 import com.evontech.passwordgridapp.custom.FullscreenActivity;
@@ -36,7 +33,6 @@ import com.evontech.passwordgridapp.custom.common.Util;
 import com.evontech.passwordgridapp.custom.common.generator.StringListGridGenerator;
 import com.evontech.passwordgridapp.custom.mcustom.LetterBoard;
 import com.evontech.passwordgridapp.custom.mcustom.StreakView;
-import com.evontech.passwordgridapp.custom.models.Grid;
 import com.evontech.passwordgridapp.custom.models.GridData;
 import com.evontech.passwordgridapp.custom.models.UsedWord;
 import com.evontech.passwordgridapp.custom.settings.Preferences;
@@ -44,8 +40,6 @@ import com.evontech.passwordgridapp.custom.settings.ViewModelFactory;
 
 import java.io.File;
 import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -61,24 +55,17 @@ import butterknife.ButterKnife;
 
 public class GridActivity extends FullscreenActivity {
 
-    public static final String EXTRA_GAME_ROUND_ID =
-            "com.evontech.passwordgridapp.custom.gridplay.GridActivity.ID";
-    public static final String EXTRA_ROW_COUNT =
-            "com.evontech.passwordgridapp.custom.gridplay.GridActivity.ROW";
-    public static final String EXTRA_COL_COUNT =
-            "com.evontech.passwordgridapp.custom.gridplay.GridActivity.COL";
-
+    public static final String EXTRA_GRID_ID = "com.evontech.passwordgridapp.custom.grid.GridActivity.ID";
+    public static final String EXTRA_ROW_COUNT = "com.evontech.passwordgridapp.custom.grid.GridActivity.ROW";
+    public static final String EXTRA_COL_COUNT = "com.evontech.passwordgridapp.custom.grid.GridActivity.COL";
+    public static final int SETTING_REQUEST_CODE = 100;
     private static final StreakLineMapper STREAK_LINE_MAPPER = new StreakLineMapper();
-
-
     @Inject ViewModelFactory mViewModelFactory;
     GridViewModel mViewModel;
-
     @BindView(R.id.btnReset)
     AppCompatButton mButtonReset;
     @BindView(R.id.btnSave)
     AppCompatButton mButtonSave;
-
     @BindView(R.id.top_letter_board) LetterBoard mLetterBoardTop;
     @BindView(R.id.letter_board) LetterBoard mLetterBoard;
     @BindView(R.id.left_letter_board) LetterBoard mLetterBoardLeft;
@@ -90,15 +77,15 @@ public class GridActivity extends FullscreenActivity {
     TextView mTextSelection;
     @BindView(R.id.text_chooseFromBorder)
     TextView mTextFromBorder;
-
     @BindView(R.id.loading)
     View mLoading;
     @BindView(R.id.loadingText)
     TextView mLoadingText;
     @BindView(R.id.content_layout)
     View mContentLayout;
-
     @BindColor(R.color.gray) int mGrayColor;
+    @BindView(R.id.iv_settings)
+    ImageView iconSetting;
 
     private int rowCount;
     private int colCount;
@@ -120,10 +107,13 @@ public class GridActivity extends FullscreenActivity {
     private int mainBoardStartCol;
     private int mainBoardEndRow;
     private int mainBoardEndCol;
+
     private boolean isSingleCellSelected;
     private StringBuilder wordFromBorder;
     private int selectedColor;
     private boolean isDefaultPasswordGenerated;
+    private boolean isInitialized;
+    int topBorderLeftMargin;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -132,12 +122,7 @@ public class GridActivity extends FullscreenActivity {
 
         ButterKnife.bind(this);
         ((PasswordGridApp) getApplication()).getAppComponent().inject(this);
-
-        if(getPreferences().showWordFromBorder()){
-            wordFromBorder = new StringBuilder();
-            mTextFromBorder.setVisibility(View.VISIBLE);
-        }else mTextFromBorder.setVisibility(View.GONE);
-
+        initPwdEditText();
         //mLetterBoard.getStreakView().setEnableOverrideStreakLineColor(getPreferences().grayscale());
         mLetterBoard.getStreakView().setOverrideStreakLineColor(mGrayColor);
         mLetterBoard.getStreakView().setInteractive(true);
@@ -210,9 +195,13 @@ public class GridActivity extends FullscreenActivity {
                     if(getPreferences().selectedStartEndGrid()){
                         mLetterBoard.removeAllStreakLine();
                         mTextSelection.setText("");
-                        Direction direction = Direction.fromLine(streakLine.getStartIndex(), streakLine.getEndIndex());
+                        GridIndex gridIndex = new GridIndex();
+                        gridIndex.row = mainBoardStartRow;
+                        gridIndex.col = mainBoardStartCol;
+                        Log.d("gridIndex start "+gridIndex.row +" "+gridIndex.col, " gridIndex end "+streakLine.getEndIndex().row +" "+streakLine.getEndIndex().col);
+                        Direction direction = Direction.fromLine(gridIndex, streakLine.getEndIndex());
                         Log.d("direction ", direction.name());
-                        onDirectionSelection(streakLine.getStartIndex().row, streakLine.getStartIndex().col, direction.name());
+                        onDirectionSelection(gridIndex.row, gridIndex.col, direction.name());
                     }else {
                         StreakView.StreakLine newStreakLine = new StreakView.StreakLine();
                         newStreakLine.setColor(streakLine.getColor());
@@ -366,8 +355,8 @@ public class GridActivity extends FullscreenActivity {
 
         Bundle extras = getIntent().getExtras();
         if (extras != null) {
-            if (extras.containsKey(EXTRA_GAME_ROUND_ID)) {
-                int gid = extras.getInt(EXTRA_GAME_ROUND_ID);
+            if (extras.containsKey(EXTRA_GRID_ID)) {
+                int gid = extras.getInt(EXTRA_GRID_ID);
                 Preferences preferences = getPreferences();
                 mViewModel.setGridGenerationCriteria(preferences.showUpperCharacters(), preferences.showLowerCharacters(),preferences.showNumberCharacters(), preferences.showSpecialCharacters());
                 mViewModel.loadGameRound(gid);
@@ -391,18 +380,7 @@ public class GridActivity extends FullscreenActivity {
         mButtonReset.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                //mViewModel.stopGame();
-                mTextSelection.setText("");
-                //mLetterAdapter.setGrid(null);
-                mViewModel.removeAllStreakLines(); // delete from local storage for this grid
-                mLetterBoard.removeAllStreakLine();
-                mLetterBoardLeft.removeAllStreakLine();
-                mLetterBoardTop.removeAllStreakLine();
-                isSingleCellSelected = false;
-                mTextFromBorder.setText("");
-                wordFromBorder = new StringBuilder();
-                //mViewModel.generateNewGameRound(rowCount, colCount);
-                //generateDefaultPassword();
+                resetGrid();
             }
         });
         mButtonSave.setOnClickListener(new View.OnClickListener() {
@@ -420,6 +398,56 @@ public class GridActivity extends FullscreenActivity {
 
             }
         });
+
+        iconSetting.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(GridActivity.this, GridCriteriaActivity.class);
+                intent.putExtra("settingRequest", true);
+                startActivityForResult(intent,SETTING_REQUEST_CODE);
+            }
+        });
+    }
+
+    private void initPwdEditText(){
+        if(getPreferences().showWordFromBorder()){
+            wordFromBorder = new StringBuilder();
+            mTextFromBorder.setVisibility(View.VISIBLE);
+        }else{
+            mTextFromBorder.setVisibility(View.GONE);
+            LinearLayout.LayoutParams param = new LinearLayout.LayoutParams(
+                    LinearLayout.LayoutParams.MATCH_PARENT,
+                    LinearLayout.LayoutParams.MATCH_PARENT,
+                    2.0f
+            );
+            mTextSelection.setLayoutParams(param);
+        }
+    }
+
+    private void resetGrid(){
+        mTextSelection.setText("");
+        mViewModel.removeAllStreakLines(); // delete from local storage for this grid
+        mLetterBoard.removeAllStreakLine();
+        mLetterBoardLeft.removeAllStreakLine();
+        mLetterBoardTop.removeAllStreakLine();
+        isSingleCellSelected = false;
+        mTextFromBorder.setText("");
+        wordFromBorder = new StringBuilder();
+        topBorderStartRow = 0;
+        topBorderStartCol = 0;
+        topBorderEndRow = 0;
+        topBorderEndtCol = 0;
+        leftBorderStartRow = 0;
+        leftBorderStartCol = 0;
+        leftBorderEndRow = 0;
+        leftBorderEndCol = 0;
+        mainBoardStartRow = 0;
+        mainBoardStartCol = 0;
+        mainBoardEndRow = 0;
+        mainBoardEndCol = 0;
+        selectedColor = 0;
+        isDefaultPasswordGenerated = false;
+        initPwdEditText();
     }
 
     @Override
@@ -1027,6 +1055,7 @@ public class GridActivity extends FullscreenActivity {
         } else if (gameState instanceof GridViewModel.Paused) {
 
         } else if (gameState instanceof GridViewModel.Playing) {
+            if(!isInitialized)
             onGameRoundLoaded(((GridViewModel.Playing) gameState).mGridData);
         }
     }
@@ -1064,8 +1093,6 @@ public class GridActivity extends FullscreenActivity {
         //doneLoadingContent();
     }
 
-    private boolean isInitialized;
-    int topBorderLeftMargin;
     private void tryScale() {
         DisplayMetrics metrics = new DisplayMetrics();
         getWindowManager().getDefaultDisplay().getMetrics(metrics);
@@ -1245,4 +1272,28 @@ public class GridActivity extends FullscreenActivity {
         return length;
     }
 
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        if(resultCode==RESULT_OK){
+            if(requestCode == SETTING_REQUEST_CODE){
+                if(data!=null){
+                    Bundle extras = data.getExtras();
+                    if(extras!=null && extras.getBoolean("changeInGridGeneration")) {
+                        resetGrid();
+                        isInitialized = false;
+                        topBorderLeftMargin = 0;
+                        rowCount = extras.getInt(EXTRA_ROW_COUNT);
+                        colCount = extras.getInt(EXTRA_COL_COUNT);
+                        Preferences preferences = getPreferences();
+                        mViewModel.setGridGenerationCriteria(preferences.showUpperCharacters(), preferences.showLowerCharacters(), preferences.showNumberCharacters(), preferences.showSpecialCharacters());
+                        mViewModel.generateNewGameRound(rowCount, colCount);
+                    }else {
+                        resetGrid();
+                        generateDefaultPassword();
+                    }
+                }
+            }
+        }
+        super.onActivityResult(requestCode, resultCode, data);
+    }
 }
