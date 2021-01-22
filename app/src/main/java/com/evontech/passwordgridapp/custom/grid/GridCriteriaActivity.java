@@ -60,6 +60,8 @@ public class GridCriteriaActivity extends AppCompatActivity {
     AppCompatCheckBox checkBox_start_end_grid;
     @BindView(R.id.btnGenerateGrid)
     Button btnGenerateGrid;
+    @BindView(R.id.cb_type_manually)
+    AppCompatCheckBox checkBox_type_manually;
     @BindView(R.id.etPassword)
     AppCompatEditText etPassword;
     @Inject
@@ -175,6 +177,7 @@ public class GridCriteriaActivity extends AppCompatActivity {
                     mPreferences.setWordFromBorder(false);
                     mPreferences.setDragManually(false);
                     mPreferences.setStartEndGrid(false);
+                    mPreferences.setTypeManually(false);
                     showDirectionDialog();
                 }
                 updateCheckBox();
@@ -191,6 +194,7 @@ public class GridCriteriaActivity extends AppCompatActivity {
                     mPreferences.setWordFromBorder(false);
                     mPreferences.setDragManually(false);
                     mPreferences.setStartEndGrid(false);
+                    mPreferences.setTypeManually(false);
                 }
                 updateCheckBox();
             }
@@ -206,6 +210,7 @@ public class GridCriteriaActivity extends AppCompatActivity {
                     mPreferences.setGridDirection(false);
                     mPreferences.setDragManually(false);
                     mPreferences.setStartEndGrid(false);
+                    mPreferences.setTypeManually(false);
                 }
                 updateCheckBox();
             }
@@ -222,6 +227,7 @@ public class GridCriteriaActivity extends AppCompatActivity {
                     mPreferences.setGridDirection(false);
                     mPreferences.setWordFromBorder(false);
                     mPreferences.setStartEndGrid(false);
+                    mPreferences.setTypeManually(false);
                 }
                 updateCheckBox();
             }
@@ -237,6 +243,22 @@ public class GridCriteriaActivity extends AppCompatActivity {
                     mPreferences.setGridDirection(false);
                     mPreferences.setWordFromBorder(false);
                     mPreferences.setDragManually(false);
+                    mPreferences.setTypeManually(false);
+                }
+                updateCheckBox();
+            }
+        });
+        checkBox_type_manually.setChecked(mPreferences.selectedTypeManually());
+        checkBox_type_manually.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                mPreferences.setTypeManually(isChecked);
+                if(isChecked) {
+                    mPreferences.setGridPattern(false);
+                    mPreferences.setGridDirection(false);
+                    mPreferences.setWordFromBorder(false);
+                    mPreferences.setDragManually(false);
+                    mPreferences.setStartEndGrid(false);
                 }
                 updateCheckBox();
             }
@@ -248,7 +270,7 @@ public class GridCriteriaActivity extends AppCompatActivity {
     private void setDefaultChosenOption(){
         //set default selection method here.
         if(!mPreferences.userSelectedChosenOption()){
-            int randomSelectionOption = Util.getRandomIntRange(1,5);
+            int randomSelectionOption = Util.getRandomIntRange(1,6);
             switch (randomSelectionOption){
                 case 1:
                     mPreferences.setUserSelectedChosenOption(false);
@@ -275,6 +297,11 @@ public class GridCriteriaActivity extends AppCompatActivity {
                     checkBox_word_from_border.setChecked(true);
                     //Log.d("onRandom ", mPreferences.userSelectedChosenOption()+"");
                     break;
+                case 6:
+                    mPreferences.setUserSelectedChosenOption(false);
+                    checkBox_type_manually.setChecked(true);
+                    //Log.d("onRandom ", mPreferences.userSelectedChosenOption()+"");
+                    break;
             }
 
         }
@@ -286,8 +313,10 @@ public class GridCriteriaActivity extends AppCompatActivity {
         checkBox_grid_direction.setChecked(mPreferences.showgridDirection());
         checkBox_drag_manually.setChecked(mPreferences.selectedDragManually());
         checkBox_start_end_grid.setChecked(mPreferences.selectedStartEndGrid());
+        checkBox_type_manually.setChecked(mPreferences.selectedTypeManually());
         mPreferences.setUserSelectedChosenOption(true);
-        if(!mPreferences.showWordFromBorder() && !mPreferences.showGridPattern() && !mPreferences.showgridDirection() && !mPreferences.selectedDragManually() && !mPreferences.selectedStartEndGrid()){
+        if(!mPreferences.showWordFromBorder() && !mPreferences.showGridPattern() && !mPreferences.showgridDirection()
+                && !mPreferences.selectedDragManually() && !mPreferences.selectedStartEndGrid() && !mPreferences.selectedTypeManually()){
             Log.d("unselected all ", "true");
             mPreferences.setUserSelectedChosenOption(false);
             setDefaultChosenOption();
@@ -430,6 +459,8 @@ public class GridCriteriaActivity extends AppCompatActivity {
                 if(mPreferences.showLowerCharacters()) changeInGridGeneration ++;
                 if(mPreferences.showNumberCharacters()) changeInGridGeneration ++;
                 if(mPreferences.showSpecialCharacters()) changeInGridGeneration ++;
+                if(!mPreferences.showWordFromBorder()) changeInGridGeneration ++;
+                if(!mPreferences.selectedTypeManually()) changeInGridGeneration ++;
                 changeInGridGeneration = changeInGridGeneration + mPreferences.getPasswordLength();
             }
         }
@@ -456,6 +487,8 @@ public class GridCriteriaActivity extends AppCompatActivity {
             if(mPreferences.showLowerCharacters()) changeInGridGeneration --;
             if(mPreferences.showNumberCharacters()) changeInGridGeneration --;
             if(mPreferences.showSpecialCharacters()) changeInGridGeneration --;
+            if(!mPreferences.showWordFromBorder()) changeInGridGeneration --;
+            if(!mPreferences.selectedTypeManually()) changeInGridGeneration --;
             changeInGridGeneration = changeInGridGeneration - mPreferences.getPasswordLength();
             Log.d("changeInGridGeneration ", ""+changeInGridGeneration);
             Intent intent = new Intent();
@@ -466,7 +499,7 @@ public class GridCriteriaActivity extends AppCompatActivity {
                 intent.putExtra("changeInGridGeneration", true);
                 intent.putExtra(GridActivity.EXTRA_ROW_COUNT, mPreferences.getGridRow());
                 intent.putExtra(GridActivity.EXTRA_COL_COUNT, mPreferences.getGridCol());
-                if(mPreferences.showWordFromBorder()) intent.putExtra(GridActivity.EXTRA_COL_COUNT, 26);
+                if(mPreferences.showWordFromBorder() || mPreferences.selectedTypeManually()) intent.putExtra(GridActivity.EXTRA_COL_COUNT, 26);
             }
             setResult(RESULT_OK,intent);
             finish();

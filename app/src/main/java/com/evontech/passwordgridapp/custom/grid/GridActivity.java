@@ -23,6 +23,7 @@ import android.widget.Toast;
 
 import androidx.annotation.Nullable;
 import androidx.appcompat.widget.AppCompatButton;
+import androidx.appcompat.widget.AppCompatEditText;
 import androidx.lifecycle.ViewModelProviders;
 import com.evontech.passwordgridapp.R;
 import com.evontech.passwordgridapp.custom.FullscreenActivity;
@@ -76,7 +77,7 @@ public class GridActivity extends FullscreenActivity {
     @BindView(R.id.text_selection)
     TextView mTextSelection;
     @BindView(R.id.text_chooseFromBorder)
-    TextView mTextFromBorder;
+    AppCompatEditText mTextFromBorder;
     @BindView(R.id.loading)
     View mLoading;
     @BindView(R.id.loadingText)
@@ -86,6 +87,8 @@ public class GridActivity extends FullscreenActivity {
     @BindColor(R.color.gray) int mGrayColor;
     @BindView(R.id.iv_settings)
     ImageView iconSetting;
+    @BindView(R.id.icon_autoGenerate)
+    ImageView iconAutoGenerate;
 
     private int rowCount;
     private int colCount;
@@ -222,11 +225,12 @@ public class GridActivity extends FullscreenActivity {
                         mLetterBoard.popStreakLine();
                         //mLetterBoard.removeAllStreakLine();
                        //mTextSelection.setText("");
-                    }else if(getPreferences().showgridDirection()){
+                    }else if(getPreferences().showgridDirection() || getPreferences().selectedTypeManually()){
                         mLetterBoard.removeAllStreakLine();
                         mTextSelection.setText("");
                         mTextFromBorder.setText("");
                         wordFromBorder = new StringBuilder();
+                        if(getPreferences().selectedTypeManually()) mTextFromBorder.setEnabled(true);
                     }
                 }
                 else {
@@ -407,19 +411,30 @@ public class GridActivity extends FullscreenActivity {
                 startActivityForResult(intent,SETTING_REQUEST_CODE);
             }
         });
+        iconAutoGenerate.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                resetGrid();
+                generateDefaultPassword();
+            }
+        });
     }
 
     private void initPwdEditText(){
-        if(getPreferences().showWordFromBorder()){
+        if(getPreferences().showWordFromBorder() || getPreferences().selectedTypeManually()){
             wordFromBorder = new StringBuilder();
             mTextFromBorder.setVisibility(View.VISIBLE);
+            if(getPreferences().selectedTypeManually()) mTextFromBorder.setEnabled(true);
+
+            /*LinearLayout.LayoutParams param0 = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.MATCH_PARENT, 0.4f);
+            iconAutoGenerate.setLayoutParams(param0);
+            LinearLayout.LayoutParams param1 = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.MATCH_PARENT, 0.8f);
+            mTextFromBorder.setLayoutParams(param1);
+            LinearLayout.LayoutParams param2 = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.MATCH_PARENT, 0.8f);
+            mTextSelection.setLayoutParams(param2);*/
         }else{
             mTextFromBorder.setVisibility(View.GONE);
-            LinearLayout.LayoutParams param = new LinearLayout.LayoutParams(
-                    LinearLayout.LayoutParams.MATCH_PARENT,
-                    LinearLayout.LayoutParams.MATCH_PARENT,
-                    2.0f
-            );
+            LinearLayout.LayoutParams param = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.MATCH_PARENT, 1.6f);
             mTextSelection.setLayoutParams(param);
         }
     }
@@ -526,12 +541,16 @@ public class GridActivity extends FullscreenActivity {
             generateDefault_GridPattern();
         }else if(getPreferences().showWordFromBorder()){
             generateDefault_WordFromBorder();
+        }else if(getPreferences().selectedTypeManually()){
+            generateDefault_WordFromBorder();
         }
         isDefaultPasswordGenerated = true;
     }
 
     private void generateDefault_WordFromBorder(){
-        String defaultPwd = "SECUREPASSWORD";
+        String defaultPwd ="";
+        if(getPreferences().getPasswordLength()==14) defaultPwd = "SECUREPASSWORD";
+        else defaultPwd = Util.getRandomWords(getPreferences().getPasswordLength());
         char [][] mainboard = mLetterAdapter.getGrid();
         char[] ch  = defaultPwd.toCharArray();
         for(char c : ch){
@@ -593,11 +612,11 @@ public class GridActivity extends FullscreenActivity {
             break;
             default:
                 mPattern = new char[][]{
-                        {'2', '2', '2', '2'},
-                        {'2', '0', '0', '2'},
-                        {'2', '2', '2', '2'},
-                        {'2', '0', '0', '2'},
-                        {'1', '0', '0', '1'}};
+                        {'2', '2', '2', '2', '2'},
+                        {'2', '0', '0', '0', '2'},
+                        {'2', '2', '2', '2', '2'},
+                        {'2', '0', '0', '0', '2'},
+                        {'1', '0', '0', '0', '1'}};
                 break;
         }
         //Log.d("row ", (mPattern.length)+"");
@@ -1016,9 +1035,13 @@ public class GridActivity extends FullscreenActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        if(getPreferences().showWordFromBorder()){
+        if(getPreferences().showWordFromBorder() || getPreferences().selectedTypeManually()){
             wordFromBorder = new StringBuilder();
             mTextFromBorder.setVisibility(View.VISIBLE);
+            if(getPreferences().selectedTypeManually()) {
+                mTextFromBorder.setEnabled(true);
+                mTextFromBorder.setBackground(null);
+            }
         }else mTextFromBorder.setVisibility(View.GONE);
         if(getPreferences().showGridPattern())
             mLetterBoard.getStreakView().setRememberStreakLine(true);

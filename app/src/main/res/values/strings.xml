@@ -18,6 +18,7 @@
     <string name="pref_word_from_border">wordFromBorder</string>
     <string name="pref_drag_manually">dragManually</string>
     <string name="pref_start_end_grid">startEndGrid</string>
+    <string name="pref_type_manually">TypeManually</string>
     <string name="pref_user_selected_chosen_option">userSelectedChosenOption</string>
     <string name="pref_row">pref_row</string>
     <string name="pref_col">col</string>

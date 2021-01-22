@@ -137,4 +137,14 @@ public class Util {
         return px / context.getResources().getDisplayMetrics().density;
     }
 
+    public static String getRandomWords(int length){
+        ArrayList<Character> alphabets = new ArrayList<Character>();
+        StringBuilder mWords = new StringBuilder();
+        for(char c = 'A'; c <= 'Z'; ++c)
+            alphabets.add(c);
+        for (int i=0;i<length;i++)
+        mWords.append(alphabets.get(getRandomIntRange(0,alphabets.size()-1)));
+        return mWords.toString();
+    }
+
 }
