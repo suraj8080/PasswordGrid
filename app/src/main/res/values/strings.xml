@@ -29,6 +29,8 @@
     <string name="pref_enableSound">enableSound</string>
     <string name="pref_deleteAfterFinish">deleteAfterFinish</string>
     <string name="pref_enableFullscreen">enableFullscreen</string>
+    <string name="pref_typePassword">pref_type_password</string>
+    <string name="pref_typePin">pref_type_pin</string>
     <string name="pref_autoScaleGrid">autoScaleGrid</string>
     <string name="snap_to_grid_def_val">ALWAYS_SNAP</string>
     <string name="show_grid_line">Show Grid Line</string>

@@ -11,7 +11,9 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
+import android.text.Editable;
 import android.text.TextUtils;
+import android.text.TextWatcher;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.View;
@@ -117,6 +119,7 @@ public class GridActivity extends FullscreenActivity {
     private boolean isDefaultPasswordGenerated;
     private boolean isInitialized;
     int topBorderLeftMargin;
+    int typePasswordLength;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -142,6 +145,7 @@ public class GridActivity extends FullscreenActivity {
                 mTextSelLayout.setVisibility(View.VISIBLE);
                 mLetterBoardLeft.removeAllStreakLine();
                 mLetterBoardTop.removeAllStreakLine();
+                selectedColor = streakLine.getColor();
 
                 int row = streakLine.getStartIndex().row;
                 int col = streakLine.getStartIndex().col;
@@ -418,6 +422,35 @@ public class GridActivity extends FullscreenActivity {
                 generateDefaultPassword();
             }
         });
+
+        mTextFromBorder.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) { }
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+                //Log.d("Editable before ", ""+s.length());
+                typePasswordLength = s.length();
+            }
+            @Override
+            public void afterTextChanged(Editable s) {
+                //Log.d("Editable after ", ""+s.length());
+                if(isDefaultPasswordGenerated) {
+                    if (!TextUtils.isEmpty(s)) {
+                        if (s.length() > typePasswordLength)
+                            generatePasswordByTypeManually(s.charAt(s.length() - 1));
+                        else {
+                            mLetterBoard.popStreakLine();
+                            String temp = mTextSelection.getText().toString();
+                            mTextSelection.setText(temp.substring(0, temp.length() - 1));
+                        }
+                    } else {
+                        wordFromBorder = new StringBuilder();
+                        mTextSelection.setText("");
+                        mLetterBoard.removeAllStreakLine();
+                    }
+                }
+            }
+        });
     }
 
     private void initPwdEditText(){
@@ -425,7 +458,6 @@ public class GridActivity extends FullscreenActivity {
             wordFromBorder = new StringBuilder();
             mTextFromBorder.setVisibility(View.VISIBLE);
             if(getPreferences().selectedTypeManually()) mTextFromBorder.setEnabled(true);
-
             /*LinearLayout.LayoutParams param0 = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.MATCH_PARENT, 0.4f);
             iconAutoGenerate.setLayoutParams(param0);
             LinearLayout.LayoutParams param1 = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.MATCH_PARENT, 0.8f);
@@ -434,7 +466,7 @@ public class GridActivity extends FullscreenActivity {
             mTextSelection.setLayoutParams(param2);*/
         }else{
             mTextFromBorder.setVisibility(View.GONE);
-            LinearLayout.LayoutParams param = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.MATCH_PARENT, 1.6f);
+            LinearLayout.LayoutParams param = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.MATCH_PARENT, 2f);
             mTextSelection.setLayoutParams(param);
         }
     }
@@ -461,7 +493,7 @@ public class GridActivity extends FullscreenActivity {
         mainBoardEndRow = 0;
         mainBoardEndCol = 0;
         selectedColor = 0;
-        isDefaultPasswordGenerated = false;
+        //isDefaultPasswordGenerated = false;
         initPwdEditText();
     }
 
@@ -570,6 +602,25 @@ public class GridActivity extends FullscreenActivity {
             mTextFromBorder.setText(wordFromBorder.toString());
             mLetterBoardTop.removeAllStreakLine();
         }
+    }
+
+    private void generatePasswordByTypeManually(char c){
+        char [][] mainboard = mLetterAdapter.getGrid();
+            int temp_integer = 64; //for upper case
+            int index = ((int)c -temp_integer)-1;
+            if((int)c <=90 & (int)c >=65)
+                Log.d("alphabet "+c, " at "+index);
+            wordFromBorder = wordFromBorder.append(c);
+            StreakView.StreakLine newStreakLine = new StreakView.StreakLine();
+            int occurrence = (int) wordFromBorder.chars().filter(chr -> chr == c).count()-1;
+            Log.d("occurrence ", ""+occurrence);
+            newStreakLine.getStartIndex().set(occurrence, index);
+            newStreakLine.getEndIndex().set(occurrence, index);
+            mLetterBoard.addStreakLine(newStreakLine);
+            StringBuilder strPwd = new StringBuilder(mTextSelection.getText().toString());
+            mTextSelection.setText(strPwd.append(mainboard[occurrence][index]).toString());
+           /* mTextFromBorder.setText(wordFromBorder.toString());
+            mLetterBoardTop.removeAllStreakLine();*/
     }
 
     private void generateDefault_GridPattern(){

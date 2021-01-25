@@ -14,6 +14,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
         <LinearLayout
+            android:layout_toRightOf="@+id/icon_autoGenerate"
             android:layout_marginLeft="10dp"
             android:layout_marginRight="10dp"
             android:layout_marginTop="2dp"
@@ -28,6 +29,7 @@
             android:layout_centerInParent="true"
             android:orientation="horizontal">
             <androidx.appcompat.widget.AppCompatEditText
+                android:inputType="textCapCharacters"
                 android:background="@null"
                 android:enabled="false"
                 android:layout_marginLeft="10dp"
@@ -36,7 +38,7 @@
                 android:gravity="center"
                 android:id="@+id/text_chooseFromBorder"
                 android:layout_width="0dp"
-                android:layout_weight=".8"
+                android:layout_weight="1"
                 android:layout_height="40dp"
                 android:textAlignment="center"
                 android:textColor="@android:color/black"
@@ -52,7 +54,7 @@
                 android:textIsSelectable="true"
                 android:gravity="center"
                 android:id="@+id/text_selection"
-                android:layout_weight=".8"
+                android:layout_weight="1"
                 android:layout_width="0dp"
                 android:layout_height="40dp"
                 android:textAlignment="center"
@@ -60,15 +62,15 @@
                 android:textStyle="bold"
                 android:textSize="12sp"
                 android:text=""/>
-            <ImageView
-                android:id="@+id/icon_autoGenerate"
-                android:layout_marginRight="5dp"
-                android:layout_gravity="center"
-                android:layout_width="0dp"
-                android:layout_weight=".4"
-                android:layout_height="wrap_content"
-                android:src="@drawable/ic_baseline_autorenew_24"/>
         </LinearLayout>
+        <ImageView
+            android:layout_centerVertical="true"
+            android:id="@+id/icon_autoGenerate"
+            android:layout_marginRight="5dp"
+            android:layout_gravity="center"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/ic_baseline_autorenew_24"/>
         <RelativeLayout
             android:layout_alignParentRight="true"
             android:layout_centerVertical="true"

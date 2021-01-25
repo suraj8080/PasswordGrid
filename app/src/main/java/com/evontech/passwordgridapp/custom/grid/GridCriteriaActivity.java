@@ -27,6 +27,7 @@ import com.evontech.passwordgridapp.custom.FullscreenActivity;
 import com.evontech.passwordgridapp.custom.PasswordGridApp;
 import com.evontech.passwordgridapp.custom.common.Util;
 import com.evontech.passwordgridapp.custom.settings.Preferences;
+import com.google.android.material.textfield.TextInputEditText;
 
 import java.util.Random;
 
@@ -63,7 +64,11 @@ public class GridCriteriaActivity extends AppCompatActivity {
     @BindView(R.id.cb_type_manually)
     AppCompatCheckBox checkBox_type_manually;
     @BindView(R.id.etPassword)
-    AppCompatEditText etPassword;
+    TextInputEditText etPassword;
+    @BindView(R.id.cb_password)
+    AppCompatCheckBox checkBox_password;
+    @BindView(R.id.cb_pin)
+    AppCompatCheckBox checkBox_pin;
     @Inject
     Preferences mPreferences;
     private int changeInGridGeneration;
@@ -79,6 +84,32 @@ public class GridCriteriaActivity extends AppCompatActivity {
         ButterKnife.bind(this);
         ((PasswordGridApp) getApplication()).getAppComponent().inject(this);
 
+        checkBox_password.setChecked(mPreferences.isPasswordSelected());
+        checkBox_password.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                mPreferences.setPasswordSelection(isChecked);
+                if(isChecked) {
+                    passwordModeEnabled();
+                    mPreferences.setPinSelection(false);
+                    checkBox_pin.setChecked(false);
+                }
+            }
+        });
+
+        checkBox_pin.setChecked(mPreferences.isPinSelected());
+        checkBox_pin.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                mPreferences.setPinSelection(isChecked);
+                if(isChecked) {
+                    pinModeEnabled();
+                    mPreferences.setPasswordSelection(false);
+                    checkBox_password.setChecked(false);
+                }
+            }
+        });
+
         etPassword.addTextChangedListener(new TextWatcher() {
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) { }
@@ -88,13 +119,19 @@ public class GridCriteriaActivity extends AppCompatActivity {
             public void afterTextChanged(Editable s) {
                 if(!TextUtils.isEmpty(s)) {
                     int pLength = Integer.parseInt(String.valueOf(s));
-                    if(pLength<8) pLength = 8;
+                    if(pLength<8 && mPreferences.isPasswordSelected()) pLength = 8;
+                    else if(pLength<4 && mPreferences.isPinSelected()) pLength = 4;
                     if(pLength>26) pLength = 26;
                     mPreferences.setPasswordLength(pLength);
                     mPreferences.setGridCol(pLength);
                     mPreferences.setGridRow(pLength);
                     Log.d("Editable ", String.valueOf(pLength));
-                }else mPreferences.setPasswordLength(8);
+                }else {
+                    if(mPreferences.isPasswordSelected())
+                    mPreferences.setPasswordLength(8);
+                    else if(mPreferences.isPinSelected())
+                    mPreferences.setPasswordLength(4);
+                }
             }
         });
 
@@ -106,10 +143,10 @@ public class GridCriteriaActivity extends AppCompatActivity {
                 if(isSettingRequest){
                     backPressed();
                 }else {
-                    if (mPreferences.getPasswordLength() < 8) {
-                        Toast.makeText(GridCriteriaActivity.this, "Enter password length", Toast.LENGTH_SHORT).show();
-                    } else if (mPreferences.getPasswordLength() < 8)
+                    if (mPreferences.isPasswordSelected() && mPreferences.getPasswordLength() < 8) {
                         Toast.makeText(GridCriteriaActivity.this, "Password length cannot be less than 8", Toast.LENGTH_SHORT).show();
+                    } else if (mPreferences.isPinSelected() && mPreferences.getPasswordLength() < 4)
+                        Toast.makeText(GridCriteriaActivity.this, "Password length cannot be less than 4", Toast.LENGTH_SHORT).show();
                     else if (mPreferences.getPasswordLength() > 26)
                         Toast.makeText(GridCriteriaActivity.this, "Password length cannot be greater than 26", Toast.LENGTH_SHORT).show();
                     else if (!mPreferences.showUpperCharacters() && !mPreferences.showLowerCharacters() && !mPreferences.showNumberCharacters() && !mPreferences.showSpecialCharacters())
@@ -167,101 +204,83 @@ public class GridCriteriaActivity extends AppCompatActivity {
 
 
         checkBox_grid_direction.setChecked(mPreferences.showgridDirection());
-        checkBox_grid_direction.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-            @Override
-            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-               // Log.d("buttonView ", buttonView.getText()+"");
-                mPreferences.setGridDirection(isChecked);
-                if(isChecked) {
-                    mPreferences.setGridPattern(false);
-                    mPreferences.setWordFromBorder(false);
-                    mPreferences.setDragManually(false);
-                    mPreferences.setStartEndGrid(false);
-                    mPreferences.setTypeManually(false);
-                    showDirectionDialog();
-                }
-                updateCheckBox();
+        checkBox_grid_direction.setOnCheckedChangeListener((buttonView, isChecked) -> {
+           // Log.d("buttonView ", buttonView.getText()+"");
+            mPreferences.setGridDirection(isChecked);
+            if(isChecked) {
+                mPreferences.setGridPattern(false);
+                mPreferences.setWordFromBorder(false);
+                mPreferences.setDragManually(false);
+                mPreferences.setStartEndGrid(false);
+                mPreferences.setTypeManually(false);
+                showDirectionDialog();
             }
+            updateCheckBox();
         });
         checkBox_pattern.setChecked(mPreferences.showGridPattern());
-        checkBox_pattern.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-            @Override
-            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                //Log.d("buttonView ", buttonView.getText()+"");
-                mPreferences.setGridPattern(isChecked);
-                if(isChecked) {
-                    mPreferences.setGridDirection(false);
-                    mPreferences.setWordFromBorder(false);
-                    mPreferences.setDragManually(false);
-                    mPreferences.setStartEndGrid(false);
-                    mPreferences.setTypeManually(false);
-                }
-                updateCheckBox();
+        checkBox_pattern.setOnCheckedChangeListener((buttonView, isChecked) -> {
+            //Log.d("buttonView ", buttonView.getText()+"");
+            mPreferences.setGridPattern(isChecked);
+            if(isChecked) {
+                mPreferences.setGridDirection(false);
+                mPreferences.setWordFromBorder(false);
+                mPreferences.setDragManually(false);
+                mPreferences.setStartEndGrid(false);
+                mPreferences.setTypeManually(false);
             }
+            updateCheckBox();
         });
         checkBox_word_from_border.setChecked(mPreferences.showWordFromBorder());
-        checkBox_word_from_border.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-            @Override
-            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                //Log.d("buttonView ", buttonView.getText()+"");
-                mPreferences.setWordFromBorder(isChecked);
-                if(isChecked) {
-                    mPreferences.setGridPattern(false);
-                    mPreferences.setGridDirection(false);
-                    mPreferences.setDragManually(false);
-                    mPreferences.setStartEndGrid(false);
-                    mPreferences.setTypeManually(false);
-                }
-                updateCheckBox();
+        checkBox_word_from_border.setOnCheckedChangeListener((buttonView, isChecked) -> {
+            //Log.d("buttonView ", buttonView.getText()+"");
+            mPreferences.setWordFromBorder(isChecked);
+            if(isChecked) {
+                mPreferences.setGridPattern(false);
+                mPreferences.setGridDirection(false);
+                mPreferences.setDragManually(false);
+                mPreferences.setStartEndGrid(false);
+                mPreferences.setTypeManually(false);
             }
+            updateCheckBox();
         });
 
         checkBox_drag_manually.setChecked(mPreferences.selectedDragManually());
-        checkBox_drag_manually.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-            @Override
-            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-               // Log.d("buttonView ", buttonView.getText()+"");
-                mPreferences.setDragManually(isChecked);
-                if(isChecked) {
-                    mPreferences.setGridPattern(false);
-                    mPreferences.setGridDirection(false);
-                    mPreferences.setWordFromBorder(false);
-                    mPreferences.setStartEndGrid(false);
-                    mPreferences.setTypeManually(false);
-                }
-                updateCheckBox();
+        checkBox_drag_manually.setOnCheckedChangeListener((buttonView, isChecked) -> {
+           // Log.d("buttonView ", buttonView.getText()+"");
+            mPreferences.setDragManually(isChecked);
+            if(isChecked) {
+                mPreferences.setGridPattern(false);
+                mPreferences.setGridDirection(false);
+                mPreferences.setWordFromBorder(false);
+                mPreferences.setStartEndGrid(false);
+                mPreferences.setTypeManually(false);
             }
+            updateCheckBox();
         });
         checkBox_start_end_grid.setChecked(mPreferences.selectedStartEndGrid());
-        checkBox_start_end_grid.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-            @Override
-            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                //Log.d("buttonView ", buttonView.getText()+"");
-                mPreferences.setStartEndGrid(isChecked);
-                if(isChecked) {
-                    mPreferences.setGridPattern(false);
-                    mPreferences.setGridDirection(false);
-                    mPreferences.setWordFromBorder(false);
-                    mPreferences.setDragManually(false);
-                    mPreferences.setTypeManually(false);
-                }
-                updateCheckBox();
+        checkBox_start_end_grid.setOnCheckedChangeListener((buttonView, isChecked) -> {
+            //Log.d("buttonView ", buttonView.getText()+"");
+            mPreferences.setStartEndGrid(isChecked);
+            if(isChecked) {
+                mPreferences.setGridPattern(false);
+                mPreferences.setGridDirection(false);
+                mPreferences.setWordFromBorder(false);
+                mPreferences.setDragManually(false);
+                mPreferences.setTypeManually(false);
             }
+            updateCheckBox();
         });
         checkBox_type_manually.setChecked(mPreferences.selectedTypeManually());
-        checkBox_type_manually.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-            @Override
-            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                mPreferences.setTypeManually(isChecked);
-                if(isChecked) {
-                    mPreferences.setGridPattern(false);
-                    mPreferences.setGridDirection(false);
-                    mPreferences.setWordFromBorder(false);
-                    mPreferences.setDragManually(false);
-                    mPreferences.setStartEndGrid(false);
-                }
-                updateCheckBox();
+        checkBox_type_manually.setOnCheckedChangeListener((buttonView, isChecked) -> {
+            mPreferences.setTypeManually(isChecked);
+            if(isChecked) {
+                mPreferences.setGridPattern(false);
+                mPreferences.setGridDirection(false);
+                mPreferences.setWordFromBorder(false);
+                mPreferences.setDragManually(false);
+                mPreferences.setStartEndGrid(false);
             }
+            updateCheckBox();
         });
 
         setDefaultChosenOption();
@@ -350,35 +369,27 @@ public class GridCriteriaActivity extends AppCompatActivity {
 
          ramdomiseDirection();
 
-        radioGroup.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
-            @Override
-            public void onCheckedChanged(RadioGroup group, int checkedId) {
-                mPreferences.setUserSelectedDirection(true);
-                RadioButton rb = (RadioButton) group.findViewById(checkedId);
-                //Log.d("checkId ", rb.getText().toString());
-                if (checkedId==R.id.cbHorizontal)
-                   mPreferences.selectDirection("EAST");
-                else if (checkedId==R.id.cbHorizontalReverse)
-                    mPreferences.selectDirection("WEST");
-                else if (checkedId==R.id.cbVertical)
-                    mPreferences.selectDirection("SOUTH");
-                else if (checkedId==R.id.cbVerticalReverse)
-                    mPreferences.selectDirection("NORTH");
-                else if (checkedId==R.id.cbDiagonal)
-                    mPreferences.selectDirection("SOUTH_EAST");
-                else if (checkedId==R.id.cbDiagonalReverse)
-                    mPreferences.selectDirection("NORTH_WEST");
-                alertDialog.dismiss();
-               // onDirectionSelection();
-            }
+        radioGroup.setOnCheckedChangeListener((group, checkedId) -> {
+            mPreferences.setUserSelectedDirection(true);
+            RadioButton rb = (RadioButton) group.findViewById(checkedId);
+            //Log.d("checkId ", rb.getText().toString());
+            if (checkedId==R.id.cbHorizontal)
+               mPreferences.selectDirection("EAST");
+            else if (checkedId==R.id.cbHorizontalReverse)
+                mPreferences.selectDirection("WEST");
+            else if (checkedId==R.id.cbVertical)
+                mPreferences.selectDirection("SOUTH");
+            else if (checkedId==R.id.cbVerticalReverse)
+                mPreferences.selectDirection("NORTH");
+            else if (checkedId==R.id.cbDiagonal)
+                mPreferences.selectDirection("SOUTH_EAST");
+            else if (checkedId==R.id.cbDiagonalReverse)
+                mPreferences.selectDirection("NORTH_WEST");
+            alertDialog.dismiss();
+           // onDirectionSelection();
         });
         AppCompatButton buttonCancel = dialogView.findViewById(R.id.buttonCancel);
-        buttonCancel.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                alertDialog.dismiss();
-            }
-        });
+        buttonCancel.setOnClickListener(v -> alertDialog.dismiss());
     }
 
     private void ramdomiseDirection(){
@@ -461,6 +472,7 @@ public class GridCriteriaActivity extends AppCompatActivity {
                 if(mPreferences.showSpecialCharacters()) changeInGridGeneration ++;
                 if(!mPreferences.showWordFromBorder()) changeInGridGeneration ++;
                 if(!mPreferences.selectedTypeManually()) changeInGridGeneration ++;
+                if(!mPreferences.isPinSelected()) changeInGridGeneration ++;
                 changeInGridGeneration = changeInGridGeneration + mPreferences.getPasswordLength();
             }
         }
@@ -470,10 +482,22 @@ public class GridCriteriaActivity extends AppCompatActivity {
         Intent intent = new Intent(this, GridActivity.class);
         intent.putExtra(GridActivity.EXTRA_ROW_COUNT, mPreferences.getGridRow());
         intent.putExtra(GridActivity.EXTRA_COL_COUNT, mPreferences.getGridCol());
-        if(mPreferences.showWordFromBorder()) intent.putExtra(GridActivity.EXTRA_COL_COUNT, 26);
+        if(mPreferences.showWordFromBorder() ||  mPreferences.selectedTypeManually()) intent.putExtra(GridActivity.EXTRA_COL_COUNT, 26);
         //intent.putExtra(GridActivity.EXTRA_GRID_ID, 619);
         startActivity(intent);
         overridePendingTransition(R.anim.slide_in, R.anim.slide_out);
+    }
+
+    private void pinModeEnabled(){
+        checkBox_uppercaese.setChecked(false);
+        checkBox_lowercaese.setChecked(false);
+        checkBox_special.setChecked(false);
+    }
+
+    private void passwordModeEnabled(){
+        checkBox_uppercaese.setChecked(true);
+        checkBox_lowercaese.setChecked(true);
+        checkBox_special.setChecked(true);
     }
 
     @Override
@@ -489,6 +513,7 @@ public class GridCriteriaActivity extends AppCompatActivity {
             if(mPreferences.showSpecialCharacters()) changeInGridGeneration --;
             if(!mPreferences.showWordFromBorder()) changeInGridGeneration --;
             if(!mPreferences.selectedTypeManually()) changeInGridGeneration --;
+            if(!mPreferences.isPinSelected()) changeInGridGeneration --;
             changeInGridGeneration = changeInGridGeneration - mPreferences.getPasswordLength();
             Log.d("changeInGridGeneration ", ""+changeInGridGeneration);
             Intent intent = new Intent();
@@ -500,8 +525,13 @@ public class GridCriteriaActivity extends AppCompatActivity {
                 intent.putExtra(GridActivity.EXTRA_ROW_COUNT, mPreferences.getGridRow());
                 intent.putExtra(GridActivity.EXTRA_COL_COUNT, mPreferences.getGridCol());
                 if(mPreferences.showWordFromBorder() || mPreferences.selectedTypeManually()) intent.putExtra(GridActivity.EXTRA_COL_COUNT, 26);
-            }
-            setResult(RESULT_OK,intent);
-            finish();
+                /*intent.setClass(this, GridActivity.class);
+                startActivity(intent);
+                finish();
+                overridePendingTransition(R.anim.slide_in, R.anim.slide_out);*/
+            }//else {
+                setResult(RESULT_OK, intent);
+                finish();
+           // }
     }
 }

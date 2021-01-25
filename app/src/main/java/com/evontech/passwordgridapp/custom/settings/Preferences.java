@@ -16,6 +16,8 @@ import javax.inject.Inject;
 
 public class Preferences {
     private static String KEY_ENABLE_FULLSCREEN;
+    private static String KEY_TYPE_PASSWORD;
+    private static String KEY_TYPE_PIN;
     private static String KEY_SHOW_GRID_LINE;
     private static String KEY_UPPERCASE_LETTERS;
     private static String KEY_LOWERCASE_LETTERS;
@@ -40,6 +42,8 @@ public class Preferences {
     public Preferences(Context context, SharedPreferences preferences) {
         mPreferences = preferences;
         KEY_ENABLE_FULLSCREEN = context.getString(R.string.pref_enableFullscreen);
+        KEY_TYPE_PASSWORD = context.getString(R.string.pref_typePassword);
+        KEY_TYPE_PIN = context.getString(R.string.pref_typePin);
         KEY_SHOW_GRID_LINE = context.getString(R.string.pref_showGridLine);
         KEY_UPPERCASE_LETTERS = context.getString(R.string.pref_upperCaseLetters);
         KEY_LOWERCASE_LETTERS = context.getString(R.string.pref_lowerCaseLetters);
@@ -85,6 +89,25 @@ public class Preferences {
         Log.d("special character selection ", status+"");
         mPreferences.edit()
                 .putBoolean(KEY_SPECIAL_CHARACTERS, status)
+                .apply();
+    }
+
+    public boolean isPasswordSelected() {
+        return mPreferences.getBoolean(KEY_TYPE_PASSWORD, false);
+    }
+    public void setPasswordSelection(boolean status) {
+        Log.d("setPasswordSelection ", status+"");
+        mPreferences.edit()
+                .putBoolean(KEY_TYPE_PASSWORD, status)
+                .apply();
+    }
+    public boolean isPinSelected() {
+        return mPreferences.getBoolean(KEY_TYPE_PIN, false);
+    }
+    public void setPinSelection(boolean status) {
+        Log.d("setPasswordSelection ", status+"");
+        mPreferences.edit()
+                .putBoolean(KEY_TYPE_PIN, status)
                 .apply();
     }
 
