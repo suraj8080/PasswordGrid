@@ -80,13 +80,32 @@ public class LetterBoard extends CenterLayout implements Observer {
         if (mInitialized) {
             mGridLineBg.setGridWidth((int) (mGridLineBg.getGridWidth() * scaleX));
             mGridLineBg.setGridHeight((int) (mGridLineBg.getGridHeight() * scaleY));
-            mGridLineBg.setLineWidth((int) (mGridLineBg.getLineWidth() * scaleX));
+            //mGridLineBg.setLineWidth((int) (mGridLineBg.getLineWidth() * scaleX));
 
             mLetterGrid.setGridWidth((int) (mLetterGrid.getGridWidth() * scaleX));
             mLetterGrid.setGridHeight((int) (mLetterGrid.getGridHeight() * scaleY));
             mLetterGrid.setLetterSize(mLetterGrid.getLetterSize() * scaleY);
 
             mStreakView.setStreakWidth((int) (mStreakView.getStreakWidth() * scaleY));
+
+            // remove all views and re attach them, so this layout get re measure
+            removeAllViews();
+            attachAllViews();
+            mStreakView.invalidateStreakLine();
+        }
+    }
+
+    public void defaultScale(int scale) {
+        if (mInitialized) {
+            mGridLineBg.setGridWidth(scale);
+            mGridLineBg.setGridHeight(scale);
+            mGridLineBg.setLineWidth(2);
+
+            mLetterGrid.setGridWidth(scale);
+            mLetterGrid.setGridHeight(scale);
+            mLetterGrid.setLetterSize(scale*.6f);
+
+            mStreakView.setStreakWidth(scale);
 
             // remove all views and re attach them, so this layout get re measure
             removeAllViews();
@@ -237,6 +256,10 @@ public class LetterBoard extends CenterLayout implements Observer {
             a.recycle();
         }
 
+        Log.d("LetterBoard gridRowCount", gridRowCount+"");
+        Log.d("LetterBoard gridColCount", gridColCount+"");
+        Log.d("LetterBoard gridWidth", gridWidth+"");
+        Log.d("LetterBoard gridHeight", gridHeight+"");
         setDataAdapter(new SampleLetterGridDataAdapter(gridRowCount, gridColCount), type);
 
         mGridLineBg.setColCount(getGridColCount());

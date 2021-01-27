@@ -118,6 +118,7 @@ public class GridActivity extends FullscreenActivity {
     private int selectedColor;
     private boolean isDefaultPasswordGenerated;
     private boolean isInitialized;
+    private boolean isScaled;
     int topBorderLeftMargin;
     int typePasswordLength;
 
@@ -588,19 +589,20 @@ public class GridActivity extends FullscreenActivity {
         for(char c : ch){
             int temp_integer = 64; //for upper case
             int index = ((int)c -temp_integer)-1;
-            if((int)c <=90 & (int)c >=65)
-                Log.d("alphabet "+c, " at "+index);
-            wordFromBorder = wordFromBorder.append(c);
-            StreakView.StreakLine newStreakLine = new StreakView.StreakLine();
-            int occurrence = (int) wordFromBorder.chars().filter(chr -> chr == c).count()-1;
-            Log.d("occurrence ", ""+occurrence);
-            newStreakLine.getStartIndex().set(occurrence, index);
-            newStreakLine.getEndIndex().set(occurrence, index);
-            mLetterBoard.addStreakLine(newStreakLine);
-            StringBuilder strPwd = new StringBuilder(mTextSelection.getText().toString());
-            mTextSelection.setText(strPwd.append(mainboard[occurrence][index]).toString());
-            mTextFromBorder.setText(wordFromBorder.toString());
-            mLetterBoardTop.removeAllStreakLine();
+            if((int)c <=90 & (int)c >=65) {
+                Log.d("alphabet " + c, " at " + index);
+                wordFromBorder = wordFromBorder.append(c);
+                StreakView.StreakLine newStreakLine = new StreakView.StreakLine();
+                int occurrence = (int) wordFromBorder.chars().filter(chr -> chr == c).count() - 1;
+                Log.d("occurrence ", "" + occurrence);
+                newStreakLine.getStartIndex().set(occurrence, index);
+                newStreakLine.getEndIndex().set(occurrence, index);
+                mLetterBoard.addStreakLine(newStreakLine);
+                StringBuilder strPwd = new StringBuilder(mTextSelection.getText().toString());
+                mTextSelection.setText(strPwd.append(mainboard[occurrence][index]).toString());
+                mTextFromBorder.setText(wordFromBorder.toString());
+                mLetterBoardTop.removeAllStreakLine();
+            }
         }
     }
 
@@ -608,17 +610,18 @@ public class GridActivity extends FullscreenActivity {
         char [][] mainboard = mLetterAdapter.getGrid();
             int temp_integer = 64; //for upper case
             int index = ((int)c -temp_integer)-1;
-            if((int)c <=90 & (int)c >=65)
-                Log.d("alphabet "+c, " at "+index);
-            wordFromBorder = wordFromBorder.append(c);
-            StreakView.StreakLine newStreakLine = new StreakView.StreakLine();
-            int occurrence = (int) wordFromBorder.chars().filter(chr -> chr == c).count()-1;
-            Log.d("occurrence ", ""+occurrence);
-            newStreakLine.getStartIndex().set(occurrence, index);
-            newStreakLine.getEndIndex().set(occurrence, index);
-            mLetterBoard.addStreakLine(newStreakLine);
-            StringBuilder strPwd = new StringBuilder(mTextSelection.getText().toString());
-            mTextSelection.setText(strPwd.append(mainboard[occurrence][index]).toString());
+            if((int)c <=90 & (int)c >=65) {
+                Log.d("alphabet " + c, " at " + index);
+                wordFromBorder = wordFromBorder.append(c);
+                StreakView.StreakLine newStreakLine = new StreakView.StreakLine();
+                int occurrence = (int) wordFromBorder.chars().filter(chr -> chr == c).count() - 1;
+                Log.d("occurrence ", "" + occurrence);
+                newStreakLine.getStartIndex().set(occurrence, index);
+                newStreakLine.getEndIndex().set(occurrence, index);
+                mLetterBoard.addStreakLine(newStreakLine);
+                StringBuilder strPwd = new StringBuilder(mTextSelection.getText().toString());
+                mTextSelection.setText(strPwd.append(mainboard[occurrence][index]).toString());
+            }
            /* mTextFromBorder.setText(wordFromBorder.toString());
             mLetterBoardTop.removeAllStreakLine();*/
     }
@@ -626,7 +629,10 @@ public class GridActivity extends FullscreenActivity {
     private void generateDefault_GridPattern(){
         char [][] mainboard = mLetterAdapter.getGrid();
         char [][] mPattern;
-        int randomPattern = Util.getRandomIntRange(1,5);
+        int randomPattern = 6; //Util.getRandomIntRange(1,5);
+        if(getPreferences().getPasswordLength()<=4) randomPattern = 5;
+        else if(getPreferences().getPasswordLength()<14) randomPattern = 4;
+
         Log.d("randomPattern ", ""+randomPattern);
         switch (randomPattern) {
             case 1:
@@ -661,17 +667,50 @@ public class GridActivity extends FullscreenActivity {
                         {'2', '0', '0', '2'},
                         {'2', '2', '2', '2'}};
             break;
+            case 5:
+                mPattern = new char[][]{
+                        {'2', '2', '2'},
+                        {'2', '0', '0'},
+                        {'2', '0', '0'},
+                        {'2', '2', '2'}};
+                break;
             default:
                 mPattern = new char[][]{
                         {'2', '2', '2', '2', '2'},
-                        {'2', '0', '0', '0', '2'},
                         {'2', '2', '2', '2', '2'},
                         {'2', '0', '0', '0', '2'},
-                        {'1', '0', '0', '0', '1'}};
+                        {'2', '0', '0', '0', '2'},
+                        {'0', '0', '0', '0', '0'}};
                 break;
         }
         //Log.d("row ", (mPattern.length)+"");
         //Log.d("col ",  (mPattern[0].length)+"");
+        if(getPreferences().getPasswordLength()>4 && getPreferences().getPasswordLength()<14){
+            int diff = 14 - getPreferences().getPasswordLength();
+            for(int i=mPattern.length-1;i>=0;i--){
+                for (int j=0;j<mPattern[i].length;j++) {
+                    if(diff>0 && mPattern[i][j]!='0'){
+                        mPattern[i][j] = '0';
+                        diff --;
+                    }
+                }
+            }
+        }else if(getPreferences().getPasswordLength()>14){
+            int diff = getPreferences().getPasswordLength();
+            int tempRow = diff/rowCount;
+            if(diff%rowCount>0) tempRow++;
+            mPattern = new char[tempRow][colCount];
+            for(int i=0;i<mPattern.length;i++){
+                for (int j=0;j<mPattern[i].length;j++) {
+                    if(diff>=0 && mPattern[i][j]!='2'){
+                        mPattern[i][j] = '2';
+                        diff --;
+                    }else {
+                        mPattern[i][j] = '0';
+                    }
+                }
+            }
+        }
         int randomStartRow = Util.getRandomIntRange(0,rowCount-(mPattern.length));
         int randomStartCol = Util.getRandomIntRange(0, colCount-(mPattern[0].length));
         for(int i=0;i<mPattern.length;i++){
@@ -1171,8 +1210,10 @@ public class GridActivity extends FullscreenActivity {
         DisplayMetrics metrics = new DisplayMetrics();
         getWindowManager().getDefaultDisplay().getMetrics(metrics);
 
-        int boardWidth = mLetterBoard.getWidth();
+        int boardWidth = mLetterBoard.getWidth();  // work here for fix scale
         int screenWidth = metrics.widthPixels - (boardWidth/mLetterBoard.getGridColCount()) - (int) Util.convertDpToPx(this, 20);
+        Log.d("boardWidth ", boardWidth+"");
+        Log.d("screenWidth ", screenWidth+"");
         topBorderLeftMargin = (boardWidth/mLetterBoard.getGridColCount()) + (int) Util.convertDpToPx(this, 10);
         int dynamicStreakWidth = (boardWidth/mLetterBoard.getGridColCount());
         mLetterBoard.setStreakWidth(dynamicStreakWidth);
@@ -1186,6 +1227,7 @@ public class GridActivity extends FullscreenActivity {
         //Log.d("topBorderLeftMargin ", ""+topBorderLeftMargin);
         mLetterBoardTop.setLayoutParams(params);
         if (boardWidth > screenWidth) {
+            isScaled = true;
             float scale = (float)screenWidth / (float)boardWidth;
             mLetterBoardLeft.scale(scale, scale);
             mLetterBoard.scale(scale, scale);
@@ -1198,6 +1240,13 @@ public class GridActivity extends FullscreenActivity {
                         .setDuration(400)
                         .setInterpolator(new DecelerateInterpolator())
                         .start();*/
+            }
+        }else {
+            if(!isScaled) {
+                int scale = (int)(screenWidth * 0.05);
+                mLetterBoard.defaultScale(scale);
+                mLetterBoardLeft.defaultScale(scale);
+                mLetterBoardTop.defaultScale(scale);
             }
         }
          if(isInitialized) generateDefaultPassword();
@@ -1355,6 +1404,7 @@ public class GridActivity extends FullscreenActivity {
                     if(extras!=null && extras.getBoolean("changeInGridGeneration")) {
                         resetGrid();
                         isInitialized = false;
+                        isScaled = false;
                         topBorderLeftMargin = 0;
                         rowCount = extras.getInt(EXTRA_ROW_COUNT);
                         colCount = extras.getInt(EXTRA_COL_COUNT);
