@@ -3,6 +3,7 @@ package com.evontech.passwordgridapp.custom.common;
 import android.content.Context;
 import android.graphics.Color;
 import android.util.Log;
+import android.util.TypedValue;
 
 import com.evontech.passwordgridapp.custom.grid.GridDataCreator;
 import com.evontech.passwordgridapp.custom.mcustom.LetterGridDataAdapter;
@@ -135,6 +136,10 @@ public class Util {
 
     public static float convertPxToDp(Context context, float px) {
         return px / context.getResources().getDisplayMetrics().density;
+    }
+
+    public static int spToPx(float sp, Context context) {
+        return (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP, sp, context.getResources().getDisplayMetrics());
     }
 
     public static String getRandomWords(int length){

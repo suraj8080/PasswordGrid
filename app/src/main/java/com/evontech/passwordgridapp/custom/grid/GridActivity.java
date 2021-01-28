@@ -26,6 +26,7 @@ import android.widget.Toast;
 import androidx.annotation.Nullable;
 import androidx.appcompat.widget.AppCompatButton;
 import androidx.appcompat.widget.AppCompatEditText;
+import androidx.core.content.ContextCompat;
 import androidx.lifecycle.ViewModelProviders;
 import com.evontech.passwordgridapp.R;
 import com.evontech.passwordgridapp.custom.FullscreenActivity;
@@ -46,6 +47,7 @@ import java.io.FileOutputStream;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.regex.Pattern;
 
 import javax.inject.Inject;
 import butterknife.BindColor;
@@ -91,6 +93,12 @@ public class GridActivity extends FullscreenActivity {
     ImageView iconSetting;
     @BindView(R.id.icon_autoGenerate)
     ImageView iconAutoGenerate;
+    @BindView(R.id.indicator_red)
+    View indicatorRed;
+    @BindView(R.id.indicator_green)
+    View indicatorGreen;
+    @BindView(R.id.indicator_amber)
+    View indicatorAmber;
 
     private int rowCount;
     private int colCount;
@@ -288,8 +296,8 @@ public class GridActivity extends FullscreenActivity {
                     topBorderEndRow = row;
                     topBorderEndtCol = col;
                     mLetterBoardLeft.removeAllStreakLine();
-                    Log.d("GridActivity topBorder ", "end row: "+topBorderEndRow +" end col: "+topBorderEndtCol);
-                    Log.d("wordFromBorder ", str);
+                    //Log.d("GridActivity topBorder ", "end row: "+topBorderEndRow +" end col: "+topBorderEndtCol);
+                    //Log.d("wordFromBorder ", str);
                     if(getPreferences().showWordFromBorder()){
                         char[][] topborder = mLetterTopAdapter.getGrid();
                         char [][] mainboard = mLetterAdapter.getGrid();
@@ -473,6 +481,7 @@ public class GridActivity extends FullscreenActivity {
     }
 
     private void resetGrid(){
+        defaultPasswordStrengthIndicator();
         mTextSelection.setText("");
         mViewModel.removeAllStreakLines(); // delete from local storage for this grid
         mLetterBoard.removeAllStreakLine();
@@ -590,11 +599,11 @@ public class GridActivity extends FullscreenActivity {
             int temp_integer = 64; //for upper case
             int index = ((int)c -temp_integer)-1;
             if((int)c <=90 & (int)c >=65) {
-                Log.d("alphabet " + c, " at " + index);
+               // Log.d("alphabet " + c, " at " + index);
                 wordFromBorder = wordFromBorder.append(c);
                 StreakView.StreakLine newStreakLine = new StreakView.StreakLine();
                 int occurrence = (int) wordFromBorder.chars().filter(chr -> chr == c).count() - 1;
-                Log.d("occurrence ", "" + occurrence);
+               // Log.d("occurrence ", "" + occurrence);
                 newStreakLine.getStartIndex().set(occurrence, index);
                 newStreakLine.getEndIndex().set(occurrence, index);
                 mLetterBoard.addStreakLine(newStreakLine);
@@ -611,11 +620,11 @@ public class GridActivity extends FullscreenActivity {
             int temp_integer = 64; //for upper case
             int index = ((int)c -temp_integer)-1;
             if((int)c <=90 & (int)c >=65) {
-                Log.d("alphabet " + c, " at " + index);
+                //Log.d("alphabet " + c, " at " + index);
                 wordFromBorder = wordFromBorder.append(c);
                 StreakView.StreakLine newStreakLine = new StreakView.StreakLine();
                 int occurrence = (int) wordFromBorder.chars().filter(chr -> chr == c).count() - 1;
-                Log.d("occurrence ", "" + occurrence);
+               // Log.d("occurrence ", "" + occurrence);
                 newStreakLine.getStartIndex().set(occurrence, index);
                 newStreakLine.getEndIndex().set(occurrence, index);
                 mLetterBoard.addStreakLine(newStreakLine);
@@ -1025,6 +1034,7 @@ public class GridActivity extends FullscreenActivity {
         for (String pwd: lastPartPwd) password = password.concat(pwd);
 
         Log.d("password ", password);
+        passwordStrengthIndicator(password);
         String passwordAlert = GridDataCreator.checkPasswordCriteria(password);
         if(!passwordAlert.equals("true")) {
             if(password.length()>=getPreferences().getPasswordLength()){ //replace it automatically when password select actual length but not get desired password
@@ -1092,6 +1102,7 @@ public class GridActivity extends FullscreenActivity {
                         mViewModel.updateGridData();
                         index++;
                     }
+                    passwordStrengthIndicator(mTextSelection.getText().toString());
                     }
                 }
             }else Toast.makeText(GridActivity.this, "Alert: " + passwordAlert, Toast.LENGTH_SHORT).show();
@@ -1214,25 +1225,15 @@ public class GridActivity extends FullscreenActivity {
         int screenWidth = metrics.widthPixels - (boardWidth/mLetterBoard.getGridColCount()) - (int) Util.convertDpToPx(this, 20);
         Log.d("boardWidth ", boardWidth+"");
         Log.d("screenWidth ", screenWidth+"");
-        topBorderLeftMargin = (boardWidth/mLetterBoard.getGridColCount()) + (int) Util.convertDpToPx(this, 10);
-        int dynamicStreakWidth = (boardWidth/mLetterBoard.getGridColCount());
-        mLetterBoard.setStreakWidth(dynamicStreakWidth);
-        mLetterBoardTop.setStreakWidth(dynamicStreakWidth);
-        mLetterBoardLeft.setStreakWidth(dynamicStreakWidth);
-        RelativeLayout.LayoutParams params = new RelativeLayout.LayoutParams(
-                RelativeLayout.LayoutParams.WRAP_CONTENT,
-                RelativeLayout.LayoutParams.WRAP_CONTENT
-        );
-        params.setMargins(topBorderLeftMargin, 0, 0, 0);
+        Log.d("gridColCount ", mLetterBoard.getGridColCount()+"");
+
         //Log.d("topBorderLeftMargin ", ""+topBorderLeftMargin);
-        mLetterBoardTop.setLayoutParams(params);
         if (boardWidth > screenWidth) {
             isScaled = true;
             float scale = (float)screenWidth / (float)boardWidth;
             mLetterBoardLeft.scale(scale, scale);
             mLetterBoard.scale(scale, scale);
             mLetterBoardTop.scale(scale, scale);
-
             if(isInitialized) {
                /* mLetterBoardTop.animate()
                         .scaleX(scale)
@@ -1249,7 +1250,21 @@ public class GridActivity extends FullscreenActivity {
                 mLetterBoardTop.defaultScale(scale);
             }
         }
-         if(isInitialized) generateDefaultPassword();
+         if(isInitialized){
+             topBorderLeftMargin = (mLetterBoard.getWidth()/mLetterBoard.getGridColCount()) + (int) Util.convertDpToPx(this, 10);
+             Log.d("topBorderLeftMargin ", topBorderLeftMargin+"");
+             int dynamicStreakWidth = (mLetterBoard.getWidth()/mLetterBoard.getGridColCount());
+             mLetterBoard.setStreakWidth(dynamicStreakWidth);
+             mLetterBoardTop.setStreakWidth(dynamicStreakWidth);
+             mLetterBoardLeft.setStreakWidth(dynamicStreakWidth);
+             RelativeLayout.LayoutParams params = new RelativeLayout.LayoutParams(
+                     RelativeLayout.LayoutParams.WRAP_CONTENT,
+                     RelativeLayout.LayoutParams.WRAP_CONTENT
+             );
+             params.setMargins(topBorderLeftMargin, 0, 0, 0);
+             mLetterBoardTop.setLayoutParams(params);
+             generateDefaultPassword();
+         }
          if(!isInitialized) {
             isInitialized = true;
              new Handler().postDelayed(this::tryScale, 100);
@@ -1395,6 +1410,63 @@ public class GridActivity extends FullscreenActivity {
         return length;
     }
 
+    private void passwordStrengthIndicator(String password){
+        int usedCharacters = getUsedSymbolLength();
+        int passwordCharacters = passwordStrength(password);
+        if(usedCharacters>=94 && password.length()>=14 && passwordCharacters>=100) { //Strong
+            indicatorGreen.setBackground(ContextCompat.getDrawable(this,R.drawable.green_indicator));
+            indicatorAmber.setBackground(ContextCompat.getDrawable(this,R.drawable.default_indicator));
+            indicatorRed.setBackground(ContextCompat.getDrawable(this,R.drawable.default_indicator));
+        } else if(usedCharacters>=62 && password.length()>=10 && passwordCharacters>=75) { //Semi Strong
+            indicatorAmber.setBackground(ContextCompat.getDrawable(this,R.drawable.amber_indicator));
+            indicatorGreen.setBackground(ContextCompat.getDrawable(this,R.drawable.default_indicator));
+            indicatorRed.setBackground(ContextCompat.getDrawable(this,R.drawable.default_indicator));
+        } else { //Weak   //if(usedCharacters< 62 && password.length()<10 && passwordCharacters<75) return 1;
+            indicatorRed.setBackground(ContextCompat.getDrawable(this,R.drawable.red_indicator));
+            indicatorGreen.setBackground(ContextCompat.getDrawable(this,R.drawable.default_indicator));
+            indicatorAmber.setBackground(ContextCompat.getDrawable(this,R.drawable.default_indicator));
+        }
+    }
+
+    private void defaultPasswordStrengthIndicator(){
+        indicatorAmber.setBackground(ContextCompat.getDrawable(this,R.drawable.default_indicator));
+        indicatorGreen.setBackground(ContextCompat.getDrawable(this,R.drawable.default_indicator));
+        indicatorRed.setBackground(ContextCompat.getDrawable(this,R.drawable.default_indicator));
+    }
+
+    private int  passwordStrength(String word){
+            char ch;
+            int strength = 0;
+            boolean capitalFlag = false;
+            boolean lowerCaseFlag = false;
+            boolean numberFlag = false;
+            boolean symbolFlag = false;
+            for(int i=0;i < word.length();i++) {
+                ch = word.charAt(i);
+                // Log.d("isUpperCase ", ""+Character.isUpperCase(ch));
+                if(Character.isDigit(ch)) {
+                    numberFlag = true;
+                } if (Character.isUpperCase(ch)) {
+                    capitalFlag = true;
+                } if (Character.isLowerCase(ch)) {
+                    lowerCaseFlag = true;
+                }
+                Pattern regex = Pattern.compile("[$&+,:;=\\\\?@#|/'<>.^*()%!-]");
+                if(regex.matcher(""+ch).find()) { //need to change !isSpecialCharacters with pattern matching..
+                    //if(isSpecialCharacters)
+                    symbolFlag = true;
+                }
+                //if(numberFlag && capitalFlag && lowerCaseFlag && symbolFlag)
+                   // strength = 100;
+            }
+            if(capitalFlag) strength = strength + 25;
+            if(lowerCaseFlag) strength = strength + 25;
+            if(numberFlag) strength = strength + 25;
+            if(symbolFlag) strength = strength + 25;
+            Log.d("strength ", strength+"");
+            return  strength;
+    }
+
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         if(resultCode==RESULT_OK){
@@ -1404,10 +1476,12 @@ public class GridActivity extends FullscreenActivity {
                     if(extras!=null && extras.getBoolean("changeInGridGeneration")) {
                         resetGrid();
                         isInitialized = false;
+                        //if(!getPreferences().showWordFromBorder() && !getPreferences().selectedTypeManually())
                         isScaled = false;
                         topBorderLeftMargin = 0;
                         rowCount = extras.getInt(EXTRA_ROW_COUNT);
                         colCount = extras.getInt(EXTRA_COL_COUNT);
+                        defaultBoardWidth();
                         Preferences preferences = getPreferences();
                         mViewModel.setGridGenerationCriteria(preferences.showUpperCharacters(), preferences.showLowerCharacters(), preferences.showNumberCharacters(), preferences.showSpecialCharacters());
                         mViewModel.generateNewGameRound(rowCount, colCount);
@@ -1419,5 +1493,26 @@ public class GridActivity extends FullscreenActivity {
             }
         }
         super.onActivityResult(requestCode, resultCode, data);
+    }
+
+    private void defaultBoardWidth(){
+        mLetterBoard.getLetterGrid().setColCount(colCount);
+        mLetterBoard.getLetterGrid().setRowCount(rowCount);
+        mLetterBoard.setGridWidth(35);
+        mLetterBoard.setGridHeight(35);
+        mLetterBoard.setStreakWidth(35);
+        mLetterBoard.setLetterSize(Util.spToPx(15f, this));
+
+        mLetterBoardTop.getLetterGrid().setColCount(colCount);
+        mLetterBoardTop.setGridWidth(35);
+        mLetterBoardTop.setGridHeight(35);
+        mLetterBoardTop.setStreakWidth(35);
+        mLetterBoardTop.setLetterSize(Util.spToPx(15f, this));
+
+        mLetterBoardLeft.getLetterGrid().setRowCount(rowCount);
+        mLetterBoardLeft.setGridWidth(35);
+        mLetterBoardLeft.setGridHeight(35);
+        mLetterBoardLeft.setStreakWidth(35);
+        mLetterBoardLeft.setLetterSize(Util.spToPx(15f, this));
     }
 }

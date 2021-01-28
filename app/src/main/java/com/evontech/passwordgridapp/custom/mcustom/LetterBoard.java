@@ -256,10 +256,10 @@ public class LetterBoard extends CenterLayout implements Observer {
             a.recycle();
         }
 
-        Log.d("LetterBoard gridRowCount", gridRowCount+"");
-        Log.d("LetterBoard gridColCount", gridColCount+"");
-        Log.d("LetterBoard gridWidth", gridWidth+"");
-        Log.d("LetterBoard gridHeight", gridHeight+"");
+        //Log.d("LetterBoard gridRowCount", gridRowCount+"");
+        //Log.d("LetterBoard gridColCount", gridColCount+"");
+        //Log.d("LetterBoard gridWidth", gridWidth+"");
+        //Log.d("LetterBoard gridHeight", gridHeight+"");
         setDataAdapter(new SampleLetterGridDataAdapter(gridRowCount, gridColCount), type);
 
         mGridLineBg.setColCount(getGridColCount());

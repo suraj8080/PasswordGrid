@@ -473,12 +473,32 @@ public class GridCriteriaActivity extends AppCompatActivity {
                 btnGenerateGrid.setText("Back");
                 isSettingRequest = true;
                 if(mPreferences.showUpperCharacters()) changeInGridGeneration ++;
+                else if(!mPreferences.showUpperCharacters()) changeInGridGeneration --;
                 if(mPreferences.showLowerCharacters()) changeInGridGeneration ++;
+                else if(!mPreferences.showLowerCharacters()) changeInGridGeneration --;
                 if(mPreferences.showNumberCharacters()) changeInGridGeneration ++;
+                else if(!mPreferences.showNumberCharacters()) changeInGridGeneration --;
                 if(mPreferences.showSpecialCharacters()) changeInGridGeneration ++;
+                else if(!mPreferences.showSpecialCharacters()) changeInGridGeneration --;
+
                 if(!mPreferences.showWordFromBorder()) changeInGridGeneration ++;
+                //else if(mPreferences.showWordFromBorder()) changeInGridGeneration --;
                 if(!mPreferences.selectedTypeManually()) changeInGridGeneration ++;
+                //else if(mPreferences.selectedTypeManually()) changeInGridGeneration --;
+                if(!mPreferences.selectedDragManually()) changeInGridGeneration ++;
+                else if(mPreferences.selectedDragManually()) changeInGridGeneration --;
+                if(!mPreferences.selectedStartEndGrid()) changeInGridGeneration ++;
+                else if(mPreferences.selectedStartEndGrid()) changeInGridGeneration --;
+                if(!mPreferences.showgridDirection()) changeInGridGeneration ++;
+                else if(mPreferences.showgridDirection()) changeInGridGeneration --;
+                if(!mPreferences.showGridPattern()) changeInGridGeneration ++;
+                else if(mPreferences.showGridPattern()) changeInGridGeneration --;
+
+                if(!mPreferences.isPasswordSelected()) changeInGridGeneration ++;
+                else if(mPreferences.isPasswordSelected()) changeInGridGeneration --;
                 if(!mPreferences.isPinSelected()) changeInGridGeneration ++;
+                else if(mPreferences.isPinSelected()) changeInGridGeneration --;
+
                 changeInGridGeneration = changeInGridGeneration + mPreferences.getPasswordLength();
             }
         }
@@ -488,7 +508,10 @@ public class GridCriteriaActivity extends AppCompatActivity {
         Intent intent = new Intent(this, GridActivity.class);
         intent.putExtra(GridActivity.EXTRA_ROW_COUNT, mPreferences.getGridRow());
         intent.putExtra(GridActivity.EXTRA_COL_COUNT, mPreferences.getGridCol());
-        if(mPreferences.showWordFromBorder() ||  mPreferences.selectedTypeManually()) intent.putExtra(GridActivity.EXTRA_COL_COUNT, 26);
+        if(mPreferences.showWordFromBorder() ||  mPreferences.selectedTypeManually()){
+            mPreferences.setGridCol(26);
+            intent.putExtra(GridActivity.EXTRA_COL_COUNT, 26);
+        }
         //intent.putExtra(GridActivity.EXTRA_GRID_ID, 619);
         startActivity(intent);
         overridePendingTransition(R.anim.slide_in, R.anim.slide_out);
@@ -514,13 +537,33 @@ public class GridCriteriaActivity extends AppCompatActivity {
 
     private void backPressed(){
             if(mPreferences.showUpperCharacters()) changeInGridGeneration --;
+            else if(!mPreferences.showUpperCharacters()) changeInGridGeneration ++;
             if(mPreferences.showLowerCharacters()) changeInGridGeneration --;
+            else if(!mPreferences.showLowerCharacters()) changeInGridGeneration ++;
             if(mPreferences.showNumberCharacters()) changeInGridGeneration --;
+            else if(!mPreferences.showNumberCharacters()) changeInGridGeneration ++;
             if(mPreferences.showSpecialCharacters()) changeInGridGeneration --;
+            else if(!mPreferences.showSpecialCharacters()) changeInGridGeneration ++;
+
             if(!mPreferences.showWordFromBorder()) changeInGridGeneration --;
+            //else if(mPreferences.showWordFromBorder()) changeInGridGeneration ++;
             if(!mPreferences.selectedTypeManually()) changeInGridGeneration --;
+            //else if(mPreferences.selectedTypeManually()) changeInGridGeneration ++;
+            if(!mPreferences.selectedDragManually()) changeInGridGeneration --;
+            else if(mPreferences.selectedDragManually()) changeInGridGeneration ++;
+            if(!mPreferences.selectedStartEndGrid()) changeInGridGeneration --;
+            else if(mPreferences.selectedStartEndGrid()) changeInGridGeneration ++;
+            if(!mPreferences.showgridDirection()) changeInGridGeneration --;
+            else if(mPreferences.showgridDirection()) changeInGridGeneration ++;
+            if(!mPreferences.showGridPattern()) changeInGridGeneration --;
+            else if(mPreferences.showGridPattern()) changeInGridGeneration ++;
+
+            if(!mPreferences.isPasswordSelected()) changeInGridGeneration --;
+            else if(mPreferences.isPasswordSelected()) changeInGridGeneration ++;
             if(!mPreferences.isPinSelected()) changeInGridGeneration --;
+            else if(mPreferences.isPinSelected()) changeInGridGeneration ++;
             changeInGridGeneration = changeInGridGeneration - mPreferences.getPasswordLength();
+
             Log.d("changeInGridGeneration ", ""+changeInGridGeneration);
             Intent intent = new Intent();
             if(changeInGridGeneration!=0) {
@@ -530,7 +573,13 @@ public class GridCriteriaActivity extends AppCompatActivity {
                 intent.putExtra("changeInGridGeneration", true);
                 intent.putExtra(GridActivity.EXTRA_ROW_COUNT, mPreferences.getGridRow());
                 intent.putExtra(GridActivity.EXTRA_COL_COUNT, mPreferences.getGridCol());
-                if(mPreferences.showWordFromBorder() || mPreferences.selectedTypeManually()) intent.putExtra(GridActivity.EXTRA_COL_COUNT, 26);
+                if(mPreferences.showWordFromBorder() || mPreferences.selectedTypeManually()) {
+                    mPreferences.setGridCol(26);
+                    intent.putExtra(GridActivity.EXTRA_COL_COUNT, 26);
+                }else {
+                    mPreferences.setGridCol(mPreferences.getGridRow());
+                    intent.putExtra(GridActivity.EXTRA_COL_COUNT, mPreferences.getGridRow());
+                }
                 /*intent.setClass(this, GridActivity.class);
                 startActivity(intent);
                 finish();
