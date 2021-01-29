@@ -125,7 +125,9 @@ public class GridDataCreator {
                         else if(isLowerCase)
                             mString = mString.append((char) getRandomIntRange(97, 122));
                         else if(isSpecialCharacters){
-                            char c = (char) (new Random().nextInt(4) + 35);
+                            //char c = (char) (new Random().nextInt(4) + 35);
+                            char c = Util.specialSymbolAll.charAt(getRandomIntRange(0, Util.specialSymbolAll.length()-1));
+                            //Log.d("specialSymbol ", "random "+c);
                             mString = mString.append(c);
                         }else if(isNumbers)
                             mString = mString.append(Character.forDigit(new Random().nextInt(10), 10));
@@ -135,13 +137,17 @@ public class GridDataCreator {
                         else if(isUpperCase)
                             mString = mString.append((char) getRandomIntRange(65, 90));
                         else if(isSpecialCharacters){
-                            char c = (char) (new Random().nextInt(4) + 35);
+                            //char c = (char) (new Random().nextInt(4) + 35);
+                            char c = Util.specialSymbolAll.charAt(getRandomIntRange(0, Util.specialSymbolAll.length()-1));
+                            //Log.d("specialSymbol ", "random "+c);
                             mString = mString.append(c);
                         }else if(isNumbers)
                             mString = mString.append(Character.forDigit(new Random().nextInt(10), 10));
                     } else if (index == 2) {
                         if(isSpecialCharacters){
-                            char c = (char) (new Random().nextInt(4) + 35);
+                            //char c = (char) (new Random().nextInt(4) + 35);
+                            char c = Util.specialSymbolAll.charAt(getRandomIntRange(0, Util.specialSymbolAll.length()-1));
+                            //Log.d("specialSymbol ", "random "+c);
                             mString = mString.append(c);
                         }else if(isNumbers)
                             mString = mString.append(Character.forDigit(new Random().nextInt(10), 10));
@@ -153,22 +159,72 @@ public class GridDataCreator {
                         if(isNumbers)
                             mString = mString.append(Character.forDigit(new Random().nextInt(10), 10));
                         else if(isSpecialCharacters){
-                            char c = (char) (new Random().nextInt(4) + 35);
+                            //char c = (char) (new Random().nextInt(4) + 35);
+                            char c = Util.specialSymbolAll.charAt(getRandomIntRange(0, Util.specialSymbolAll.length()-1));
+                            //Log.d("specialSymbol ", "random "+c);
                             mString = mString.append(c);
                         }else if(isLowerCase)
                             mString = mString.append((char) getRandomIntRange(97, 122));
                         else if(isUpperCase)
                             mString = mString.append((char) getRandomIntRange(65, 90));
                     }else {
-                        if(isUpperCase && characterCase==1)
-                            mString = mString.append((char) getRandomIntRange(65, 90));
-                        else if(isLowerCase && characterCase==2)
-                            mString = mString.append((char) getRandomIntRange(97, 122));
-                        else if(isSpecialCharacters && characterCase==3){
-                            char c = (char) (new Random().nextInt(4) + 35);
-                            mString = mString.append(c);
-                        }else if(isNumbers && characterCase==4)
-                            mString = mString.append(Character.forDigit(new Random().nextInt(10), 10));
+                        switch (characterCase){
+                            case 1:
+                                if(isUpperCase)
+                                    mString = mString.append((char) getRandomIntRange(65, 90));
+                                else if(isLowerCase)
+                                    mString = mString.append((char) getRandomIntRange(97, 122));
+                                else if(isSpecialCharacters){
+                                    //char c = (char) (new Random().nextInt(4) + 35);
+                                    char c = Util.specialSymbolAll.charAt(getRandomIntRange(0, Util.specialSymbolAll.length()-1));
+                                    //Log.d("specialSymbol ", "random "+c);
+                                    mString = mString.append(c);
+                                }else if(isNumbers)
+                                    mString = mString.append(Character.forDigit(new Random().nextInt(10), 10));
+                                break;
+                            case 2:
+                                if(isLowerCase)
+                                    mString = mString.append((char) getRandomIntRange(97, 122));
+                                else if(isUpperCase)
+                                    mString = mString.append((char) getRandomIntRange(65, 90));
+                                else if(isSpecialCharacters){
+                                    //char c = (char) (new Random().nextInt(4) + 35);
+                                    char c = Util.specialSymbolAll.charAt(getRandomIntRange(0, Util.specialSymbolAll.length()-1));
+                                    //Log.d("specialSymbol ", "random "+c);
+                                    mString = mString.append(c);
+                                }else if(isNumbers)
+                                    mString = mString.append(Character.forDigit(new Random().nextInt(10), 10));
+                                break;
+                            case 3:
+                                if(isSpecialCharacters){
+                                    //char c = (char) (new Random().nextInt(4) + 35);
+                                    char c = Util.specialSymbolAll.charAt(getRandomIntRange(0, Util.specialSymbolAll.length()-1));
+                                    //Log.d("specialSymbol ", "random "+c);
+                                    mString = mString.append(c);
+                                } else if(isLowerCase)
+                                    mString = mString.append((char) getRandomIntRange(97, 122));
+                                else if(isUpperCase)
+                                    mString = mString.append((char) getRandomIntRange(65, 90));
+                                else if(isNumbers)
+                                    mString = mString.append(Character.forDigit(new Random().nextInt(10), 10));
+                                break;
+                            case 4:
+                                if(isNumbers)
+                                    mString = mString.append(Character.forDigit(new Random().nextInt(10), 10));
+                                else if(isLowerCase)
+                                    mString = mString.append((char) getRandomIntRange(97, 122));
+                                else if(isSpecialCharacters){
+                                    //char c = (char) (new Random().nextInt(4) + 35);
+                                    char c = Util.specialSymbolAll.charAt(getRandomIntRange(0, Util.specialSymbolAll.length()-1));
+                                    //Log.d("specialSymbol ", "random "+c);
+                                    mString = mString.append(c);
+                                }else if(isUpperCase)
+                                    mString = mString.append((char) getRandomIntRange(65, 90));
+                                break;
+                        }
+
+
+
                     }
             }
         int randomDirection = getRandomIntRange(1, 2);
@@ -193,7 +249,7 @@ public class GridDataCreator {
             } if (!isLowerCase || Character.isLowerCase(ch)) {
                 lowerCaseFlag = true;
             }
-            Pattern regex = Pattern.compile("[$&+,:;=\\\\?@#|/'<>.^*()%!-]");
+            Pattern regex = Pattern.compile("["+(Util.specialSymbolAll)+"]");   //"[$&+,:;=\\\\?@#|/'<>.^*()%!-]"
             if(!isSpecialCharacters || regex.matcher(""+ch).find()) { //need to change !isSpecialCharacters with pattern matching..
                 //if(isSpecialCharacters)
                 symbolFlag = true;
@@ -247,7 +303,8 @@ public class GridDataCreator {
         for(int i = 0; i<3;i++) {
             int randomCharCount = getRandomIntRange(1, maxCharCount-1);
             for (int index = 0; index < randomCharCount; index++) {
-                char c = (char) (random.nextInt(4) + 35);
+                //char c = (char) (random.nextInt(4) + 35);
+                char c = Util.specialSymbolAll.charAt(getRandomIntRange(0, Util.specialSymbolAll.length()-1));
                 mString = mString.append(c);
             }
             stringSpecialList.add(mString.toString());

@@ -18,7 +18,8 @@ import java.util.Random;
 
 public class Util {
     public static final char NULL_CHAR = '\0';
-
+    public static final String specialSymbolAll = "&*@:=!-%.#?|_";
+    public static final String specialSymbolSelected = "!\"#$%&'()*+,-./:;<=>?@[^_`{|}~]";
     private static Random sRand = new Random();
 
     public static int getRandomColorWithAlpha(int alpha) {
@@ -32,7 +33,8 @@ public class Util {
         Random random = new Random();
         ArrayList<Character> characterArrayList = new ArrayList<>();
         if (GridDataCreator.isSpecialCharacters) {
-            characterArrayList.add((char)(random.nextInt(4) + 35));
+            //characterArrayList.add((char)(random.nextInt(4) + 35));
+            characterArrayList.add(specialSymbolAll.charAt(getRandomIntRange(0, specialSymbolAll.length()-1)));
         }if(GridDataCreator.isUpperCase) {
             // ASCII A = 65 - Z = 90
             characterArrayList.add((char) getRandomIntRange(65, 90));
