@@ -15,7 +15,7 @@
         android:layout_height="wrap_content">
         <LinearLayout
             android:layout_toRightOf="@+id/icon_autoGenerate"
-            android:layout_marginLeft="10dp"
+            android:layout_marginLeft="5dp"
             android:layout_marginRight="5dp"
             android:layout_marginTop="2dp"
             android:layout_marginBottom="2dp"
@@ -24,49 +24,60 @@
             android:id="@+id/text_sel_layout"
             android:layout_width="match_parent"
             android:weightSum="2"
-            android:layout_height="40dp"
+            android:layout_height="50dp"
             android:visibility="visible"
             android:layout_centerInParent="true"
             android:orientation="horizontal">
-            <androidx.appcompat.widget.AppCompatEditText
-                android:inputType="textCapCharacters"
-                android:background="@null"
-                android:enabled="false"
-                android:layout_marginLeft="10dp"
-                android:layout_marginRight="5dp"
-                android:visibility="gone"
-                android:gravity="center"
-                android:id="@+id/text_chooseFromBorder"
+            <LinearLayout
+                android:id="@+id/linear_TextTyping"
                 android:layout_width="0dp"
                 android:layout_weight="1"
-                android:layout_height="40dp"
-                android:textAlignment="center"
-                android:textColor="@android:color/black"
-                android:textStyle="bold"
-                android:textSize="12sp"
-                android:text="" />
+                android:layout_height="wrap_content">
+                <androidx.appcompat.widget.AppCompatEditText
+                    android:paddingRight="5dp"
+                    android:layout_margin="5dp"
+                    android:maxLines="4"
+                    android:inputType="textMultiLine"
+                    android:background="@null"
+                    android:enabled="false"
+                    android:visibility="visible"
+                    android:layout_gravity="center_vertical"
+                    android:id="@+id/text_chooseFromBorder"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textAlignment="center"
+                    android:textColor="@android:color/black"
+                    android:textStyle="bold"
+                    android:textSize="11sp"
+                    android:text=""
+                    tools:ignore="RtlCompat" />
+            </LinearLayout>
+        <LinearLayout
+            android:id="@+id/linear_TextSelection"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="wrap_content">
             <TextView
-                android:layout_marginLeft="5dp"
-                android:layout_marginRight="5dp"
+                android:layout_margin="5dp"
                 android:textColorHighlight="@color/colorAccent"
                 android:selectAllOnFocus="true"
                 android:textSelectHandle="@color/colorAccent"
                 android:textIsSelectable="true"
-                android:gravity="center"
+                android:layout_gravity="center_vertical"
                 android:id="@+id/text_selection"
-                android:layout_weight="1"
-                android:layout_width="0dp"
-                android:layout_height="40dp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
                 android:textAlignment="center"
                 android:textColor="@android:color/black"
                 android:textStyle="bold"
                 android:textSize="12sp"
-                android:text=""/>
+                android:text=""
+                tools:ignore="RtlCompat" />
+        </LinearLayout>
         </LinearLayout>
         <ImageView
             android:layout_centerVertical="true"
             android:id="@+id/icon_autoGenerate"
-            android:layout_marginRight="5dp"
             android:layout_gravity="center"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
