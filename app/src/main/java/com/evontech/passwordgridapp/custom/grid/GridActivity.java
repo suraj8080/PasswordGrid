@@ -384,6 +384,7 @@ public class GridActivity extends FullscreenActivity {
             } else {
                 rowCount = extras.getInt(EXTRA_ROW_COUNT);
                 colCount = extras.getInt(EXTRA_COL_COUNT);
+                defaultBoardWidth();
                 Preferences preferences = getPreferences();
                 mViewModel.setGridGenerationCriteria(preferences.showUpperCharacters(), preferences.showLowerCharacters(),preferences.showNumberCharacters(), preferences.showSpecialCharacters());
                 mViewModel.generateNewGameRound(rowCount, colCount);
@@ -441,12 +442,12 @@ public class GridActivity extends FullscreenActivity {
             public void onTextChanged(CharSequence s, int start, int before, int count) { }
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-                Log.d("Editable before ", ""+s.length());
+               // Log.d("Editable before ", ""+s.length());
                 typePasswordLength = s.length();
             }
             @Override
             public void afterTextChanged(Editable s) {
-                Log.d("Editable after ", ""+s.length());
+               // Log.d("Editable after ", ""+s.length());
                 if(isDefaultPasswordGenerated && !getPreferences().showWordFromBorder()) {
                     if (!TextUtils.isEmpty(s)) {
                         if (s.length() > typePasswordLength || typePasswordLength > s.length()) {
@@ -1262,7 +1263,8 @@ public class GridActivity extends FullscreenActivity {
         //Log.d("topBorderLeftMargin ", ""+topBorderLeftMargin);
         if (boardWidth > screenWidth) {
             isScaled = true;
-            float scale = (float)screenWidth / (float)boardWidth;
+            float scale = ((float)screenWidth / (float)boardWidth);
+            Log.d("scale ", ""+scale);
             mLetterBoardLeft.scale(scale, scale);
             mLetterBoard.scale(scale, scale);
             mLetterBoardTop.scale(scale, scale);
@@ -1275,15 +1277,18 @@ public class GridActivity extends FullscreenActivity {
                         .start();*/
             }
         }else {
-            if(!isScaled) {
-                int scale = (int)(screenWidth * 0.05);
+           /* if(!isScaled) {
+                int totalWidth = metrics.widthPixels;
+                int sWidth =  totalWidth - (totalWidth/colCount) - (int) Util.convertDpToPx(this, 20);
+                int scale = sWidth/colCount;
+                //int scale = (int)(screenWidth * 0.05);
                 mLetterBoard.defaultScale(scale);
                 mLetterBoardLeft.defaultScale(scale);
                 mLetterBoardTop.defaultScale(scale);
-            }
+            }*/
         }
          if(isInitialized){
-             topBorderLeftMargin = (mLetterBoard.getWidth()/mLetterBoard.getGridColCount()) + (int) Util.convertDpToPx(this, 10);
+             topBorderLeftMargin = (mLetterBoard.getWidth()/mLetterBoard.getGridColCount()) + (int) Util.convertDpToPx(this, 14);
              Log.d("topBorderLeftMargin ", topBorderLeftMargin+"");
              int dynamicStreakWidth = (mLetterBoard.getWidth()/mLetterBoard.getGridColCount());
              mLetterBoard.setStreakWidth(dynamicStreakWidth);
@@ -1542,21 +1547,45 @@ public class GridActivity extends FullscreenActivity {
     private void defaultBoardWidth(){
         mLetterBoard.getLetterGrid().setColCount(colCount);
         mLetterBoard.getLetterGrid().setRowCount(rowCount);
-        mLetterBoard.setGridWidth(35);
-        mLetterBoard.setGridHeight(35);
-        mLetterBoard.setStreakWidth(35);
-        mLetterBoard.setLetterSize(Util.spToPx(15f, this));
-
         mLetterBoardTop.getLetterGrid().setColCount(colCount);
-        mLetterBoardTop.setGridWidth(35);
-        mLetterBoardTop.setGridHeight(35);
-        mLetterBoardTop.setStreakWidth(35);
-        mLetterBoardTop.setLetterSize(Util.spToPx(15f, this));
-
         mLetterBoardLeft.getLetterGrid().setRowCount(rowCount);
-        mLetterBoardLeft.setGridWidth(35);
-        mLetterBoardLeft.setGridHeight(35);
-        mLetterBoardLeft.setStreakWidth(35);
-        mLetterBoardLeft.setLetterSize(Util.spToPx(15f, this));
-    }
+
+        DisplayMetrics metrics = new DisplayMetrics();
+        getWindowManager().getDefaultDisplay().getMetrics(metrics);
+        int adjCol = colCount;
+        if(colCount<=18) adjCol = 18;
+        Log.d("colCount "+colCount, "adjCol "+adjCol);
+
+        int totalWidth = metrics.widthPixels - (int) Util.convertDpToPx(this, 20);
+        int screenWidth =  totalWidth - (totalWidth/adjCol);
+        int gridWidth = (totalWidth/adjCol);
+        if((screenWidth%adjCol>=(adjCol/2))) gridWidth = gridWidth -1;
+        Log.d("before scale gridWidth ",  ""+gridWidth);
+        if((gridWidth*colCount)>screenWidth){
+            int diff = (gridWidth*colCount) - screenWidth +  (int)Util.convertDpToPx(this, 10);
+            Log.d("boardWidth "+(gridWidth*colCount), " screenWidth "+screenWidth +" diff "+diff);
+            gridWidth = gridWidth - ((diff/colCount)+1);
+            Log.d("after scale gridWidth ",  ""+gridWidth);
+        }
+            mLetterBoard.setGridWidth(gridWidth);
+            mLetterBoard.setGridHeight(gridWidth);
+            mLetterBoard.setStreakWidth(gridWidth);
+            mLetterBoard.setLetterSize(Util.spToPx(15f, this));
+            if(colCount>18) mLetterBoard.setLetterSize(Util.spToPx(13f, this));
+            topBorderLeftMargin = (mLetterBoard.getWidth() / mLetterBoard.getGridColCount()) + (int) Util.convertDpToPx(this, 10);
+            //topBorderLeftMargin = (int) Util.convertDpToPx(this, 10f);
+
+
+            mLetterBoardTop.setGridWidth(gridWidth);
+            mLetterBoardTop.setGridHeight(gridWidth);
+            mLetterBoardTop.setStreakWidth(gridWidth);
+            mLetterBoardTop.setLetterSize(Util.spToPx(15f, this));
+            if(colCount>18) mLetterBoardTop.setLetterSize(Util.spToPx(13f, this));
+
+            mLetterBoardLeft.setGridWidth(gridWidth);
+            mLetterBoardLeft.setGridHeight(gridWidth);
+            mLetterBoardLeft.setStreakWidth(gridWidth);
+            mLetterBoardLeft.setLetterSize(Util.spToPx(15f, this));
+            if(colCount>18) mLetterBoardLeft.setLetterSize(Util.spToPx(13f, this));
+        }
 }

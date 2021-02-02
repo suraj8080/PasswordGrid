@@ -543,9 +543,9 @@ public class GridCriteriaActivity extends AppCompatActivity {
         Log.d("afterMatcherString ", afterMatcherString.toString());
             Intent intent = new Intent();
             if(!beforeMatcherString.toString().equals(afterMatcherString.toString())) {
-                Log.d("EXTRA_ROW_COUNT ", mPreferences.getGridRow()+"");
-                Log.d("EXTRA_COL_COUNT ", mPreferences.getGridCol()+"");
-                Log.d("passwordLength ", mPreferences.getPasswordLength()+"");
+              //  Log.d("EXTRA_ROW_COUNT ", mPreferences.getGridRow()+"");
+               // Log.d("EXTRA_COL_COUNT ", mPreferences.getGridCol()+"");
+               // Log.d("passwordLength ", mPreferences.getPasswordLength()+"");
                 intent.putExtra("changeInGridGeneration", true);
                 intent.putExtra(GridActivity.EXTRA_ROW_COUNT, mPreferences.getGridRow());
                 intent.putExtra(GridActivity.EXTRA_COL_COUNT, mPreferences.getGridCol());

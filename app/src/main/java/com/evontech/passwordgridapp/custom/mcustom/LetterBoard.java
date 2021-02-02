@@ -81,10 +81,13 @@ public class LetterBoard extends CenterLayout implements Observer {
             mGridLineBg.setGridWidth((int) (mGridLineBg.getGridWidth() * scaleX));
             mGridLineBg.setGridHeight((int) (mGridLineBg.getGridHeight() * scaleY));
             //mGridLineBg.setLineWidth((int) (mGridLineBg.getLineWidth() * scaleX));
+            mGridLineBg.setLineWidth((int) Util.convertDpToPx(getContext(), 2));
 
             mLetterGrid.setGridWidth((int) (mLetterGrid.getGridWidth() * scaleX));
             mLetterGrid.setGridHeight((int) (mLetterGrid.getGridHeight() * scaleY));
-            mLetterGrid.setLetterSize(mLetterGrid.getLetterSize() * scaleY);
+            //mLetterGrid.setLetterSize(mLetterGrid.getLetterSize() * scaleY);
+            mLetterGrid.setLetterSize(Util.spToPx(15f, getContext()));
+            if(mLetterGrid.getColCount()>18) mLetterGrid.setLetterSize(Util.spToPx(13f, getContext()));
 
             mStreakView.setStreakWidth((int) (mStreakView.getStreakWidth() * scaleY));
 
