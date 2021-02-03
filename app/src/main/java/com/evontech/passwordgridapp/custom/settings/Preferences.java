@@ -35,6 +35,8 @@ public class Preferences {
     private static String KEY_ROW;
     private static String KEY_COL;
     private static String KEY_PASSWORD_LENGTH;
+    private static String KEY_APPLY_WORD_PASSWORD;
+    private static String KEY_APPLY_WORD_SELECTION;
 
     private SharedPreferences mPreferences;
 
@@ -58,10 +60,32 @@ public class Preferences {
         KEY_DRAG_MANUALLY = context.getString(R.string.pref_drag_manually);
         KEY_START_END_GRID = context.getString(R.string.pref_start_end_grid);
         KEY_TYPE_MANUALLY = context.getString(R.string.pref_type_manually);
+        KEY_APPLY_WORD_PASSWORD = context.getString(R.string.pref_Apply_Word_Password);
+        KEY_APPLY_WORD_SELECTION = context.getString(R.string.pref_Apply_Word_Status);
 
         KEY_ROW = context.getString(R.string.pref_row);
         KEY_COL = context.getString(R.string.pref_col);
         KEY_PASSWORD_LENGTH = context.getString(R.string.pref_password_length);
+    }
+
+    public void setApplyWordPassword(String word){
+        mPreferences.edit()
+                .putString(KEY_APPLY_WORD_PASSWORD, word)
+                .apply();
+    }
+
+    public String getApplyWordPassword(){
+        return mPreferences.getString(KEY_APPLY_WORD_PASSWORD, "");
+    }
+
+    public void setApplyWordStatus(boolean status){
+        mPreferences.edit()
+                .putBoolean(KEY_APPLY_WORD_SELECTION, status)
+                .apply();
+    }
+
+    public boolean getApplyWordStatus(){
+        return mPreferences.getBoolean(KEY_APPLY_WORD_SELECTION, false);
     }
 
     public boolean showUpperCharacters() {

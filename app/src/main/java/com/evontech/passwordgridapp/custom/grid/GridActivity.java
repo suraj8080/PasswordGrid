@@ -1,5 +1,6 @@
 package com.evontech.passwordgridapp.custom.grid;
 
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
@@ -24,6 +25,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.widget.AppCompatButton;
 import androidx.appcompat.widget.AppCompatEditText;
 import androidx.core.content.ContextCompat;
@@ -184,7 +186,7 @@ public class GridActivity extends FullscreenActivity {
                 int col = streakLine.getEndIndex().col;
                 Log.d("GridActivity ", "end row: "+row +" end col: "+col);
                 Log.d("GridActivity ", "str: "+str);
-
+                Log.d("isSingleCellSelected ", ": "+isSingleCellSelected);
                 if(row == streakLine.getStartIndex().row && col == streakLine.getStartIndex().col && !isSingleCellSelected) {
                     Log.d("inside ", "A");
                     mainBoardStartRow = row;
@@ -499,6 +501,10 @@ public class GridActivity extends FullscreenActivity {
         mLetterBoard.removeAllStreakLine();
         mLetterBoardLeft.removeAllStreakLine();
         mLetterBoardTop.removeAllStreakLine();
+        if(getPreferences().showGridPattern()) mLetterBoard.getStreakView().setRememberStreakLine(true);
+        else mLetterBoard.getStreakView().setRememberStreakLine(false);
+        if(getPreferences().selectedDragManually()) mLetterBoard.getStreakView().setmDraggingManually(true);
+        else mLetterBoard.getStreakView().setmDraggingManually(false);
         isSingleCellSelected = false;
         mTextFromBorder.setText("");
         wordFromBorder = new StringBuilder();
@@ -606,8 +612,25 @@ public class GridActivity extends FullscreenActivity {
         String defaultPwd ="";
         if(getPreferences().getPasswordLength()==14) defaultPwd = "SECUREPASSWORD";
         else defaultPwd = Util.getRandomWords(getPreferences().getPasswordLength());
+        String applyWord = getPreferences().getApplyWordPassword().replaceAll("\\s","")/*.toUpperCase()*/;
+        if(!TextUtils.isEmpty(applyWord)){
+            if(getPreferences().getPasswordLength()<=applyWord.length())
+            defaultPwd = applyWord.substring(0,getPreferences().getPasswordLength());
+            else {
+                StringBuilder sbPwd = new StringBuilder();
+                int iteration = getPreferences().getPasswordLength()/applyWord.length();
+                int reminder = getPreferences().getPasswordLength()%applyWord.length();
+                Log.d("iteration "+iteration, " reminder "+reminder);
+                for (int i=0;i<iteration;i++)
+                    sbPwd = sbPwd.append(applyWord);
+                sbPwd = sbPwd.append(applyWord.substring(0, reminder));
+                defaultPwd = sbPwd.toString();
+            }
+            Log.d("applyWord ", applyWord);
+            Log.d("defaultPwd ", defaultPwd);
+        }
         char [][] mainboard = mLetterAdapter.getGrid();
-        char[] ch  = defaultPwd.toCharArray();
+        char[] ch  = defaultPwd.toUpperCase().toCharArray();
         for(char c : ch){
             int temp_integer = 64; //for upper case
             int index = ((int)c -temp_integer)-1;
@@ -1067,7 +1090,6 @@ public class GridActivity extends FullscreenActivity {
         for (String pwd: lastPartPwd) password = password.concat(pwd);
 
         Log.d("password ", password);
-        passwordStrengthIndicator(password);
         String passwordAlert = GridDataCreator.checkPasswordCriteria(password);
         if(!passwordAlert.equals("true")) {
             if(password.length()>=getPreferences().getPasswordLength()){ //replace it automatically when password select actual length but not get desired password
@@ -1135,8 +1157,8 @@ public class GridActivity extends FullscreenActivity {
                         mViewModel.updateGridData();
                         index++;
                     }
-                    passwordStrengthIndicator(mTextSelection.getText().toString());
                     }
+                    passwordStrengthIndicator(mTextSelection.getText().toString());
                 }
             }else Toast.makeText(GridActivity.this, "Alert: " + passwordAlert, Toast.LENGTH_SHORT).show();
         }
@@ -1152,6 +1174,7 @@ public class GridActivity extends FullscreenActivity {
                     mViewModel.updateGridData();
                 }
             }
+            passwordStrengthIndicator(mTextSelection.getText().toString());
         }
     }
 
@@ -1251,6 +1274,9 @@ public class GridActivity extends FullscreenActivity {
     }
 
     private void tryScale() {
+        /*  Today's plan:
+            Implementing apply to all option in word from border and type manually chosen option.
+         */
         DisplayMetrics metrics = new DisplayMetrics();
         getWindowManager().getDefaultDisplay().getMetrics(metrics);
 
@@ -1288,7 +1314,7 @@ public class GridActivity extends FullscreenActivity {
             }*/
         }
          if(isInitialized){
-             topBorderLeftMargin = (mLetterBoard.getWidth()/mLetterBoard.getGridColCount()) + (int) Util.convertDpToPx(this, 14);
+             topBorderLeftMargin = (mLetterBoard.getWidth()/mLetterBoard.getGridColCount()) + (int) Util.convertDpToPx(this, 12);
              Log.d("topBorderLeftMargin ", topBorderLeftMargin+"");
              int dynamicStreakWidth = (mLetterBoard.getWidth()/mLetterBoard.getGridColCount());
              mLetterBoard.setStreakWidth(dynamicStreakWidth);
@@ -1475,6 +1501,36 @@ public class GridActivity extends FullscreenActivity {
             indicatorGreen.setBackground(ContextCompat.getDrawable(this,R.drawable.default_indicator));
             indicatorAmber.setBackground(ContextCompat.getDrawable(this,R.drawable.default_indicator));
         }
+        if(getPreferences().showWordFromBorder() && getPreferences().getApplyWordStatus() ||
+                getPreferences().selectedTypeManually() && getPreferences().getApplyWordStatus()){
+            showApplyWordToAllDialog(mTextFromBorder.getText().toString());
+        }
+    }
+
+    private void showApplyWordToAllDialog(String word){
+        AlertDialog.Builder dialog = new AlertDialog.Builder(this);
+        dialog.setCancelable(false);
+        dialog.setTitle("Apply to all");
+        dialog.setMessage("Apply this word to generate all password in future?" );
+        dialog.setNeutralButton("Don't show again", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                getPreferences().setApplyWordStatus(false);
+            }
+        }).setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int id) {
+                getPreferences().setApplyWordPassword(word);
+                //Action for "Delete".
+            }
+        }).setNegativeButton("Cancel ", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        //Action for "Cancel".
+                    }
+        });
+        final AlertDialog alert = dialog.create();
+        alert.show();
     }
 
     private void defaultPasswordStrengthIndicator(){

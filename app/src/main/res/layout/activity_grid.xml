@@ -14,7 +14,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
         <LinearLayout
-            android:layout_toRightOf="@+id/icon_autoGenerate"
+            android:layout_toRightOf="@+id/linear_setting_autogenerate"
             android:layout_marginLeft="5dp"
             android:layout_marginRight="5dp"
             android:layout_marginTop="2dp"
@@ -34,6 +34,8 @@
                 android:layout_weight="1"
                 android:layout_height="wrap_content">
                 <androidx.appcompat.widget.AppCompatEditText
+                    android:hint="Type here"
+                    android:textColorHint="@android:color/darker_gray"
                     android:paddingRight="5dp"
                     android:layout_margin="5dp"
                     android:maxLines="4"
@@ -75,13 +77,26 @@
                 tools:ignore="RtlCompat" />
         </LinearLayout>
         </LinearLayout>
-        <ImageView
-            android:layout_centerVertical="true"
-            android:id="@+id/icon_autoGenerate"
-            android:layout_gravity="center"
+        <LinearLayout
+            android:id="@+id/linear_setting_autogenerate"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:src="@drawable/ic_baseline_autorenew_24"/>
+            android:orientation="vertical">
+            <ImageView
+                android:layout_marginTop="3dp"
+                android:id="@+id/icon_autoGenerate"
+                android:layout_gravity="center"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@drawable/ic_baseline_autorenew_24"/>
+            <ImageView
+                android:layout_marginTop="5dp"
+                android:layout_gravity="center"
+                android:src="@drawable/ic_baseline_settings_24"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/iv_settings"/>
+        </LinearLayout>
         <RelativeLayout
             android:layout_alignParentRight="true"
             android:layout_centerVertical="true"
@@ -172,17 +187,7 @@
             android:id="@+id/content_layout"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content">
-
-            <ImageView
-                android:layout_marginLeft="2dp"
-                android:visibility="visible"
-                android:src="@drawable/ic_baseline_settings_24"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:id="@+id/iv_settings"/>
-
             <com.evontech.passwordgridapp.custom.mcustom.LetterBoard
-                android:layout_toRightOf="@+id/iv_settings"
                 android:visibility="gone"
                 android:id="@+id/top_letter_board"
                 android:layout_width="wrap_content"
@@ -199,7 +204,6 @@
                 android:background="@color/colorAccent"
                 app:lineColor="@color/white"
                 app:snapToGrid="START_END"/>
-
             <com.evontech.passwordgridapp.custom.grid.CustomScrollView
                 style="@style/scroller_style"
                 android:layout_marginTop="6dp"

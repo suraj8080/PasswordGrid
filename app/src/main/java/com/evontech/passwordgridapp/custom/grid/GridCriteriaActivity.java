@@ -69,6 +69,8 @@ public class GridCriteriaActivity extends AppCompatActivity {
     AppCompatCheckBox checkBox_password;
     @BindView(R.id.cb_pin)
     AppCompatCheckBox checkBox_pin;
+    @BindView(R.id.cb_apply_words)
+    AppCompatCheckBox checkBoxApplyWords;
     @Inject
     Preferences mPreferences;
     private boolean isSettingRequest;
@@ -107,6 +109,17 @@ public class GridCriteriaActivity extends AppCompatActivity {
                     pinModeEnabled();
                     mPreferences.setPasswordSelection(false);
                     checkBox_password.setChecked(false);
+                }
+            }
+        });
+
+        checkBoxApplyWords.setChecked(mPreferences.getApplyWordStatus());
+        checkBoxApplyWords.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                mPreferences.setApplyWordStatus(isChecked);
+                if(isChecked) {
+                    checkBox_type_manually.setChecked(true);
                 }
             }
         });

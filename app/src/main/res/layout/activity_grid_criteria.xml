@@ -187,6 +187,13 @@
                 android:layout_height="wrap_content"
                 android:textColor="@color/black"
                 android:text="Select word from characters in the border?"/>
+            <androidx.appcompat.widget.AppCompatCheckBox
+                android:id="@+id/cb_apply_words"
+                android:textSize="12sp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="@color/black"
+                android:text="Apply same word to generate passwords?"/>
         </LinearLayout>
         <LinearLayout
             android:layout_weight="1"
