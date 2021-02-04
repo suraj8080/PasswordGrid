@@ -476,6 +476,10 @@ public class GridActivity extends FullscreenActivity {
             }
         });
     }
+    /*
+        Today's plan:
+        Preparing for demo on password management grid app.
+     */
 
     private void initPwdEditText(){
         if(getPreferences().showWordFromBorder() || getPreferences().selectedTypeManually()){
@@ -1165,7 +1169,7 @@ public class GridActivity extends FullscreenActivity {
         else if(password.length()< getPreferences().getPasswordLength())
             Toast.makeText(GridActivity.this, "Alert: generated password length is less than password criteria",Toast.LENGTH_SHORT).show();
         else {//if(passwordAlert.equals("true") && mTextSelection.getText().toString().length()>= getPreferences().getPasswordLength())
-            Toast.makeText(GridActivity.this, "Your grid will stored in secure database ", Toast.LENGTH_SHORT).show();
+            Toast.makeText(GridActivity.this, "Your grid will stored in secure wallet ", Toast.LENGTH_SHORT).show();
             if(streakLineList!=null && streakLineList.size()>0) {
                 for (StreakView.StreakLine streakLine: streakLineList) {
                     if(lastPartPwd!=null && lastPartPwd.size() == streakLineList.size())
@@ -1328,14 +1332,15 @@ public class GridActivity extends FullscreenActivity {
              mLetterBoardTop.setLayoutParams(params);
              generateDefaultPassword();
          }
-         if(!isInitialized) {
+         /*if(!isInitialized) {
             isInitialized = true;
              new Handler().postDelayed(this::tryScale, 100);
-        }
+        }*/
     }
 
     private void doneLoadingContent() {
         // call tryScale() on the next render frame
+        isInitialized = true;
         new Handler().postDelayed(this::tryScale, 0);
     }
 
@@ -1628,7 +1633,6 @@ public class GridActivity extends FullscreenActivity {
             mLetterBoard.setStreakWidth(gridWidth);
             mLetterBoard.setLetterSize(Util.spToPx(15f, this));
             if(colCount>18) mLetterBoard.setLetterSize(Util.spToPx(13f, this));
-            topBorderLeftMargin = (mLetterBoard.getWidth() / mLetterBoard.getGridColCount()) + (int) Util.convertDpToPx(this, 10);
             //topBorderLeftMargin = (int) Util.convertDpToPx(this, 10f);
 
 

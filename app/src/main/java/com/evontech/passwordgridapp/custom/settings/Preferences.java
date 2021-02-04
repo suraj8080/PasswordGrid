@@ -110,7 +110,7 @@ public class Preferences {
         return mPreferences.getBoolean(KEY_SPECIAL_CHARACTERS, false);
     }
     public void setSpecialCharacters(boolean status) {
-        Log.d("special character selection ", status+"");
+        //Log.d("special character selection ", status+"");
         mPreferences.edit()
                 .putBoolean(KEY_SPECIAL_CHARACTERS, status)
                 .apply();
@@ -120,7 +120,7 @@ public class Preferences {
         return mPreferences.getBoolean(KEY_TYPE_PASSWORD, false);
     }
     public void setPasswordSelection(boolean status) {
-        Log.d("setPasswordSelection ", status+"");
+        //Log.d("setPasswordSelection ", status+"");
         mPreferences.edit()
                 .putBoolean(KEY_TYPE_PASSWORD, status)
                 .apply();
@@ -129,7 +129,7 @@ public class Preferences {
         return mPreferences.getBoolean(KEY_TYPE_PIN, false);
     }
     public void setPinSelection(boolean status) {
-        Log.d("setPasswordSelection ", status+"");
+        //Log.d("setPasswordSelection ", status+"");
         mPreferences.edit()
                 .putBoolean(KEY_TYPE_PIN, status)
                 .apply();

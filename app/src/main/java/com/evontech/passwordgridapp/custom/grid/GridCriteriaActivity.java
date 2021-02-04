@@ -140,8 +140,10 @@ public class GridCriteriaActivity extends AppCompatActivity {
                     mPreferences.setPasswordLength(pLength);
                     if(pLength>26) pLength = 26;
                     //mPreferences.setPasswordLength(pLength);
-                    mPreferences.setGridCol(pLength);
-                    mPreferences.setGridRow(pLength);
+                    if(mPreferences.isPasswordSelected()) {
+                        mPreferences.setGridCol(pLength);
+                        mPreferences.setGridRow(pLength);
+                    }
                     Log.d("Editable ", String.valueOf(pLength));
                 }else {
                     if(mPreferences.isPasswordSelected())
@@ -520,6 +522,10 @@ public class GridCriteriaActivity extends AppCompatActivity {
     }
 
     private void pinModeEnabled(){
+        mPreferences.setGridCol(6);
+        mPreferences.setGridRow(6);
+        etPassword.setText("4");
+        mPreferences.setPasswordLength(4);
         checkBox_uppercaese.setChecked(false);
         checkBox_lowercaese.setChecked(false);
         checkBox_special.setChecked(false);
