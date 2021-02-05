@@ -522,19 +522,23 @@ public class GridCriteriaActivity extends AppCompatActivity {
     }
 
     private void pinModeEnabled(){
-        mPreferences.setGridCol(6);
-        mPreferences.setGridRow(6);
-        etPassword.setText("4");
-        mPreferences.setPasswordLength(4);
         checkBox_uppercaese.setChecked(false);
         checkBox_lowercaese.setChecked(false);
         checkBox_special.setChecked(false);
+        etPassword.setText("6");
+        mPreferences.setGridCol(6);
+        mPreferences.setGridRow(6);
+        mPreferences.setPasswordLength(6);
     }
 
     private void passwordModeEnabled(){
         checkBox_uppercaese.setChecked(true);
         checkBox_lowercaese.setChecked(true);
         checkBox_special.setChecked(true);
+        etPassword.setText("14");
+        mPreferences.setGridCol(14);
+        mPreferences.setGridRow(14);
+        mPreferences.setPasswordLength(14);
     }
 
     @Override

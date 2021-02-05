@@ -328,6 +328,9 @@ public class GridActivity extends FullscreenActivity {
                          mLetterBoard.addStreakLine(newStreakLine);*/
                     }
 
+                    /*
+
+
                 }
                 else {
                     mLetterBoardTop.removeAllStreakLine();
