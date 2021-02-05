@@ -1,6 +1,7 @@
 package com.evontech.passwordgridapp.custom.accounts;
 
 import android.content.Context;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -19,6 +20,7 @@ public class AccountAdapter extends RecyclerView.Adapter<AccountAdapter.ViewHold
     private List<UserAccount> mAccounts;
     public AccountAdapter(List<UserAccount> accounts) {
         mAccounts = accounts;
+        Log.d("mAccounts ", ""+mAccounts.size() );
     }
 
     @NonNull

@@ -4,31 +4,38 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="vertical"
-    android:layout_margin="15dp">
+    android:layout_margin="5dp">
+
+    <LinearLayout
+        android:padding="5dp"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:background="@drawable/button_background_rounded_corner">
     <TextView
         android:id="@+id/tv_account_name"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:textColor="@color/black"
         android:textStyle="bold"
-        android:textSize="15sp"
+        android:textSize="13sp"
         android:text="Account Name"/>
     <TextView
         android:id="@+id/tv_account_username"
-        android:layout_marginTop="5dp"
+        android:layout_marginTop="2dp"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:textColor="@color/black"
         android:textStyle="bold"
-        android:textSize="15sp"
+        android:textSize="11sp"
         android:text="Username"/>
     <TextView
         android:id="@+id/tv_account_url"
-        android:layout_marginTop="5dp"
+        android:layout_marginTop="2dp"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:textColor="@color/black"
-        android:textStyle="bold"
-        android:textSize="15sp"
+        android:textSize="11sp"
         android:text="Url"/>
+    </LinearLayout>
 </LinearLayout>

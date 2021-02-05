@@ -18,14 +18,16 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.PasswordGridApp">
-        <activity android:name=".custom.accounts.CreateAccountActivity"></activity>
-        <activity android:name=".custom.accounts.UserAccountsActivity" />
+        <activity android:name=".custom.grid.GridCriteriaActivity"
+            android:screenOrientation="landscape"/>
+        <activity android:name=".custom.accounts.CreateAccountActivity"
+            android:screenOrientation="landscape"/>
         <activity android:name=".custom.grid.MainActivity" />
         <activity
             android:name=".custom.grid.GridActivity"
             android:screenOrientation="landscape" />
         <activity
-            android:name=".custom.grid.GridCriteriaActivity"
+            android:name=".custom.accounts.UserAccountsActivity"
             android:screenOrientation="landscape">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
