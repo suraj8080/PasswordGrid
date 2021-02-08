@@ -52,6 +52,7 @@ public class AccountsActivity extends FullscreenActivity {
     @Inject
     ViewModelFactory mViewModelFactory;
     private AccountAdapter adapter;
+    private AccountsViewModel mViewModel;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -63,6 +64,9 @@ public class AccountsActivity extends FullscreenActivity {
         setContentView(R.layout.activity_user_accounts);
         ButterKnife.bind(this);
 
+        mViewModel = ViewModelProviders.of(this, mViewModelFactory).get(AccountsViewModel.class);
+        //mViewModel.getOnGridState().observe(this, this::onAccountStateChanged);
+
         setUpRecyclerView();
         addAccount.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -70,6 +74,10 @@ public class AccountsActivity extends FullscreenActivity {
                 addNewAccount();
             }
         });
+    }
+
+    private void onAccountStateChanged(AccountsViewModel.AccountState accountState) {
+        Log.d("accountState: ", accountState.toString());
     }
 
     private void setUpRecyclerView(){
