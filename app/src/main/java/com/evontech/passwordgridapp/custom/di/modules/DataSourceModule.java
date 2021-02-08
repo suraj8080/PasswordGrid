@@ -28,7 +28,7 @@ public class DataSourceModule {
 
     @Provides
     @Singleton
-    GridDataSource provideGameRoundDataSource(DbHelper dbHelper) {
+    GridDataSource provideGridRoundDataSource(DbHelper dbHelper) {
         return new GridDataSQLiteDataSource(dbHelper);
     }
 

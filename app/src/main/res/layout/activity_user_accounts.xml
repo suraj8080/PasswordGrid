@@ -13,13 +13,21 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"/>
 
+    <TextView
+        android:textColor="@color/black"
+        android:layout_gravity="center"
+        android:id="@+id/loadingText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="No record available"/>
+
     <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/addAccount"
         android:clickable="true"
-        android:backgroundTint="@color/colorAccent"
-        android:tint="@color/white"
+        android:backgroundTint="@color/white"
         android:layout_margin="16dp"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="bottom|right|end"
-        android:src="@android:drawable/ic_input_add"/>
+        android:src="@drawable/ic_baseline_add_24"/>
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

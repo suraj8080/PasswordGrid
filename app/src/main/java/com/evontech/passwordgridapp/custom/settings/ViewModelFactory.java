@@ -10,18 +10,18 @@ import com.evontech.passwordgridapp.custom.grid.GridViewModel;
 
 public class ViewModelFactory implements ViewModelProvider.Factory {
 
-    private GridViewModel mGamePlayViewModel;
+    private GridViewModel mGridViewModel;
 
-    public ViewModelFactory(GridViewModel gamePlayViewModel) {
+    public ViewModelFactory(GridViewModel mGridViewModel) {
         //Log.d("ViewModelFactory", gamePlayViewModel+"");
-        mGamePlayViewModel = gamePlayViewModel;
+        this.mGridViewModel = mGridViewModel;
     }
 
     @NonNull
     @Override
     public <T extends ViewModel> T create(@NonNull Class<T> modelClass) {
         if (modelClass.isAssignableFrom(GridViewModel.class)) {
-            return (T) mGamePlayViewModel;
+            return (T) mGridViewModel;
         }
         throw new IllegalArgumentException("Unknown view model");
     }

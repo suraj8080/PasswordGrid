@@ -5,10 +5,12 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.util.Log;
 
+import com.evontech.passwordgridapp.custom.data.AccountDataSource;
 import com.evontech.passwordgridapp.custom.data.GridDataSource;
 import com.evontech.passwordgridapp.custom.data.entity.GridDataEntity;
 import com.evontech.passwordgridapp.custom.models.GridDataInfo;
 import com.evontech.passwordgridapp.custom.models.UsedWord;
+import com.evontech.passwordgridapp.custom.models.UserAccount;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -19,7 +21,7 @@ import javax.inject.Inject;
  * Created by Suraj Kumar on 17/12/20.
  */
 
-public class GridDataSQLiteDataSource implements GridDataSource {
+public class GridDataSQLiteDataSource implements GridDataSource, AccountDataSource {
 
     private com.evontech.passwordgridapp.custom.data.sqlite.DbHelper mHelper;
 
@@ -29,21 +31,21 @@ public class GridDataSQLiteDataSource implements GridDataSource {
     }
 
     @Override
-    public void getGameData(int gid, GameRoundCallback callback) {
+    public void getGridData(int gid, GridRoundCallback callback) {
         SQLiteDatabase db = mHelper.getReadableDatabase();
 
         String cols[] = {
-                com.evontech.passwordgridapp.custom.data.sqlite.DbContract.GameRound._ID,
-                com.evontech.passwordgridapp.custom.data.sqlite.DbContract.GameRound.COL_NAME,
-                com.evontech.passwordgridapp.custom.data.sqlite.DbContract.GameRound.COL_DURATION,
-                com.evontech.passwordgridapp.custom.data.sqlite.DbContract.GameRound.COL_GRID_ROW_COUNT,
-                com.evontech.passwordgridapp.custom.data.sqlite.DbContract.GameRound.COL_GRID_COL_COUNT,
-                com.evontech.passwordgridapp.custom.data.sqlite.DbContract.GameRound.COL_GRID_DATA
+                DbContract.GRID._ID,
+                DbContract.GRID.COL_NAME,
+                DbContract.GRID.COL_DURATION,
+                DbContract.GRID.COL_GRID_ROW_COUNT,
+                DbContract.GRID.COL_GRID_COL_COUNT,
+                DbContract.GRID.COL_GRID_DATA
         };
-        String sel = com.evontech.passwordgridapp.custom.data.sqlite.DbContract.GameRound._ID + "=?";
+        String sel = DbContract.GRID._ID + "=?";
         String selArgs[] = {String.valueOf(gid)};
 
-        Cursor c = db.query(com.evontech.passwordgridapp.custom.data.sqlite.DbContract.GameRound.TABLE_NAME, cols, sel, selArgs, null, null, null);
+        Cursor c = db.query(DbContract.GRID.TABLE_NAME, cols, sel, selArgs, null, null, null);
         GridDataEntity ent = null;
         if (c.moveToFirst()) {
             ent = new GridDataEntity();
@@ -62,7 +64,7 @@ public class GridDataSQLiteDataSource implements GridDataSource {
     }
 
     @Override
-    public void getGameDataInfos(InfosCallback callback) {
+    public void getGridDataInfos(InfosCallback callback) {
         SQLiteDatabase db = mHelper.getReadableDatabase();
         List<GridDataInfo> infoList = new ArrayList<>();
         Cursor c = db.rawQuery(getGameDataInfoQuery(-1), null);
@@ -78,7 +80,7 @@ public class GridDataSQLiteDataSource implements GridDataSource {
     }
 
     @Override
-    public void getGameDataInfo(int gid, StatCallback callback) {
+    public void getGridDataInfo(int gid, StatCallback callback) {
         SQLiteDatabase db = mHelper.getReadableDatabase();
         Cursor c = db.rawQuery(getGameDataInfoQuery(gid), null);
         if (c.moveToFirst()) {
@@ -89,25 +91,25 @@ public class GridDataSQLiteDataSource implements GridDataSource {
     }
 
     @Override
-    public long saveGameData(GridDataEntity gameRound) {
+    public long saveGridData(GridDataEntity gameRound) {
         SQLiteDatabase db = mHelper.getWritableDatabase();
         ContentValues values = new ContentValues();
-        values.put(com.evontech.passwordgridapp.custom.data.sqlite.DbContract.GameRound.COL_NAME, gameRound.getName());
-        values.put(com.evontech.passwordgridapp.custom.data.sqlite.DbContract.GameRound.COL_DURATION, gameRound.getDuration());
-        values.put(com.evontech.passwordgridapp.custom.data.sqlite.DbContract.GameRound.COL_GRID_ROW_COUNT, gameRound.getGridRowCount());
-        values.put(com.evontech.passwordgridapp.custom.data.sqlite.DbContract.GameRound.COL_GRID_COL_COUNT, gameRound.getGridColCount());
+        values.put(DbContract.GRID.COL_NAME, gameRound.getName());
+        values.put(DbContract.GRID.COL_DURATION, gameRound.getDuration());
+        values.put(DbContract.GRID.COL_GRID_ROW_COUNT, gameRound.getGridRowCount());
+        values.put(DbContract.GRID.COL_GRID_COL_COUNT, gameRound.getGridColCount());
         Log.d("Saving GridData ", gameRound.getGridData());
-        values.put(com.evontech.passwordgridapp.custom.data.sqlite.DbContract.GameRound.COL_GRID_DATA, gameRound.getGridData());
+        values.put(DbContract.GRID.COL_GRID_DATA, gameRound.getGridData());
 
         long gid;
         if(gameRound.getId()>0){
             gid = gameRound.getId();
-            String where = com.evontech.passwordgridapp.custom.data.sqlite.DbContract.GameRound._ID + "=?";
+            String where = DbContract.GRID._ID + "=?";
             String whereArgs[] = {String.valueOf(gid)};
-            int updateStatus = db.update(com.evontech.passwordgridapp.custom.data.sqlite.DbContract.GameRound.TABLE_NAME, values,where, whereArgs);
+            int updateStatus = db.update(DbContract.GRID.TABLE_NAME, values,where, whereArgs);
             Log.d("updateStatus ", ""+updateStatus);
         }else {
-             gid = db.insert(com.evontech.passwordgridapp.custom.data.sqlite.DbContract.GameRound.TABLE_NAME, "null", values);
+             gid = db.insert(DbContract.GRID.TABLE_NAME, "null", values);
             Log.d("insertStatus ", ""+gid);
         }
         gameRound.setId((int) gid);
@@ -136,14 +138,100 @@ public class GridDataSQLiteDataSource implements GridDataSource {
     }
 
     @Override
-    public void deleteGameData(int gid) {
+    public long saveAccountData(UserAccount userAccount) {
         SQLiteDatabase db = mHelper.getWritableDatabase();
-        String sel = com.evontech.passwordgridapp.custom.data.sqlite.DbContract.GameRound._ID + "=?";
+        ContentValues values = new ContentValues();
+        values.put(DbContract.UserAccounts.COL_ACCOUNT_ID, userAccount.getId());
+        values.put(DbContract.UserAccounts.COL_ACCOUNT_NAME, userAccount.getAccountName());
+        values.put(DbContract.UserAccounts.COL_ACCOUNT_USER_NAME, userAccount.getUserName());
+        values.put(DbContract.UserAccounts.COL_ACCOUNT_URL, userAccount.getAccountUrl());
+        Log.d("Saving AccountData ", ""+userAccount.getId());
+        values.put(DbContract.UserAccounts.COL_ACCOUNT_GRID_ID, userAccount.getAccountGridId());
+
+        long acId;
+        if(userAccount.getId()>0){
+            acId = userAccount.getId();
+            String where = DbContract.UserAccounts._ID + "=?";
+            String whereArgs[] = {String.valueOf(acId)};
+            int updateStatus = db.update(DbContract.UserAccounts.TABLE_NAME, values,where, whereArgs);
+            Log.d("updateStatus ", ""+updateStatus);
+        }else {
+            acId = db.insert(DbContract.UserAccounts.TABLE_NAME, "null", values);
+            Log.d("insertStatus ", ""+acId);
+        }
+        userAccount.setId((int) acId);
+        return acId;
+    }
+
+    @Override
+    public List<UserAccount> getAllAccountData() {
+        SQLiteDatabase db = mHelper.getReadableDatabase();
+
+        String cols[] = {
+                DbContract.UserAccounts.COL_ACCOUNT_ID,
+                DbContract.UserAccounts.COL_ACCOUNT_NAME,
+                DbContract.UserAccounts.COL_ACCOUNT_USER_NAME,
+                DbContract.UserAccounts.COL_ACCOUNT_URL,
+                DbContract.UserAccounts.COL_ACCOUNT_GRID_ID
+        };
+        String sel = DbContract.UserAccounts.COL_ACCOUNT_ID + "=?";
+        //String selArgs[] = {String.valueOf(accountId)};
+
+        Cursor c = db.query(DbContract.UserAccounts.TABLE_NAME, cols, sel, null, null, null, null);
+        List<UserAccount> allAccounts = new ArrayList<>();
+        UserAccount userAccount = null;
+        if (c.moveToFirst()) {
+            userAccount = new UserAccount();
+            userAccount.setId(c.getInt(0));
+            userAccount.setAccountName(c.getString(1));
+            userAccount.setUserName(c.getString(2));
+            userAccount.setAccountUrl(c.getString(3));
+            userAccount.setAccountGridId(c.getInt(4));
+            Log.d("Getting accountData ", c.getString(1));
+            allAccounts.add(userAccount);
+        }
+        c.close();
+        return allAccounts;
+    }
+
+    @Override
+    public UserAccount getAccountData(int accountId) {
+        SQLiteDatabase db = mHelper.getReadableDatabase();
+
+        String cols[] = {
+                DbContract.UserAccounts.COL_ACCOUNT_ID,
+                DbContract.UserAccounts.COL_ACCOUNT_NAME,
+                DbContract.UserAccounts.COL_ACCOUNT_USER_NAME,
+                DbContract.UserAccounts.COL_ACCOUNT_URL,
+                DbContract.UserAccounts.COL_ACCOUNT_GRID_ID
+        };
+        String sel = DbContract.UserAccounts.COL_ACCOUNT_ID + "=?";
+        String selArgs[] = {String.valueOf(accountId)};
+
+        Cursor c = db.query(DbContract.UserAccounts.TABLE_NAME, cols, sel, selArgs, null, null, null);
+        UserAccount userAccount = null;
+        if (c.moveToFirst()) {
+            userAccount = new UserAccount();
+            userAccount.setId(c.getInt(0));
+            userAccount.setAccountName(c.getString(1));
+            userAccount.setUserName(c.getString(2));
+            userAccount.setAccountUrl(c.getString(3));
+            userAccount.setAccountGridId(c.getInt(4));
+            Log.d("Getting accountData ", c.getString(1));
+        }
+        c.close();
+        return userAccount;
+    }
+
+    @Override
+    public void deleteGridData(int gid) {
+        SQLiteDatabase db = mHelper.getWritableDatabase();
+        String sel = DbContract.GRID._ID + "=?";
         String selArgs[] = {String.valueOf(gid)};
 
-        db.delete(com.evontech.passwordgridapp.custom.data.sqlite.DbContract.GameRound.TABLE_NAME, sel, selArgs);
+        db.delete(DbContract.GRID.TABLE_NAME, sel, selArgs);
 
-        sel = com.evontech.passwordgridapp.custom.data.sqlite.DbContract.UsedWord.COL_GAME_ROUND_ID + "=?";
+        sel = com.evontech.passwordgridapp.custom.data.sqlite.DbContract.UsedWord.COL_GRID_ID + "=?";
         db.delete(com.evontech.passwordgridapp.custom.data.sqlite.DbContract.UsedWord.TABLE_NAME, sel, selArgs);
     }
 
@@ -151,27 +239,27 @@ public class GridDataSQLiteDataSource implements GridDataSource {
     public void deleteAllLines(int gid) {
         SQLiteDatabase db = mHelper.getWritableDatabase();
         String selArgs[] = {String.valueOf(gid)};
-        String sel = com.evontech.passwordgridapp.custom.data.sqlite.DbContract.UsedWord.COL_GAME_ROUND_ID + "=?";
+        String sel = com.evontech.passwordgridapp.custom.data.sqlite.DbContract.UsedWord.COL_GRID_ID + "=?";
         db.delete(com.evontech.passwordgridapp.custom.data.sqlite.DbContract.UsedWord.TABLE_NAME, sel, selArgs);
     }
 
     @Override
-    public void deleteGameDatas() {
+    public void deleteGridDatas() {
         SQLiteDatabase db = mHelper.getWritableDatabase();
-        db.delete(com.evontech.passwordgridapp.custom.data.sqlite.DbContract.GameRound.TABLE_NAME, null, null);
+        db.delete(DbContract.GRID.TABLE_NAME, null, null);
         db.delete(com.evontech.passwordgridapp.custom.data.sqlite.DbContract.UsedWord.TABLE_NAME, null, null);
     }
 
     @Override
-    public void saveGameDataDuration(int gid, int newDuration) {
+    public void saveGridDataDuration(int gid, int newDuration) {
         SQLiteDatabase db = mHelper.getReadableDatabase();
         ContentValues values = new ContentValues();
-        values.put(com.evontech.passwordgridapp.custom.data.sqlite.DbContract.GameRound.COL_DURATION, newDuration);
+        values.put(DbContract.GRID.COL_DURATION, newDuration);
 
-        String where = com.evontech.passwordgridapp.custom.data.sqlite.DbContract.GameRound._ID + "=?";
+        String where = DbContract.GRID._ID + "=?";
         String whereArgs[] = {String.valueOf(gid)};
 
-        db.update(com.evontech.passwordgridapp.custom.data.sqlite.DbContract.GameRound.TABLE_NAME, values, where, whereArgs);
+        db.update(DbContract.GRID.TABLE_NAME, values, where, whereArgs);
     }
 
     @Override
@@ -181,7 +269,7 @@ public class GridDataSQLiteDataSource implements GridDataSource {
         values.put(com.evontech.passwordgridapp.custom.data.sqlite.DbContract.UsedWord.COL_ANSWER_LINE_DATA, usedWord.getAnswerLine().toString());
         values.put(com.evontech.passwordgridapp.custom.data.sqlite.DbContract.UsedWord.COL_LINE_COLOR, usedWord.getAnswerLine().color);
 
-        values.put(com.evontech.passwordgridapp.custom.data.sqlite.DbContract.UsedWord.COL_GAME_ROUND_ID, usedWord.getId());
+        values.put(com.evontech.passwordgridapp.custom.data.sqlite.DbContract.UsedWord.COL_GRID_ID, usedWord.getId());
         values.put(com.evontech.passwordgridapp.custom.data.sqlite.DbContract.UsedWord.COL_WORD_STRING, usedWord.getString());
         long insertedId = db.insert(com.evontech.passwordgridapp.custom.data.sqlite.DbContract.UsedWord.TABLE_NAME, "null", values);
         usedWord.setId((int) insertedId);
@@ -198,22 +286,22 @@ public class GridDataSQLiteDataSource implements GridDataSource {
 
     private String getGameDataInfoQuery(int gid) {
         String subQ = "(SELECT COUNT(*) FROM " + com.evontech.passwordgridapp.custom.data.sqlite.DbContract.UsedWord.TABLE_NAME + " WHERE " +
-                com.evontech.passwordgridapp.custom.data.sqlite.DbContract.UsedWord.COL_GAME_ROUND_ID + "=" + com.evontech.passwordgridapp.custom.data.sqlite.DbContract.GameRound.TABLE_NAME + "." + com.evontech.passwordgridapp.custom.data.sqlite.DbContract.GameRound._ID + ")";
-        String order = " ORDER BY " + com.evontech.passwordgridapp.custom.data.sqlite.DbContract.GameRound._ID + " DESC";
+                com.evontech.passwordgridapp.custom.data.sqlite.DbContract.UsedWord.COL_GRID_ID + "=" + DbContract.GRID.TABLE_NAME + "." + DbContract.GRID._ID + ")";
+        String order = " ORDER BY " + DbContract.GRID._ID + " DESC";
         if (gid > 0) {
             subQ = "(SELECT COUNT(*) FROM " + com.evontech.passwordgridapp.custom.data.sqlite.DbContract.UsedWord.TABLE_NAME + " WHERE " +
-                    com.evontech.passwordgridapp.custom.data.sqlite.DbContract.UsedWord.COL_GAME_ROUND_ID + "=" + gid + ")";
+                    com.evontech.passwordgridapp.custom.data.sqlite.DbContract.UsedWord.COL_GRID_ID + "=" + gid + ")";
             order = " WHERE " + com.evontech.passwordgridapp.custom.data.sqlite.DbContract.UsedWord._ID + "=" + gid;
         }
 
         return "SELECT " +
-                com.evontech.passwordgridapp.custom.data.sqlite.DbContract.GameRound._ID + "," +
-                com.evontech.passwordgridapp.custom.data.sqlite.DbContract.GameRound.COL_NAME + "," +
-                com.evontech.passwordgridapp.custom.data.sqlite.DbContract.GameRound.COL_DURATION + "," +
-                com.evontech.passwordgridapp.custom.data.sqlite.DbContract.GameRound.COL_GRID_ROW_COUNT + "," +
-                com.evontech.passwordgridapp.custom.data.sqlite.DbContract.GameRound.COL_GRID_COL_COUNT + "," +
+                DbContract.GRID._ID + "," +
+                DbContract.GRID.COL_NAME + "," +
+                DbContract.GRID.COL_DURATION + "," +
+                DbContract.GRID.COL_GRID_ROW_COUNT + "," +
+                DbContract.GRID.COL_GRID_COL_COUNT + "," +
                 subQ +
-                " FROM " + com.evontech.passwordgridapp.custom.data.sqlite.DbContract.GameRound.TABLE_NAME + order;
+                " FROM " + DbContract.GRID.TABLE_NAME + order;
     }
 
     private GridDataInfo getGameDataInfoFromCursor(Cursor c) {
@@ -238,7 +326,7 @@ public class GridDataSQLiteDataSource implements GridDataSource {
                 com.evontech.passwordgridapp.custom.data.sqlite.DbContract.UsedWord.COL_IS_MYSTERY,
                 com.evontech.passwordgridapp.custom.data.sqlite.DbContract.UsedWord.COL_REVEAL_COUNT
         };
-        String sel = com.evontech.passwordgridapp.custom.data.sqlite.DbContract.UsedWord.COL_GAME_ROUND_ID + "=?";
+        String sel = com.evontech.passwordgridapp.custom.data.sqlite.DbContract.UsedWord.COL_GRID_ID + "=?";
         String selArgs[] = {String.valueOf(gid)};
 
         Cursor c = db.query(com.evontech.passwordgridapp.custom.data.sqlite.DbContract.UsedWord.TABLE_NAME, cols, sel, selArgs, null, null, null);

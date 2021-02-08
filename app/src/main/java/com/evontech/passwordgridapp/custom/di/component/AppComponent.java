@@ -1,6 +1,7 @@
 package com.evontech.passwordgridapp.custom.di.component;
 
 
+import com.evontech.passwordgridapp.custom.accounts.UserAccountsActivity;
 import com.evontech.passwordgridapp.custom.grid.GridActivity;
 import com.evontech.passwordgridapp.custom.grid.GridCriteriaActivity;
 import com.evontech.passwordgridapp.custom.FullscreenActivity;
@@ -23,4 +24,5 @@ public interface AppComponent {
     void inject(FullscreenActivity activity);
     void inject(MainActivity activity);
     void inject(GridCriteriaActivity gridCriteriaActivity);
+    void inject(UserAccountsActivity userAccountsActivity);
 }

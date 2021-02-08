@@ -1,18 +1,23 @@
-package com.evontech.passwordgridapp.custom.grid;
+package com.evontech.passwordgridapp.custom.accounts;
 
 import android.annotation.SuppressLint;
 import android.util.Log;
+
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
+
 import com.evontech.passwordgridapp.custom.common.SingleLiveEvent;
 import com.evontech.passwordgridapp.custom.data.GridDataSource;
 import com.evontech.passwordgridapp.custom.data.entity.GridDataMapper;
+import com.evontech.passwordgridapp.custom.grid.GridDataCreator;
 import com.evontech.passwordgridapp.custom.models.GridData;
 import com.evontech.passwordgridapp.custom.models.UsedWord;
 import com.evontech.passwordgridapp.custom.models.Word;
+
 import java.util.ArrayList;
 import java.util.List;
+
 import io.reactivex.Observable;
 import io.reactivex.ObservableOnSubscribe;
 import io.reactivex.android.schedulers.AndroidSchedulers;
@@ -22,7 +27,7 @@ import io.reactivex.schedulers.Schedulers;
  * Created by Suraj Kumar on 17/12/20.
  */
 
-public class GridViewModel extends ViewModel {
+public class AccountsViewModel extends ViewModel {
 
     static abstract class GridState {}
     static class Generating extends GridState {
@@ -81,7 +86,7 @@ public class GridViewModel extends ViewModel {
     private boolean isNumbers;
     private boolean isSpecialCharacters;
 
-    public GridViewModel(GridDataSource gridDataSource) {
+    public AccountsViewModel(GridDataSource gridDataSource) {
         mGridDataSource = gridDataSource;
         mGridDataCreator = new GridDataCreator();
         resetLiveData();

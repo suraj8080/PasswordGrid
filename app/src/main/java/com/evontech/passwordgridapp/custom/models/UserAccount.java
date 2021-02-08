@@ -1,14 +1,44 @@
 package com.evontech.passwordgridapp.custom.models;
 
 public class UserAccount {
+    private int id;
     private String accountName;
     private String userName;
     private String accountUrl;
+    private String accountPwd;
+    private int accountGridId;
+
+    public UserAccount() {
+    }
 
     public UserAccount(String accountName, String userName, String accountUrl) {
         this.accountName = accountName;
         this.userName = userName;
         this.accountUrl = accountUrl;
+    }
+
+    public int getId() {
+        return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
+    }
+
+    public int getAccountGridId() {
+        return accountGridId;
+    }
+
+    public void setAccountGridId(int accountGridId) {
+        this.accountGridId = accountGridId;
+    }
+
+    public String getAccountPwd() {
+        return accountPwd;
+    }
+
+    public void setAccountPwd(String accountPwd) {
+        this.accountPwd = accountPwd;
     }
 
     public String getAccountName() {

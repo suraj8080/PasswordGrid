@@ -3,6 +3,7 @@ package com.evontech.passwordgridapp.custom.data;
 import com.evontech.passwordgridapp.custom.data.entity.GridDataEntity;
 import com.evontech.passwordgridapp.custom.models.GridDataInfo;
 import com.evontech.passwordgridapp.custom.models.UsedWord;
+import com.evontech.passwordgridapp.custom.models.UserAccount;
 
 import java.util.List;
 
@@ -12,9 +13,9 @@ import java.util.List;
 
 public interface GridDataSource {
 
-    interface GameRoundCallback {
+    interface GridRoundCallback {
 
-        void onLoaded(GridDataEntity gameRound);
+        void onLoaded(GridDataEntity gridDataEntity);
 
     }
 
@@ -29,19 +30,19 @@ public interface GridDataSource {
 
     }
 
-    void getGameData(int gid, GameRoundCallback callback);
+    void getGridData(int gid, GridRoundCallback callback);
 
-    void getGameDataInfos(InfosCallback callback);
+    void getGridDataInfos(InfosCallback callback);
 
-    void getGameDataInfo(int gid, StatCallback callback);
+    void getGridDataInfo(int gid, StatCallback callback);
 
-    long saveGameData(GridDataEntity gameRound);
+    long saveGridData(GridDataEntity gridDataEntity);
 
-    void deleteGameData(int gid);
+    void deleteGridData(int gid);
 
-    void deleteGameDatas();
+    void deleteGridDatas();
 
-    void saveGameDataDuration(int gid, int newDuration);
+    void saveGridDataDuration(int gid, int newDuration);
 
     void markWordAsAnswered(UsedWord usedWord);
 

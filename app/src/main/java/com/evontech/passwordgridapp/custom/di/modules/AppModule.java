@@ -5,8 +5,8 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
 
+import com.evontech.passwordgridapp.custom.data.AccountDataSource;
 import com.evontech.passwordgridapp.custom.data.GridDataSource;
-import com.evontech.passwordgridapp.custom.data.WordDataSource;
 import com.evontech.passwordgridapp.custom.grid.GridViewModel;
 import com.evontech.passwordgridapp.custom.settings.ViewModelFactory;
 
@@ -42,10 +42,17 @@ public class AppModule {
 
     @Provides
     @Singleton
-    ViewModelFactory provideViewModelFactory(GridDataSource gridDataSource,
-                                             WordDataSource wordDataSource) {
+    ViewModelFactory provideViewModelFactory(GridDataSource gridDataSource) {
         return new ViewModelFactory(
-                new GridViewModel(gridDataSource, wordDataSource)
+                new GridViewModel(gridDataSource)
+        );
+    }
+
+    @Provides
+    @Singleton
+    ViewModelFactory provideViewModelFactory(AccountDataSource accountDataSource) {
+        return new ViewModelFactory(
+                new GridViewModel(accountDataSource)
         );
     }
 }

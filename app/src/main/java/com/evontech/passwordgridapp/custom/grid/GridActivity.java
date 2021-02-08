@@ -377,7 +377,7 @@ public class GridActivity extends FullscreenActivity {
 
 
         mViewModel = ViewModelProviders.of(this, mViewModelFactory).get(GridViewModel.class);
-        mViewModel.getOnGameState().observe(this, this::onGameStateChanged);
+        mViewModel.getOnGridState().observe(this, this::onGridStateChanged);
 
         Bundle extras = getIntent().getExtras();
         if (extras != null) {
@@ -385,14 +385,14 @@ public class GridActivity extends FullscreenActivity {
                 int gid = extras.getInt(EXTRA_GRID_ID);
                 Preferences preferences = getPreferences();
                 mViewModel.setGridGenerationCriteria(preferences.showUpperCharacters(), preferences.showLowerCharacters(),preferences.showNumberCharacters(), preferences.showSpecialCharacters());
-                mViewModel.loadGameRound(gid);
+                mViewModel.loadGridRound(gid);
             } else {
                 rowCount = extras.getInt(EXTRA_ROW_COUNT);
                 colCount = extras.getInt(EXTRA_COL_COUNT);
                 defaultBoardWidth();
                 Preferences preferences = getPreferences();
                 mViewModel.setGridGenerationCriteria(preferences.showUpperCharacters(), preferences.showLowerCharacters(),preferences.showNumberCharacters(), preferences.showSpecialCharacters());
-                mViewModel.generateNewGameRound(rowCount, colCount);
+                mViewModel.generateNewGridRound(rowCount, colCount);
             }
         }
 
@@ -1216,40 +1216,40 @@ public class GridActivity extends FullscreenActivity {
     @Override
     protected void onStart() {
         super.onStart();
-        mViewModel.resumeGame();
+        mViewModel.resumeGrid();
     }
 
     @Override
     protected void onStop() {
         super.onStop();
-        mViewModel.pauseGame();
+        mViewModel.pauseGrid();
     }
 
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        mViewModel.stopGame();
+        mViewModel.stopGrid();
     }
 
-    private void onGameStateChanged(GridViewModel.GameState gameState) {
+    private void onGridStateChanged(GridViewModel.GridState gridState) {
         showLoading(false, null);
-        if (gameState instanceof GridViewModel.Generating) {
-            GridViewModel.Generating state = (GridViewModel.Generating) gameState;
+        if (gridState instanceof GridViewModel.Generating) {
+            GridViewModel.Generating state = (GridViewModel.Generating) gridState;
             String text = "Generating " + state.rowCount + "x" + state.colCount + " grid";
             showLoading(true, text);
-        } else if (gameState instanceof GridViewModel.Finished) {
-          //  showFinishGame(((GridPlayViewModel.Finished) gameState).mGameData.getId());
-        } else if (gameState instanceof GridViewModel.Paused) {
+        } else if (gridState instanceof GridViewModel.Finished) {
+          //  showFinishGrid(((GridPlayViewModel.Finished) gridState).mGridData.getId());
+        } else if (gridState instanceof GridViewModel.Paused) {
 
-        } else if (gameState instanceof GridViewModel.Playing) {
+        } else if (gridState instanceof GridViewModel.Playing) {
             if(!isInitialized)
-            onGameRoundLoaded(((GridViewModel.Playing) gameState).mGridData);
+            onGridRoundLoaded(((GridViewModel.Playing) gridState).mGridData);
         }
     }
 
-    private void onGameRoundLoaded(GridData gridData) {
+    private void onGridRoundLoaded(GridData gridData) {
        /* if (gridData.isFinished()) {
-            setGameAsAlreadyFinished();
+            setGridAsAlreadyFinished();
         }*/
 
         rowCount = gridData.getGrid().getRowCount();
@@ -1411,14 +1411,14 @@ public class GridActivity extends FullscreenActivity {
         }
     }
 
-    private void showFinishGame(int gameId) {
-        /*Intent intent = new Intent(this, GameOverActivity.class);
-        intent.putExtra(GameOverActivity.EXTRA_GAME_ROUND_ID, gameId);
+    private void showFinishGrid(int gridId) {
+        /*Intent intent = new Intent(this, GridOverActivity.class);
+        intent.putExtra(GridOverActivity.EXTRA_GRID_ROUND_ID, gridId);
         startActivity(intent);
         finish();*/
     }
 
-    private void setGameAsAlreadyFinished() {
+    private void setGridAsAlreadyFinished() {
         mLetterBoard.getStreakView().setInteractive(false);
     }
 
@@ -1597,7 +1597,7 @@ public class GridActivity extends FullscreenActivity {
                         defaultBoardWidth();
                         Preferences preferences = getPreferences();
                         mViewModel.setGridGenerationCriteria(preferences.showUpperCharacters(), preferences.showLowerCharacters(), preferences.showNumberCharacters(), preferences.showSpecialCharacters());
-                        mViewModel.generateNewGameRound(rowCount, colCount);
+                        mViewModel.generateNewGridRound(rowCount, colCount);
                     }else {
                         resetGrid();
                         generateDefaultPassword();
