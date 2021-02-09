@@ -38,7 +38,6 @@ abstract class DbContract {
     static class UserAccounts implements BaseColumns {
         static final String TABLE_NAME = "user_account";
 
-        static final String COL_ACCOUNT_ID = "account_id";
         static final String COL_ACCOUNT_NAME = "account_name";
         static final String COL_ACCOUNT_USER_NAME = "user_name";
         static final String COL_ACCOUNT_URL = "account_url";

@@ -14,14 +14,10 @@ public class ViewModelFactory implements ViewModelProvider.Factory {
     private GridViewModel mGridViewModel;
     private AccountsViewModel mAccountsViewModel;
 
-    public ViewModelFactory(GridViewModel mGridViewModel) {
+    public ViewModelFactory(GridViewModel mGridViewModel, AccountsViewModel mAccountsViewModel) {
         //Log.d("ViewModelFactory", gridViewModel+"");
         this.mGridViewModel = mGridViewModel;
-    }
-
-    public ViewModelFactory(AccountsViewModel accountsViewModel) {
-        //Log.d("ViewModelFactory", gridViewModel+"");
-        this.mAccountsViewModel = accountsViewModel;
+        this.mAccountsViewModel = mAccountsViewModel;
     }
 
     @NonNull

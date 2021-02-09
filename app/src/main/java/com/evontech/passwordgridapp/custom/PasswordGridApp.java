@@ -4,6 +4,7 @@ import android.app.Application;
 import android.util.Log;
 
 import com.evontech.passwordgridapp.custom.di.component.AppComponent;
+
 import com.evontech.passwordgridapp.custom.di.component.DaggerAppComponent;
 import com.evontech.passwordgridapp.custom.di.modules.AppModule;
 

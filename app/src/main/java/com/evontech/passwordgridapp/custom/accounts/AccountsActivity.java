@@ -20,6 +20,7 @@ import android.widget.EditText;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.evontech.passwordgridapp.R;
 import com.evontech.passwordgridapp.custom.FullscreenActivity;
@@ -38,7 +39,7 @@ import javax.inject.Inject;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 
-public class AccountsActivity extends FullscreenActivity {
+public class AccountsActivity extends FullscreenActivity implements OnAccountClickListner {
 
     private List<UserAccount> mUserAccounts;
     @BindView(R.id.recycler_account)
@@ -64,9 +65,6 @@ public class AccountsActivity extends FullscreenActivity {
         setContentView(R.layout.activity_user_accounts);
         ButterKnife.bind(this);
 
-        mViewModel = ViewModelProviders.of(this, mViewModelFactory).get(AccountsViewModel.class);
-        //mViewModel.getOnGridState().observe(this, this::onAccountStateChanged);
-
         setUpRecyclerView();
         addAccount.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -74,15 +72,27 @@ public class AccountsActivity extends FullscreenActivity {
                 addNewAccount();
             }
         });
+
+        mViewModel = ViewModelProviders.of(this, mViewModelFactory).get(AccountsViewModel.class);
+        mViewModel.getOnAccountState().observe(this, this::onAccountStateChanged);
     }
 
     private void onAccountStateChanged(AccountsViewModel.AccountState accountState) {
-        Log.d("accountState: ", accountState.toString());
+        if (accountState instanceof AccountsViewModel.Loading) {
+            Log.d("accountState: ", "Loading...");
+        }else if(accountState instanceof AccountsViewModel.Loaded){
+            mUserAccounts.addAll(((AccountsViewModel.Loaded) accountState).accountList);
+            adapter.notifyDataSetChanged();
+            if(mUserAccounts.size()>0) loadingText.setVisibility(View.GONE);
+            Log.d("accountState: ", "Loaded...");
+            Log.d("mUserAccounts Size : ", ""+mUserAccounts.size());
+        }
+
     }
 
     private void setUpRecyclerView(){
         mUserAccounts = new ArrayList<>();
-        adapter = new AccountAdapter(mUserAccounts);
+        adapter = new AccountAdapter(mUserAccounts, this);
         recyclerView.setAdapter(adapter);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
         if(mUserAccounts.size()>0) loadingText.setVisibility(View.GONE);
@@ -108,12 +118,24 @@ public class AccountsActivity extends FullscreenActivity {
                 else if(TextUtils.isEmpty(et_account_url.getText().toString())) et_account_url.setError("Enter Account Url");
                 else {
                     UserAccount userAccount = new UserAccount(et_account_name.getText().toString(), et_account_username.getText().toString(), et_account_url.getText().toString());
-                    mUserAccounts.add(userAccount);
-
-                    adapter.notifyDataSetChanged();
-                    alertDialog.dismiss();
-                    loadingText.setVisibility(View.GONE);
+                    int userId = (int) mViewModel.updateUserAccount(userAccount);
+                    Log.d("userId ", ""+userId);
+                    if(userId>0) {
+                        userAccount.setId(userId);
+                        mUserAccounts.add(userAccount);
+                        adapter.notifyDataSetChanged();
+                        alertDialog.dismiss();
+                        loadingText.setVisibility(View.GONE);
+                    }
+                    else Toast.makeText(this, "Updating account failure ", Toast.LENGTH_SHORT).show();
                 }
             });
+    }
+
+    @Override
+    public void onAccountSelected(int position) {
+        UserAccount userAccount = mUserAccounts.get(position);
+        Toast.makeText(this, "Account : "+userAccount.getAccountName() + userAccount.getId() + userAccount.getAccountGridId()  +" Selected", Toast.LENGTH_SHORT).show();
+
     }
 }

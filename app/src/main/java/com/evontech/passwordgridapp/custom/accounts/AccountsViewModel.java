@@ -16,18 +16,19 @@ public class AccountsViewModel extends ViewModel {
     static abstract class AccountState {}
     static class Loading extends AccountState {
         private Loading() {
-
         }
     }
     static class Loaded extends AccountState {
-        private Loaded() {
+        List<UserAccount> accountList;
+        private Loaded(List<UserAccount> userAccounts) {
+            accountList = userAccounts;
         }
     }
     private AccountDataSource accountDataSource;
     private List<UserAccount> mAllAccountsData;
 
     private AccountState mCurrentState = null;
-    private MutableLiveData<AccountState> mOnGridState;
+    private MutableLiveData<AccountState> mOnAccountState;
 
     public AccountsViewModel(AccountDataSource dataSource) {
         accountDataSource = dataSource;
@@ -35,26 +36,27 @@ public class AccountsViewModel extends ViewModel {
     }
 
     private void resetLiveData() {
-        mOnGridState = new MutableLiveData<>();
+        mOnAccountState = new MutableLiveData<>();
+        setAccountState(new Loading());
+        loadAccounts();
     }
 
     public void loadAccounts() {
-            setGridState(new Loading());
             mAllAccountsData = new ArrayList<>();
-            setGridState(new Loaded());
             mAllAccountsData = accountDataSource.getAllAccountData();
+            setAccountState(new Loaded(mAllAccountsData));
     }
 
-    public void updateUserAccount(UserAccount userAccount){
-        accountDataSource.saveAccountData(userAccount);
+    public long updateUserAccount(UserAccount userAccount){
+        return accountDataSource.saveAccountData(userAccount);
     }
 
-    public LiveData<AccountState> getOnGridState() {
-        return mOnGridState;
+    public LiveData<AccountState> getOnAccountState() {
+        return mOnAccountState;
     }
 
-    private void setGridState(AccountState state) {
+    private void setAccountState(AccountState state) {
         mCurrentState = state;
-        mOnGridState.setValue(mCurrentState);
+        mOnAccountState.setValue(mCurrentState);
     }
 }

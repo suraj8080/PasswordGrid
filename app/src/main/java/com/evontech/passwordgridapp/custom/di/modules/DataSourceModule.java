@@ -2,6 +2,7 @@ package com.evontech.passwordgridapp.custom.di.modules;
 
 import android.content.Context;
 
+import com.evontech.passwordgridapp.custom.data.AccountDataSource;
 import com.evontech.passwordgridapp.custom.data.GridDataSource;
 import com.evontech.passwordgridapp.custom.data.WordDataSource;
 import com.evontech.passwordgridapp.custom.data.sqlite.DbHelper;
@@ -29,6 +30,12 @@ public class DataSourceModule {
     @Provides
     @Singleton
     GridDataSource provideGridRoundDataSource(DbHelper dbHelper) {
+        return new GridDataSQLiteDataSource(dbHelper);
+    }
+
+    @Provides
+    @Singleton
+    AccountDataSource provideAccountDataSource(DbHelper dbHelper) {
         return new GridDataSQLiteDataSource(dbHelper);
     }
 

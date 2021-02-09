@@ -43,17 +43,11 @@ public class AppModule {
 
     @Provides
     @Singleton
-    ViewModelFactory provideViewModelFactory(GridDataSource gridDataSource) {
+    ViewModelFactory provideViewModelFactory(GridDataSource gridDataSource, AccountDataSource accountDataSource) {
         return new ViewModelFactory(
-                new GridViewModel(gridDataSource)
+                new GridViewModel(gridDataSource),
+                new AccountsViewModel(accountDataSource)
         );
     }
 
-    /*@Provides
-    @Singleton
-    ViewModelFactory provideViewModelFactory(AccountDataSource accountDataSource) {
-        return new ViewModelFactory(
-                new AccountsViewModel(accountDataSource)
-        );
-    }*/
 }

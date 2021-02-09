@@ -141,7 +141,6 @@ public class GridDataSQLiteDataSource implements GridDataSource, AccountDataSour
     public long saveAccountData(UserAccount userAccount) {
         SQLiteDatabase db = mHelper.getWritableDatabase();
         ContentValues values = new ContentValues();
-        values.put(DbContract.UserAccounts.COL_ACCOUNT_ID, userAccount.getId());
         values.put(DbContract.UserAccounts.COL_ACCOUNT_NAME, userAccount.getAccountName());
         values.put(DbContract.UserAccounts.COL_ACCOUNT_USER_NAME, userAccount.getUserName());
         values.put(DbContract.UserAccounts.COL_ACCOUNT_URL, userAccount.getAccountUrl());
@@ -168,27 +167,30 @@ public class GridDataSQLiteDataSource implements GridDataSource, AccountDataSour
         SQLiteDatabase db = mHelper.getReadableDatabase();
 
         String cols[] = {
-                DbContract.UserAccounts.COL_ACCOUNT_ID,
+                DbContract.UserAccounts._ID,
                 DbContract.UserAccounts.COL_ACCOUNT_NAME,
                 DbContract.UserAccounts.COL_ACCOUNT_USER_NAME,
                 DbContract.UserAccounts.COL_ACCOUNT_URL,
                 DbContract.UserAccounts.COL_ACCOUNT_GRID_ID
         };
-        String sel = DbContract.UserAccounts.COL_ACCOUNT_ID + "=?";
+        //String sel = DbContract.UserAccounts._ID + "=?";
         //String selArgs[] = {String.valueOf(accountId)};
 
-        Cursor c = db.query(DbContract.UserAccounts.TABLE_NAME, cols, sel, null, null, null, null);
+        Cursor c = db.query(DbContract.UserAccounts.TABLE_NAME, cols, null, null, null, null, null);
         List<UserAccount> allAccounts = new ArrayList<>();
         UserAccount userAccount = null;
         if (c.moveToFirst()) {
-            userAccount = new UserAccount();
-            userAccount.setId(c.getInt(0));
-            userAccount.setAccountName(c.getString(1));
-            userAccount.setUserName(c.getString(2));
-            userAccount.setAccountUrl(c.getString(3));
-            userAccount.setAccountGridId(c.getInt(4));
-            Log.d("Getting accountData ", c.getString(1));
-            allAccounts.add(userAccount);
+            while (!c.isAfterLast()) {
+                userAccount = new UserAccount();
+                userAccount.setId(c.getInt(0));
+                userAccount.setAccountName(c.getString(1));
+                userAccount.setUserName(c.getString(2));
+                userAccount.setAccountUrl(c.getString(3));
+                userAccount.setAccountGridId(c.getInt(4));
+                Log.d("Getting accountData ", c.getString(1));
+                allAccounts.add(userAccount);
+                c.moveToNext();
+            }
         }
         c.close();
         return allAccounts;
@@ -199,13 +201,13 @@ public class GridDataSQLiteDataSource implements GridDataSource, AccountDataSour
         SQLiteDatabase db = mHelper.getReadableDatabase();
 
         String cols[] = {
-                DbContract.UserAccounts.COL_ACCOUNT_ID,
+                DbContract.UserAccounts._ID,
                 DbContract.UserAccounts.COL_ACCOUNT_NAME,
                 DbContract.UserAccounts.COL_ACCOUNT_USER_NAME,
                 DbContract.UserAccounts.COL_ACCOUNT_URL,
                 DbContract.UserAccounts.COL_ACCOUNT_GRID_ID
         };
-        String sel = DbContract.UserAccounts.COL_ACCOUNT_ID + "=?";
+        String sel = DbContract.UserAccounts._ID + "=?";
         String selArgs[] = {String.valueOf(accountId)};
 
         Cursor c = db.query(DbContract.UserAccounts.TABLE_NAME, cols, sel, selArgs, null, null, null);
