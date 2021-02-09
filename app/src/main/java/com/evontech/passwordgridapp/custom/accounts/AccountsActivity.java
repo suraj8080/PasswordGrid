@@ -138,7 +138,9 @@ public class AccountsActivity extends FullscreenActivity implements OnAccountCli
     @Override
     public void onAccountSelected(int position) {
         UserAccount userAccount = mUserAccounts.get(position);
-        Toast.makeText(this, "Account : "+userAccount.getAccountName() + " Account Id: "+userAccount.getId() + " Account GridId: "+userAccount.getAccountGridId()  +" Selected", Toast.LENGTH_SHORT).show();
+        Log.d("Account: ", userAccount.getAccountName());
+        Log.d("Account Id: ", ""+userAccount.getId());
+        Log.d("Account GridId: ", ""+userAccount.getAccountGridId());
         setDefaultCriteria();
         startGrid(userAccount);
     }
@@ -192,6 +194,12 @@ public class AccountsActivity extends FullscreenActivity implements OnAccountCli
                     break;
             }
         }
+        if(!mPreferences.showSpecialCharacters() && !mPreferences.showUpperCharacters() && !mPreferences.showLowerCharacters() && !mPreferences.showNumberCharacters() ){
+            mPreferences.setSpecialCharacters(true);
+            mPreferences.setUpperCharacters(true);
+            mPreferences.setLowerCharacters(true);
+            mPreferences.setNumberCharacters(true);
+        }
         if(mPreferences.getPasswordLength()<=0){
             mPreferences.setPasswordLength(14);
             mPreferences.setGridRow(14);
@@ -206,5 +214,12 @@ public class AccountsActivity extends FullscreenActivity implements OnAccountCli
         intent.putExtra("account", userAccount);
         startActivity(intent);
         overridePendingTransition(R.anim.slide_in, R.anim.slide_out);
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        mUserAccounts.clear();
+        mViewModel.loadAccounts();
     }
 }

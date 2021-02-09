@@ -107,10 +107,10 @@ public class GridDataSQLiteDataSource implements GridDataSource, AccountDataSour
             String where = DbContract.GRID._ID + "=?";
             String whereArgs[] = {String.valueOf(gid)};
             int updateStatus = db.update(DbContract.GRID.TABLE_NAME, values,where, whereArgs);
-            Log.d("updateStatus ", ""+updateStatus);
+            Log.d("saveGridData updateStatus ", ""+updateStatus);
         }else {
              gid = db.insert(DbContract.GRID.TABLE_NAME, "null", values);
-            Log.d("insertStatus ", ""+gid);
+            Log.d("saveGridData insertStatus ", ""+gid);
         }
         gameRound.setId((int) gid);
 
@@ -153,10 +153,10 @@ public class GridDataSQLiteDataSource implements GridDataSource, AccountDataSour
             String where = DbContract.UserAccounts._ID + "=?";
             String whereArgs[] = {String.valueOf(acId)};
             int updateStatus = db.update(DbContract.UserAccounts.TABLE_NAME, values,where, whereArgs);
-            Log.d("updateStatus ", ""+updateStatus);
+            Log.d("saveAccountData updateStatus ", ""+updateStatus);
         }else {
             acId = db.insert(DbContract.UserAccounts.TABLE_NAME, "null", values);
-            Log.d("insertStatus ", ""+acId);
+            Log.d("saveAccountData insertStatus ", ""+acId);
         }
         userAccount.setId((int) acId);
         return acId;
@@ -170,7 +170,8 @@ public class GridDataSQLiteDataSource implements GridDataSource, AccountDataSour
         String where = DbContract.UserAccounts._ID + "=?";
         String whereArgs[] = {String.valueOf(account.getId())};
         int updateStatus = db.update(DbContract.UserAccounts.TABLE_NAME, values,where, whereArgs);
-        Log.d("updateStatus ", ""+updateStatus);
+        Log.d("updateAccountInfo gridId ", ""+account.getAccountGridId());
+        Log.d("updateAccountInfo updateStatus ", ""+updateStatus);
         return updateStatus;
     }
 
@@ -288,7 +289,7 @@ public class GridDataSQLiteDataSource implements GridDataSource, AccountDataSour
         values.put(com.evontech.passwordgridapp.custom.data.sqlite.DbContract.UsedWord.COL_WORD_STRING, usedWord.getString());
         long insertedId = db.insert(com.evontech.passwordgridapp.custom.data.sqlite.DbContract.UsedWord.TABLE_NAME, "null", values);
         usedWord.setId((int) insertedId);
-        Log.d("Line updateStatus ", ""+insertedId);
+        Log.d("markWordAsAnswered updateStatus ", ""+insertedId);
 
         /*String where = com.evontech.passwordgridapp.custom.data.sqlite.DbContract.UsedWord._ID + "=?";
         String whereArgs[] = {String.valueOf(usedWord.getId())};

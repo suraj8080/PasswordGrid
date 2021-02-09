@@ -38,7 +38,7 @@ public class AccountsViewModel extends ViewModel {
     private void resetLiveData() {
         mOnAccountState = new MutableLiveData<>();
         setAccountState(new Loading());
-        loadAccounts();
+        //loadAccounts();
     }
 
     public void loadAccounts() {
