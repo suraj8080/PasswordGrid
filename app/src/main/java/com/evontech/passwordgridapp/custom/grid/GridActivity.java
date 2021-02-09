@@ -379,7 +379,6 @@ public class GridActivity extends FullscreenActivity {
 
 
         mViewModel = ViewModelProviders.of(this, mViewModelFactory).get(GridViewModel.class);
-        mViewModel.getOnGridState().observe(this, this::onGridStateChanged);
 
         Bundle extras = getIntent().getExtras();
         if (extras != null) {
@@ -402,6 +401,8 @@ public class GridActivity extends FullscreenActivity {
                 mViewModel.generateNewGridRound(rowCount, colCount);
             }
         }
+
+        mViewModel.getOnGridState().observe(this, this::onGridStateChanged);
 
         /*if (!getPreferences().showGridLine()) {
             mLetterBoard.getGridLineBackground().setVisibility(View.INVISIBLE);
@@ -459,7 +460,7 @@ public class GridActivity extends FullscreenActivity {
             }
             @Override
             public void afterTextChanged(Editable s) {
-               // Log.d("Editable after ", ""+s.length());
+                Log.d("Editable after ", ""+s.length());
                 if(isDefaultPasswordGenerated && !getPreferences().showWordFromBorder()) {
                     if (!TextUtils.isEmpty(s)) {
                         if (s.length() > typePasswordLength || typePasswordLength > s.length()) {
@@ -1259,10 +1260,10 @@ public class GridActivity extends FullscreenActivity {
             setGridAsAlreadyFinished();
         }*/
 
+        //rowCount = gridData.getGrid().getRowCount();
+       // colCount = gridData.getGrid().getColCount();
         userAccount.setAccountGridId(gridData.getId());
         mViewModel.updateAccountInfo(userAccount);
-        rowCount = gridData.getGrid().getRowCount();
-        colCount = gridData.getGrid().getColCount();
         doneLoadingContent();  //call it accordingly
 
         showLetterGrid(gridData.getGrid().getArray());
@@ -1274,16 +1275,21 @@ public class GridActivity extends FullscreenActivity {
             if(word.isAnswered()){
                 Log.d("savedPassword ", word.getString());
                 UsedWord.AnswerLine line = word.getAnswerLine();
+                Log.d("line color ", ""+line.color);
+                Log.d("line startRow startCol ", ""+line.startRow + line.startCol);
+                Log.d("line endRow endCol ", ""+line.endRow + line.endCol);
                 StreakView.StreakLine newStreakLine = new StreakView.StreakLine();
-                newStreakLine.setColor(line.color);
+                newStreakLine.setColor(Util.getRandomColorWithAlpha(170)/*line.color*/);
                 newStreakLine.getStartIndex().set(line.startRow,line.startCol);
                 newStreakLine.getEndIndex().set(line.endRow,line.endCol);
-                if(Direction.fromLine(newStreakLine.getStartIndex(), newStreakLine.getEndIndex()) != Direction.NONE){
+                Direction direction = Direction.fromLine(newStreakLine.getStartIndex(), newStreakLine.getEndIndex());
+                Log.d("direction ", direction.name());
+                Log.d("all lines ", ""+mLetterBoard.getStreakView().getmLines().size());
+                if( direction!= Direction.NONE){
                     mLetterBoard.addStreakLine(newStreakLine);
                     mTextSelection.setText(word.getString());
                 }
             }
-
         }
 
         //doneLoadingContent();
@@ -1301,6 +1307,7 @@ public class GridActivity extends FullscreenActivity {
         Log.d("boardWidth ", boardWidth+"");
         Log.d("screenWidth ", screenWidth+"");
         Log.d("gridColCount ", mLetterBoard.getGridColCount()+"");
+        Log.d("gridRowCount ", mLetterBoard.getGridRowCount()+"");
 
         //Log.d("topBorderLeftMargin ", ""+topBorderLeftMargin);
         if (boardWidth > screenWidth) {
@@ -1342,6 +1349,7 @@ public class GridActivity extends FullscreenActivity {
              );
              params.setMargins(topBorderLeftMargin, 0, 0, 0);
              mLetterBoardTop.setLayoutParams(params);
+             if(userAccount.getAccountGridId()<=0)
              generateDefaultPassword();
          }
          /*if(!isInitialized) {
@@ -1556,7 +1564,7 @@ public class GridActivity extends FullscreenActivity {
         indicatorRed.setBackground(ContextCompat.getDrawable(this,R.drawable.default_indicator));
     }
 
-    private int  passwordStrength(String word){
+    private int passwordStrength(String word){
             char ch;
             int strength = 0;
             boolean capitalFlag = false;
@@ -1609,6 +1617,7 @@ public class GridActivity extends FullscreenActivity {
                         mViewModel.generateNewGridRound(rowCount, colCount);
                     }else {
                         resetGrid();
+                        if(userAccount.getAccountGridId()<=0)
                         generateDefaultPassword();
                     }
                 }

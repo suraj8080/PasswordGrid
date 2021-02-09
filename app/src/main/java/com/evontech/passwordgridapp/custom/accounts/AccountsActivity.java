@@ -141,6 +141,7 @@ public class AccountsActivity extends FullscreenActivity implements OnAccountCli
         Log.d("Account: ", userAccount.getAccountName());
         Log.d("Account Id: ", ""+userAccount.getId());
         Log.d("Account GridId: ", ""+userAccount.getAccountGridId());
+        if(userAccount.getAccountGridId()<=0)
         setDefaultCriteria();
         startGrid(userAccount);
     }
