@@ -113,7 +113,7 @@ public class GridViewModel extends ViewModel {
         if (!(mCurrentState instanceof Generating)) {
             setGridState(new Loading(gid));
 
-            mGridDataSource.getGridData(gid, gridRound -> { // %3t%X$80ZR
+            mGridDataSource.getGridData(gid, gridRound -> {
                 mCurrentGridData = new GridDataMapper().map(gridRound);
 
                 GridDataCreator.setGridGenerationCriteria(isUpperCase, isLowerCase, isNumbers, isSpecialCharacters);
