@@ -41,6 +41,7 @@ import com.evontech.passwordgridapp.custom.mcustom.LetterBoard;
 import com.evontech.passwordgridapp.custom.mcustom.StreakView;
 import com.evontech.passwordgridapp.custom.models.GridData;
 import com.evontech.passwordgridapp.custom.models.UsedWord;
+import com.evontech.passwordgridapp.custom.models.UserAccount;
 import com.evontech.passwordgridapp.custom.settings.Preferences;
 import com.evontech.passwordgridapp.custom.settings.ViewModelFactory;
 
@@ -133,8 +134,9 @@ public class GridActivity extends FullscreenActivity {
     private boolean isDefaultPasswordGenerated;
     private boolean isInitialized;
     private boolean isScaled;
-    int topBorderLeftMargin;
-    int typePasswordLength;
+    private int topBorderLeftMargin;
+    private int typePasswordLength;
+    private UserAccount userAccount;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -389,6 +391,7 @@ public class GridActivity extends FullscreenActivity {
             } else {
                 rowCount = extras.getInt(EXTRA_ROW_COUNT);
                 colCount = extras.getInt(EXTRA_COL_COUNT);
+                userAccount = (UserAccount) extras.getSerializable("account");
                 defaultBoardWidth();
                 Preferences preferences = getPreferences();
                 mViewModel.setGridGenerationCriteria(preferences.showUpperCharacters(), preferences.showLowerCharacters(),preferences.showNumberCharacters(), preferences.showSpecialCharacters());
@@ -1241,9 +1244,9 @@ public class GridActivity extends FullscreenActivity {
           //  showFinishGrid(((GridPlayViewModel.Finished) gridState).mGridData.getId());
         } else if (gridState instanceof GridViewModel.Paused) {
 
-        } else if (gridState instanceof GridViewModel.Playing) {
+        } else if (gridState instanceof GridViewModel.Loaded) {
             if(!isInitialized)
-            onGridRoundLoaded(((GridViewModel.Playing) gridState).mGridData);
+            onGridRoundLoaded(((GridViewModel.Loaded) gridState).mGridData);
         }
     }
 
@@ -1252,6 +1255,8 @@ public class GridActivity extends FullscreenActivity {
             setGridAsAlreadyFinished();
         }*/
 
+        userAccount.setAccountGridId(gridData.getId());
+        mViewModel.updateAccountInfo(userAccount);
         rowCount = gridData.getGrid().getRowCount();
         colCount = gridData.getGrid().getColCount();
         doneLoadingContent();  //call it accordingly

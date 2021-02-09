@@ -163,6 +163,18 @@ public class GridDataSQLiteDataSource implements GridDataSource, AccountDataSour
     }
 
     @Override
+    public int updateAccountInfo(UserAccount account) {
+        SQLiteDatabase db = mHelper.getWritableDatabase();
+        ContentValues values = new ContentValues();
+        values.put(DbContract.UserAccounts.COL_ACCOUNT_GRID_ID, account.getAccountGridId());
+        String where = DbContract.UserAccounts._ID + "=?";
+        String whereArgs[] = {String.valueOf(account.getId())};
+        int updateStatus = db.update(DbContract.UserAccounts.TABLE_NAME, values,where, whereArgs);
+        Log.d("updateStatus ", ""+updateStatus);
+        return updateStatus;
+    }
+
+    @Override
     public List<UserAccount> getAllAccountData() {
         SQLiteDatabase db = mHelper.getReadableDatabase();
 
@@ -244,6 +256,7 @@ public class GridDataSQLiteDataSource implements GridDataSource, AccountDataSour
         String sel = com.evontech.passwordgridapp.custom.data.sqlite.DbContract.UsedWord.COL_GRID_ID + "=?";
         db.delete(com.evontech.passwordgridapp.custom.data.sqlite.DbContract.UsedWord.TABLE_NAME, sel, selArgs);
     }
+
 
     @Override
     public void deleteGridDatas() {

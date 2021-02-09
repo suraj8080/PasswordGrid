@@ -8,6 +8,7 @@ import androidx.lifecycle.ViewModelProviders;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.util.Log;
@@ -25,6 +26,8 @@ import android.widget.Toast;
 import com.evontech.passwordgridapp.R;
 import com.evontech.passwordgridapp.custom.FullscreenActivity;
 import com.evontech.passwordgridapp.custom.PasswordGridApp;
+import com.evontech.passwordgridapp.custom.common.Util;
+import com.evontech.passwordgridapp.custom.grid.GridActivity;
 import com.evontech.passwordgridapp.custom.grid.GridViewModel;
 import com.evontech.passwordgridapp.custom.models.UserAccount;
 import com.evontech.passwordgridapp.custom.settings.Preferences;
@@ -135,7 +138,73 @@ public class AccountsActivity extends FullscreenActivity implements OnAccountCli
     @Override
     public void onAccountSelected(int position) {
         UserAccount userAccount = mUserAccounts.get(position);
-        Toast.makeText(this, "Account : "+userAccount.getAccountName() + userAccount.getId() + userAccount.getAccountGridId()  +" Selected", Toast.LENGTH_SHORT).show();
+        Toast.makeText(this, "Account : "+userAccount.getAccountName() + " Account Id: "+userAccount.getId() + " Account GridId: "+userAccount.getAccountGridId()  +" Selected", Toast.LENGTH_SHORT).show();
+        setDefaultCriteria();
+        startGrid(userAccount);
+    }
 
+    private void setDefaultCriteria(){
+        //set default selection method here.
+
+        if(!mPreferences.userSelectedDirection()) { //default direction
+            int randomSelectionOption = Util.getRandomIntRange(1,6);
+            switch (randomSelectionOption){
+                case 1:
+                    mPreferences.selectDirection("EAST");
+                    break;
+                case 2:
+                    mPreferences.selectDirection("WEST");
+                    break;
+                case 3:
+                    mPreferences.selectDirection("SOUTH");
+                    break;
+                case 4:
+                    mPreferences.selectDirection("NORTH");
+                    break;
+                case 5:
+                    mPreferences.selectDirection("SOUTH_EAST");
+                    break;
+                case 6:
+                    mPreferences.selectDirection("NORTH_WEST");
+                    break;
+            }
+        }
+        if(!mPreferences.userSelectedChosenOption()){
+            int randomSelectionOption = Util.getRandomIntRange(1,6);
+            switch (randomSelectionOption){
+                case 1:
+                    mPreferences.setDragManually(true);
+                    break;
+                case 2:
+                    mPreferences.setStartEndGrid(true);
+                    break;
+                case 3:
+                    mPreferences.setGridDirection(true);
+                    break;
+                case 4:
+                    mPreferences.setGridPattern(true);
+                    break;
+                case 5:
+                    mPreferences.setWordFromBorder(true);
+                    break;
+                case 6:
+                    mPreferences.setTypeManually(true);
+                    break;
+            }
+        }
+        if(mPreferences.getPasswordLength()<=0){
+            mPreferences.setPasswordLength(14);
+            mPreferences.setGridRow(14);
+            mPreferences.setGridCol(14);
+        }
+        if(mPreferences.showWordFromBorder() ||  mPreferences.selectedTypeManually()) mPreferences.setGridCol(26);
+    }
+    private void startGrid(UserAccount userAccount){
+        Intent intent = new Intent(this, GridActivity.class);
+        intent.putExtra(GridActivity.EXTRA_ROW_COUNT, mPreferences.getGridRow());
+        intent.putExtra(GridActivity.EXTRA_COL_COUNT, mPreferences.getGridCol());
+        intent.putExtra("account", userAccount);
+        startActivity(intent);
+        overridePendingTransition(R.anim.slide_in, R.anim.slide_out);
     }
 }

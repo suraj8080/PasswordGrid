@@ -10,6 +10,7 @@ import com.evontech.passwordgridapp.custom.data.GridDataSource;
 import com.evontech.passwordgridapp.custom.data.entity.GridDataMapper;
 import com.evontech.passwordgridapp.custom.models.GridData;
 import com.evontech.passwordgridapp.custom.models.UsedWord;
+import com.evontech.passwordgridapp.custom.models.UserAccount;
 import com.evontech.passwordgridapp.custom.models.Word;
 import java.util.ArrayList;
 import java.util.List;
@@ -50,9 +51,9 @@ public class GridViewModel extends ViewModel {
     static class Paused extends GridState {
         private Paused() {}
     }
-    static class Playing extends GridState {
+    static class Loaded extends GridState {
         GridData mGridData;
-        private Playing(GridData gridData) {
+        private Loaded(GridData gridData) {
             this.mGridData = gridData;
         }
     }
@@ -104,7 +105,7 @@ public class GridViewModel extends ViewModel {
 
     public void resumeGrid() {
         if (mCurrentState instanceof Paused) {
-            setGridState(new Playing(mCurrentGridData));
+            setGridState(new Loaded(mCurrentGridData));
         }
     }
 
@@ -121,7 +122,7 @@ public class GridViewModel extends ViewModel {
                 mCurrentLeftData = mGridDataCreator.newGridData(leftWordList, mCurrentGridData.getGrid().getRowCount(), 1, "Left Borders");
                 mCurrentTopData = mGridDataCreator.newGridData(topWordList, 1, mCurrentGridData.getGrid().getRowCount(), "Top Borders");
 
-                setGridState(new Playing(mCurrentGridData));
+                setGridState(new Loaded(mCurrentGridData));
             });
         }
     }
@@ -157,7 +158,7 @@ public class GridViewModel extends ViewModel {
                     .subscribe(gridRound -> {
                         mCurrentGridData = gridRound;
                         Log.d("gridId ", mCurrentGridData.getId()+"");
-                        setGridState(new Playing(mCurrentGridData));
+                        setGridState(new Loaded(mCurrentGridData));
                     });
         }
     }
@@ -195,5 +196,9 @@ public class GridViewModel extends ViewModel {
     private void setGridState(GridState state) {
         mCurrentState = state;
         mOnGridState.setValue(mCurrentState);
+    }
+
+    public void updateAccountInfo(UserAccount userAccount){
+        mGridDataSource.updateAccountInfo(userAccount);
     }
 }

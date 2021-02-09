@@ -47,4 +47,6 @@ public interface GridDataSource {
     void markWordAsAnswered(UsedWord usedWord);
 
     void deleteAllLines(int gid);
+
+    int updateAccountInfo(UserAccount account);
 }

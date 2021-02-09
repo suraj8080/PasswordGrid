@@ -1,6 +1,8 @@
 package com.evontech.passwordgridapp.custom.models;
 
-public class UserAccount {
+import java.io.Serializable;
+
+public class UserAccount implements Serializable {
     private int id;
     private String accountName;
     private String userName;
