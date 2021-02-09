@@ -385,6 +385,7 @@ public class GridActivity extends FullscreenActivity {
         if (extras != null) {
             if (extras.containsKey(EXTRA_GRID_ID)) {
                 int gid = extras.getInt(EXTRA_GRID_ID);
+                userAccount = (UserAccount) extras.getSerializable("account");
                 Preferences preferences = getPreferences();
                 mViewModel.setGridGenerationCriteria(preferences.showUpperCharacters(), preferences.showLowerCharacters(),preferences.showNumberCharacters(), preferences.showSpecialCharacters());
                 mViewModel.loadGridRound(gid);
