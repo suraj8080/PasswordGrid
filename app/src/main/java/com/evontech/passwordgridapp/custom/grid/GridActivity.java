@@ -74,8 +74,8 @@ public class GridActivity extends FullscreenActivity {
     AppCompatButton mButtonReset;
     @BindView(R.id.btnSave)
     AppCompatButton mButtonSave;
-    @BindView(R.id.top_letter_board) LetterBoard mLetterBoardTop;
     @BindView(R.id.letter_board) LetterBoard mLetterBoard;
+    @BindView(R.id.top_letter_board) LetterBoard mLetterBoardTop;
     @BindView(R.id.left_letter_board) LetterBoard mLetterBoardLeft;
     @BindView(R.id.verticalscoll_left_center)
     CustomScrollView myScrollView;
@@ -142,10 +142,10 @@ public class GridActivity extends FullscreenActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_grid);
-
         ButterKnife.bind(this);
         ((PasswordGridApp) getApplication()).getAppComponent().inject(this);
         initPwdEditText();
+
         //mLetterBoard.getStreakView().setEnableOverrideStreakLineColor(getPreferences().grayscale());
         mLetterBoard.getStreakView().setOverrideStreakLineColor(mGrayColor);
         mLetterBoard.getStreakView().setInteractive(true);
@@ -379,7 +379,7 @@ public class GridActivity extends FullscreenActivity {
 
 
         mViewModel = ViewModelProviders.of(this, mViewModelFactory).get(GridViewModel.class);
-
+        mViewModel.getOnGridState().observe(this, this::onGridStateChanged);
         Bundle extras = getIntent().getExtras();
         if (extras != null) {
             if (extras.containsKey(EXTRA_GRID_ID)) {
@@ -401,8 +401,6 @@ public class GridActivity extends FullscreenActivity {
                 mViewModel.generateNewGridRound(rowCount, colCount);
             }
         }
-
-        mViewModel.getOnGridState().observe(this, this::onGridStateChanged);
 
         /*if (!getPreferences().showGridLine()) {
             mLetterBoard.getGridLineBackground().setVisibility(View.INVISIBLE);
@@ -445,6 +443,7 @@ public class GridActivity extends FullscreenActivity {
         iconAutoGenerate.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                Log.d("boardWidth ", mLetterBoard.getWidth()+"");
                 resetGrid();
                 generateDefaultPassword();
             }
@@ -1241,12 +1240,13 @@ public class GridActivity extends FullscreenActivity {
 
     private void onGridStateChanged(GridViewModel.GridState gridState) {
         showLoading(false, null);
+        Log.d("onGridStateChanged "+mLetterBoard.getWidth(), "gridState "+gridState.toString());
         if (gridState instanceof GridViewModel.Generating) {
             GridViewModel.Generating state = (GridViewModel.Generating) gridState;
             String text = "Generating " + state.rowCount + "x" + state.colCount + " grid";
             showLoading(true, text);
         } else if (gridState instanceof GridViewModel.Finished) {
-          //  showFinishGrid(((GridPlayViewModel.Finished) gridState).mGridData.getId());
+          //  showFinishGrid(((GridViewModel.Finished) gridState).mGridData.getId());
         } else if (gridState instanceof GridViewModel.Paused) {
 
         } else if (gridState instanceof GridViewModel.Loaded) {
@@ -1262,15 +1262,15 @@ public class GridActivity extends FullscreenActivity {
 
         //rowCount = gridData.getGrid().getRowCount();
        // colCount = gridData.getGrid().getColCount();
+
+       // doneLoadingContent();  //call it accordingly
         userAccount.setAccountGridId(gridData.getId());
         mViewModel.updateAccountInfo(userAccount);
-        doneLoadingContent();  //call it accordingly
 
         showLetterGrid(gridData.getGrid().getArray());
         mLetterBoard.setVisibility(View.VISIBLE);
         mLetterBoardTop.setVisibility(View.VISIBLE);
         mLetterBoardLeft.setVisibility(View.VISIBLE);
-
         for (UsedWord word: gridData.getUsedWords()) {
             if(word.isAnswered()){
                 Log.d("savedPassword ", word.getString());
@@ -1292,7 +1292,7 @@ public class GridActivity extends FullscreenActivity {
             }
         }
 
-        //doneLoadingContent();
+        doneLoadingContent();
     }
 
     private void tryScale() {
@@ -1361,7 +1361,7 @@ public class GridActivity extends FullscreenActivity {
     private void doneLoadingContent() {
         // call tryScale() on the next render frame
         isInitialized = true;
-        new Handler().postDelayed(this::tryScale, 0);
+        new Handler().postDelayed(this::tryScale, 50);
     }
 
     private void showLoading(boolean enable, String text) {
@@ -1627,6 +1627,7 @@ public class GridActivity extends FullscreenActivity {
     }
 
     private void defaultBoardWidth(){
+       // Log.d("boardWidth ", ""+mLetterBoard.getWidth());
         mLetterBoard.getLetterGrid().setColCount(colCount);
         mLetterBoard.getLetterGrid().setRowCount(rowCount);
         mLetterBoardTop.getLetterGrid().setColCount(colCount);
@@ -1649,6 +1650,7 @@ public class GridActivity extends FullscreenActivity {
             gridWidth = gridWidth - ((diff/colCount)+1);
             Log.d("after scale gridWidth ",  ""+gridWidth);
         }
+        //Log.d("gridWidth ", ""+gridWidth);
             mLetterBoard.setGridWidth(gridWidth);
             mLetterBoard.setGridHeight(gridWidth);
             mLetterBoard.setStreakWidth(gridWidth);

@@ -15,6 +15,7 @@ import androidx.annotation.Nullable;
 
 import com.evontech.passwordgridapp.R;
 import com.evontech.passwordgridapp.custom.common.GridIndex;
+import com.evontech.passwordgridapp.custom.common.Util;
 import com.evontech.passwordgridapp.custom.common.math.Vec2;
 
 import java.util.List;

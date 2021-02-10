@@ -196,7 +196,7 @@
                 app:gridLineVisibility="true"
                 app:gridWidth="23dp"
                 app:gridHeight="23dp"
-                app:gridColumnCount="14"
+                app:gridColumnCount="16"
                 app:lineWidth="2dp"
                 app:gridRowCount="1"
                 app:letterSize="13sp"

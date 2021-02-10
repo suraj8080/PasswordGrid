@@ -151,6 +151,7 @@ public class LetterBoard extends CenterLayout implements Observer {
     }
 
     public void setGridWidth(int width) {
+        //Log.d("width ", width+"");
         mGridLineBg.setGridWidth(width);
         mLetterGrid.setGridWidth(width);
     }

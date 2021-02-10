@@ -1,5 +1,7 @@
 package com.evontech.passwordgridapp.custom.data.entity;
 
+import android.util.Log;
+
 import com.evontech.passwordgridapp.custom.common.Mapper;
 import com.evontech.passwordgridapp.custom.common.generator.StringGridGenerator;
 import com.evontech.passwordgridapp.custom.models.GridData;
@@ -20,7 +22,10 @@ public class GridDataMapper extends Mapper<GridDataEntity, GridData> {
         gr.setName(obj.getName());
         gr.setDuration(obj.getDuration());
         gr.setGrid(grid);
-
+        //Log.d("id ", ""+gr.getId());
+        //Log.d("name ", ""+gr.getName());
+        //Log.d("grid ", ""+gr.getGrid());
+        //Log.d("row  "+obj.getGridRowCount(), "col "+obj.getGridColCount());
         if (obj.getGridData() != null && obj.getGridData().length() > 0) {
             new StringGridGenerator().setGrid(obj.getGridData(), grid.getArray());
         }
