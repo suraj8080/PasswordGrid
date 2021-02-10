@@ -30,6 +30,7 @@ import androidx.appcompat.widget.AppCompatButton;
 import androidx.appcompat.widget.AppCompatEditText;
 import androidx.core.content.ContextCompat;
 import androidx.lifecycle.ViewModelProviders;
+
 import com.evontech.passwordgridapp.R;
 import com.evontech.passwordgridapp.custom.FullscreenActivity;
 import com.evontech.passwordgridapp.custom.PasswordGridApp;
@@ -1167,7 +1168,7 @@ public class GridActivity extends FullscreenActivity {
                         char[][] tempArray = mLetterAdapter.getGrid().clone();  // update griddata and streakline in db also
                         StringListGridGenerator.placeRandomWordAt(streakLine.getStartIndex().row, streakLine.getStartIndex().col, direction, tempArray, partPwd);
                         mLetterAdapter.setGrid(tempArray);
-                        mViewModel.answerWord(partPwd, STREAK_LINE_MAPPER.revMap(streakLine), true /*getPreferences().reverseMatching()*/);
+                        mViewModel.answerWord(index,partPwd, STREAK_LINE_MAPPER.revMap(streakLine), true /*getPreferences().reverseMatching()*/);
                         mViewModel.updateGridData();
                         index++;
                     }
@@ -1182,9 +1183,10 @@ public class GridActivity extends FullscreenActivity {
             Toast.makeText(GridActivity.this, "Your grid will stored in secure wallet ", Toast.LENGTH_SHORT).show();
             if(streakLineList!=null && streakLineList.size()>0) {
                 for (StreakView.StreakLine streakLine: streakLineList) {
+                    int index = streakLineList.indexOf(streakLine);
                     if(lastPartPwd!=null && lastPartPwd.size() == streakLineList.size())
-                    mViewModel.answerWord(lastPartPwd.get(streakLineList.indexOf(streakLine)), STREAK_LINE_MAPPER.revMap(streakLine), true /*getPreferences().reverseMatching()*/);
-                    else mViewModel.answerWord(lastPartPwd.get(0), STREAK_LINE_MAPPER.revMap(streakLine), true /*getPreferences().reverseMatching()*/);
+                    mViewModel.answerWord(index, lastPartPwd.get(index), STREAK_LINE_MAPPER.revMap(streakLine), true /*getPreferences().reverseMatching()*/);
+                    else mViewModel.answerWord(0, lastPartPwd.get(0), STREAK_LINE_MAPPER.revMap(streakLine), true /*getPreferences().reverseMatching()*/);
                     mViewModel.updateGridData();
                 }
             }
@@ -1256,12 +1258,9 @@ public class GridActivity extends FullscreenActivity {
     }
 
     private void onGridRoundLoaded(GridData gridData) {
-       /* if (gridData.isFinished()) {
-            setGridAsAlreadyFinished();
-        }*/
-
-        //rowCount = gridData.getGrid().getRowCount();
-       // colCount = gridData.getGrid().getColCount();
+        // restore stored griddata password length, selected pin/password mode, selected character case, and selected password chosen option.
+        rowCount = gridData.getGrid().getRowCount();
+        colCount = gridData.getGrid().getColCount();
 
        // doneLoadingContent();  //call it accordingly
         userAccount.setAccountGridId(gridData.getId());
@@ -1279,16 +1278,16 @@ public class GridActivity extends FullscreenActivity {
                 Log.d("line startRow startCol ", ""+line.startRow + line.startCol);
                 Log.d("line endRow endCol ", ""+line.endRow + line.endCol);
                 StreakView.StreakLine newStreakLine = new StreakView.StreakLine();
-                newStreakLine.setColor(Util.getRandomColorWithAlpha(170)/*line.color*/);
+                newStreakLine.setColor(line.color);
                 newStreakLine.getStartIndex().set(line.startRow,line.startCol);
                 newStreakLine.getEndIndex().set(line.endRow,line.endCol);
                 Direction direction = Direction.fromLine(newStreakLine.getStartIndex(), newStreakLine.getEndIndex());
                 Log.d("direction ", direction.name());
                 Log.d("all lines ", ""+mLetterBoard.getStreakView().getmLines().size());
-                if( direction!= Direction.NONE){
+                //if( direction!= Direction.NONE){
                     mLetterBoard.addStreakLine(newStreakLine);
-                    mTextSelection.setText(word.getString());
-                }
+                    mTextSelection.setText(mTextSelection.getText().toString().concat(word.getString()));
+               // }
             }
         }
 
@@ -1296,9 +1295,6 @@ public class GridActivity extends FullscreenActivity {
     }
 
     private void tryScale() {
-        /*  Today's plan:
-            Implementing apply to all option in word from border and type manually chosen option.
-         */
         DisplayMetrics metrics = new DisplayMetrics();
         getWindowManager().getDefaultDisplay().getMetrics(metrics);
 
@@ -1349,7 +1345,7 @@ public class GridActivity extends FullscreenActivity {
              );
              params.setMargins(topBorderLeftMargin, 0, 0, 0);
              mLetterBoardTop.setLayoutParams(params);
-             if(userAccount.getAccountGridId()<=0)
+             if(TextUtils.isEmpty(mTextSelection.getText().toString()))
              generateDefaultPassword();
          }
          /*if(!isInitialized) {
@@ -1617,7 +1613,7 @@ public class GridActivity extends FullscreenActivity {
                         mViewModel.generateNewGridRound(rowCount, colCount);
                     }else {
                         resetGrid();
-                        if(userAccount.getAccountGridId()<=0)
+                        if(TextUtils.isEmpty(mTextSelection.getText().toString()))
                         generateDefaultPassword();
                     }
                 }

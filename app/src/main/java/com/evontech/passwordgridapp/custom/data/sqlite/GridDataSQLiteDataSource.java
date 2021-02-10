@@ -279,8 +279,15 @@ public class GridDataSQLiteDataSource implements GridDataSource, AccountDataSour
     }
 
     @Override
-    public void markWordAsAnswered(UsedWord usedWord) {
+    public void markWordAsAnswered(int index, UsedWord usedWord) {
         SQLiteDatabase db = mHelper.getWritableDatabase();
+        if(index==0) {
+            String sel = DbContract.UsedWord.COL_GRID_ID + "=?";
+            String selArgs[] = {String.valueOf(usedWord.getId())};
+            int status = db.delete(DbContract.UsedWord.TABLE_NAME, sel, selArgs);
+            Log.d("markWordAsAnswered deleteStatus ", "" + status);
+        }
+
         ContentValues values = new ContentValues();
         values.put(com.evontech.passwordgridapp.custom.data.sqlite.DbContract.UsedWord.COL_ANSWER_LINE_DATA, usedWord.getAnswerLine().toString());
         values.put(com.evontech.passwordgridapp.custom.data.sqlite.DbContract.UsedWord.COL_LINE_COLOR, usedWord.getAnswerLine().color);

@@ -44,7 +44,7 @@ public interface GridDataSource {
 
     void saveGridDataDuration(int gid, int newDuration);
 
-    void markWordAsAnswered(UsedWord usedWord);
+    void markWordAsAnswered(int index, UsedWord usedWord);
 
     void deleteAllLines(int gid);
 

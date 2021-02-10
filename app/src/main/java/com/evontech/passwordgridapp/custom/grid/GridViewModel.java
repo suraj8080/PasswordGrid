@@ -72,6 +72,7 @@ public class GridViewModel extends ViewModel {
     private GridData mCurrentGridData;
     public GridData mCurrentLeftData;
     public GridData mCurrentTopData;
+    private UserAccount userAccount;
 
     private GridState mCurrentState = null;
     private MutableLiveData<GridState> mOnGridState;
@@ -147,6 +148,7 @@ public class GridViewModel extends ViewModel {
                 GridData gr = mGridDataCreator.newGridData(wordList, rowCount, colCount, "Play me");
                 List<Word> leftWordList = new ArrayList<Word>();
                 List<Word> topWordList = new ArrayList<Word>();
+                if(userAccount!=null && userAccount.getAccountGridId()>0) gr.setId(userAccount.getAccountGridId());  //great...
                 long gid = mGridDataSource.saveGridData(new GridDataMapper().revMap(gr));
                 mCurrentLeftData = mGridDataCreator.newGridData(leftWordList, rowCount, 1, "Left Borders");
                 mCurrentTopData = mGridDataCreator.newGridData(topWordList, 1, colCount, "Top Borders");
@@ -171,14 +173,14 @@ public class GridViewModel extends ViewModel {
         mGridDataSource.deleteAllLines(mCurrentGridData.getId());
     }
 
-    public void answerWord(String answerStr, UsedWord.AnswerLine answerLine, boolean reverseMatching) {   //helpful while saving password after selection
+    public void answerWord(int index, String answerStr, UsedWord.AnswerLine answerLine, boolean reverseMatching) {   //helpful while saving password after selection
         UsedWord correctWord = mCurrentGridData.markWordAsAnswered(answerStr, answerLine, reverseMatching); //for loading same grid with password in future
         correctWord.setId(mCurrentGridData.getId());
 
         //boolean correct = correctWord != null;
         //mOnAnswerResult.setValue(new AnswerResult(correct, correctWord != null ? correctWord.getId() : -1));
         //if (correct) {
-            mGridDataSource.markWordAsAnswered(correctWord);
+            mGridDataSource.markWordAsAnswered(index, correctWord);
            /* if (mCurrentGridData.isFinished()) {
                 setGridState(new Finished(mCurrentGridData));
             }*/
@@ -200,5 +202,6 @@ public class GridViewModel extends ViewModel {
 
     public void updateAccountInfo(UserAccount userAccount){
         mGridDataSource.updateAccountInfo(userAccount);
+        this.userAccount = userAccount;
     }
 }
