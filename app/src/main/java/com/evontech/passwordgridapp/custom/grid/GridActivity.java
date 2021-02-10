@@ -1258,7 +1258,7 @@ public class GridActivity extends FullscreenActivity {
     }
 
     private void onGridRoundLoaded(GridData gridData) {
-        // restore stored griddata password length, selected pin/password mode, selected character case, and selected password chosen option.
+        // restore stored griddata selected pin/password mode, selected character case, and selected password chosen option.
         rowCount = gridData.getGrid().getRowCount();
         colCount = gridData.getGrid().getColCount();
 
@@ -1345,8 +1345,11 @@ public class GridActivity extends FullscreenActivity {
              );
              params.setMargins(topBorderLeftMargin, 0, 0, 0);
              mLetterBoardTop.setLayoutParams(params);
-             if(TextUtils.isEmpty(mTextSelection.getText().toString()))
-             generateDefaultPassword();
+             String storedPwd = mTextSelection.getText().toString();
+             if(TextUtils.isEmpty(storedPwd)){
+                 generateDefaultPassword();
+             } else getPreferences().setPasswordLength(storedPwd.length());
+
          }
          /*if(!isInitialized) {
             isInitialized = true;
