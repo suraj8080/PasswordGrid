@@ -1186,7 +1186,12 @@ public class GridActivity extends FullscreenActivity {
                     int index = streakLineList.indexOf(streakLine);
                     if(lastPartPwd!=null && lastPartPwd.size() == streakLineList.size())
                     mViewModel.answerWord(index, lastPartPwd.get(index), STREAK_LINE_MAPPER.revMap(streakLine), true /*getPreferences().reverseMatching()*/);
-                    else mViewModel.answerWord(0, lastPartPwd.get(0), STREAK_LINE_MAPPER.revMap(streakLine), true /*getPreferences().reverseMatching()*/);
+                    else if(lastPartPwd!=null && lastPartPwd.size()==0) mViewModel.answerWord(0, lastPartPwd.get(0), STREAK_LINE_MAPPER.revMap(streakLine), true /*getPreferences().reverseMatching()*/);
+                    else{
+                        char letterBoard[][] = mLetterAdapter.getGrid();
+
+                        //String word = letterBoard[streakLine.getStartIndex().row][streakLine.getStartIndex().row];
+                    }
                     mViewModel.updateGridData();
                 }
             }
