@@ -246,4 +246,82 @@ public class StringListGridGenerator extends GridGenerator<List<String>, List<St
 
         return word.toString();
     }
+
+    public static String getWordByDirection(Direction dir, int row, int col, int endRow, int endCol, char gridArr[][]){
+        StringBuilder word = new StringBuilder();
+
+
+        if(dir==Direction.NONE && row==endRow && col==endCol){
+            word.append(gridArr[row][col]);
+        }
+
+        /*
+        Horizontal direction
+         */
+
+        if(dir == Direction.EAST || dir == Direction.WEST) {
+            if(dir==Direction.EAST){
+                for (int colIndex = col; colIndex <= endCol; colIndex++)
+                    word.append(gridArr[row][colIndex]);
+            }else {
+            for (int colIndex = col; colIndex >= endCol; colIndex--)
+                word.append(gridArr[row][colIndex]);
+            }
+        }
+        /*
+        Vertical direction
+         */
+        if(dir == Direction.NORTH || dir == Direction.SOUTH){
+            if(dir==Direction.NORTH){
+                for (int rowIndex = row; rowIndex <= endRow; rowIndex++)
+                    word.append(gridArr[rowIndex][col]);
+            }else {
+                for (int rowIndex = row; rowIndex >= endRow; rowIndex--)
+                    word.append(gridArr[rowIndex][col]);
+            }
+        }
+        /*
+        Diagonal 00 to row col direction
+         */
+        if(dir == SOUTH_EAST || dir == NORTH_WEST){
+            int startRow = row;
+            int startCol = col;
+            if(dir == SOUTH_EAST){
+                while (startRow<=endRow && startCol<=endCol){
+                    word.append(gridArr[startRow][startCol]);
+                    startRow ++;
+                    startCol ++;
+                }
+            }else {
+                while (startRow >= endRow && startCol >= endCol) {
+                    word.append(gridArr[startRow][startCol]);
+                    startRow--;
+                    startCol--;
+                }
+            }
+        }
+        /*
+        Diagonal 0col to row 0 direction
+         */
+        /*if(dir == SOUTH_WEST || dir == NORTH_EAST){
+            int startRow = row;
+            int startCol = col;
+            while (startRow>0 && startCol<gridArr.length-1){
+                startRow--;
+                startCol++;
+            }
+            while (startRow<gridArr.length && startCol>=0){
+                word.append(gridArr[startRow][startCol]);
+                if(startRow<gridArr.length) {
+                    startRow++;
+                    startCol--;
+                }else if(startCol==0 || startRow == gridArr.length) {
+                    word.append(gridArr[startRow][startCol]);
+                    break;
+                }
+            }
+        }*/
+
+        return word.toString();
+    }
 }

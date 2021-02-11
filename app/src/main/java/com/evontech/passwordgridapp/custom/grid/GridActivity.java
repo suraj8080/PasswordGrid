@@ -1188,9 +1188,10 @@ public class GridActivity extends FullscreenActivity {
                     mViewModel.answerWord(index, lastPartPwd.get(index), STREAK_LINE_MAPPER.revMap(streakLine), true /*getPreferences().reverseMatching()*/);
                     else if(lastPartPwd!=null && lastPartPwd.size()==0) mViewModel.answerWord(0, lastPartPwd.get(0), STREAK_LINE_MAPPER.revMap(streakLine), true /*getPreferences().reverseMatching()*/);
                     else{
-                        char letterBoard[][] = mLetterAdapter.getGrid();
-
-                        //String word = letterBoard[streakLine.getStartIndex().row][streakLine.getStartIndex().row];
+                        Direction direction = Direction.fromLine(streakLine.getStartIndex(), streakLine.getEndIndex());
+                        String word = StringListGridGenerator.getWordByDirection(direction,streakLine.getStartIndex().row, streakLine.getStartIndex().col,
+                                streakLine.getEndIndex().row, streakLine.getEndIndex().col, mLetterAdapter.getGrid());
+                        mViewModel.answerWord(index, word, STREAK_LINE_MAPPER.revMap(streakLine), true /*getPreferences().reverseMatching()*/);
                     }
                     mViewModel.updateGridData();
                 }
@@ -1263,7 +1264,10 @@ public class GridActivity extends FullscreenActivity {
     }
 
     private void onGridRoundLoaded(GridData gridData) {
-        // restore stored griddata selected pin/password mode, selected character case, and selected password chosen option.
+        /* restore stored griddata selected pin/password mode, selected character case, and selected password chosen option.
+           restored typed/selected word from border if chosen option is word from border or type manually,
+           fix random new password generation crash on word from border and type manually chosen option.
+         */
         rowCount = gridData.getGrid().getRowCount();
         colCount = gridData.getGrid().getColCount();
 

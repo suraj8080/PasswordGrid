@@ -121,7 +121,7 @@ public class GridViewModel extends ViewModel {
                 List<Word> leftWordList = new ArrayList<Word>();
                 List<Word> topWordList = new ArrayList<Word>();
                 mCurrentLeftData = mGridDataCreator.newGridData(leftWordList, mCurrentGridData.getGrid().getRowCount(), 1, "Left Borders");
-                mCurrentTopData = mGridDataCreator.newGridData(topWordList, 1, mCurrentGridData.getGrid().getRowCount(), "Top Borders");
+                mCurrentTopData = mGridDataCreator.newGridData(topWordList, 1, mCurrentGridData.getGrid().getColCount(), "Top Borders");
 
                 setGridState(new Loaded(mCurrentGridData));
             });
