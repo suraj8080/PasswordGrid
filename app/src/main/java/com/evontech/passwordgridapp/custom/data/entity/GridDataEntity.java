@@ -17,6 +17,8 @@ public class GridDataEntity {
     private int mGridRowCount;
     private int mGridColCount;
     private String mGridData;
+    private String mSelectionCriteria;
+    private String mChosenOption;
     private List<UsedWord> mUsedWords;
 
     public GridDataEntity() {
@@ -27,6 +29,24 @@ public class GridDataEntity {
         mGridColCount = 0;
         mGridData = null;
         mUsedWords = null;
+        mSelectionCriteria = null;
+        mChosenOption = null;
+    }
+
+    public String getmSelectionCriteria() {
+        return mSelectionCriteria;
+    }
+
+    public void setmSelectionCriteria(String mSelectionCriteria) {
+        this.mSelectionCriteria = mSelectionCriteria;
+    }
+
+    public String getmChosenOption() {
+        return mChosenOption;
+    }
+
+    public void setmChosenOption(String mChosenOption) {
+        this.mChosenOption = mChosenOption;
     }
 
     public int getId() {

@@ -22,6 +22,8 @@ abstract class DbContract {
         static final String COL_GRID_ROW_COUNT = "grid_row_count";
         static final String COL_GRID_COL_COUNT = "grid_col_count";
         static final String COL_GRID_DATA = "grid_data";
+        static final String COL_SELECTION_CRITERIA = "selection_criteria";
+        static final String COL_CHOSEN_OPTION = "chosen_option";
     }
 
     static class UsedWord implements BaseColumns {

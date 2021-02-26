@@ -78,6 +78,7 @@ public class GridViewModel extends ViewModel {
     private MutableLiveData<GridState> mOnGridState;
     private SingleLiveEvent<AnswerResult> mOnAnswerResult;
 
+    private String chosenOption;
     private boolean isUpperCase;
     private boolean isLowerCase;
     private boolean isNumbers;
@@ -116,7 +117,10 @@ public class GridViewModel extends ViewModel {
 
             mGridDataSource.getGridData(gid, gridRound -> {
                 mCurrentGridData = new GridDataMapper().map(gridRound);
-
+              //  Log.d("SelectionCriteria ", mCurrentGridData.getmSelectionCriteria());
+                // Log.d("ChosenOption ", mCurrentGridData.getmChosenOption());
+                //..............Set generation criteria in db according to grid generation criteria and chosen option........
+                restoreGenerationCriteria(mCurrentGridData);
                 GridDataCreator.setGridGenerationCriteria(isUpperCase, isLowerCase, isNumbers, isSpecialCharacters);
                 List<Word> leftWordList = new ArrayList<Word>();
                 List<Word> topWordList = new ArrayList<Word>();
@@ -136,6 +140,22 @@ public class GridViewModel extends ViewModel {
             this.isSpecialCharacters = isSpecialCharacters;
     }
 
+    private void restoreGenerationCriteria(GridData gridData){
+        String generationCriteria = gridData.getmSelectionCriteria();
+        if(generationCriteria.contains("isUpperCase")) isUpperCase = true;
+        else isUpperCase = false;
+        if(generationCriteria.contains("isLowerCase")) isLowerCase = true;
+        else isLowerCase = false;
+        if(generationCriteria.contains("isNumbers")) isNumbers = true;
+        else isNumbers = false;
+        if(generationCriteria.contains("isSpecialCharacters")) isSpecialCharacters = true;
+        else isSpecialCharacters = false;
+    }
+
+    public void setGridChosenOption(String chosenOption){
+        this.chosenOption = chosenOption;
+    }
+
     @SuppressLint("CheckResult")
     public void generateNewGridRound(int rowCount, int colCount) {
         if (!(mCurrentState instanceof Generating)) {
@@ -149,6 +169,8 @@ public class GridViewModel extends ViewModel {
                 List<Word> leftWordList = new ArrayList<Word>();
                 List<Word> topWordList = new ArrayList<Word>();
                 if(userAccount!=null && userAccount.getAccountGridId()>0) gr.setId(userAccount.getAccountGridId());  //great...
+                gr.setmSelectionCriteria(getSelectionCriteria());
+                gr.setmChosenOption(chosenOption);
                 long gid = mGridDataSource.saveGridData(new GridDataMapper().revMap(gr));
                 mCurrentLeftData = mGridDataCreator.newGridData(leftWordList, rowCount, 1, "Left Borders");
                 mCurrentTopData = mGridDataCreator.newGridData(topWordList, 1, colCount, "Top Borders");
@@ -166,7 +188,18 @@ public class GridViewModel extends ViewModel {
     }
 
     public void updateGridData(){
+        mCurrentGridData.setmSelectionCriteria(getSelectionCriteria());
+        mCurrentGridData.setmChosenOption(chosenOption);
         mGridDataSource.saveGridData(new GridDataMapper().revMap(mCurrentGridData));
+    }
+
+    private String getSelectionCriteria(){
+        String selectionCriteria = "";
+        if(isUpperCase) selectionCriteria = selectionCriteria.concat("isUpperCase");
+        if(isLowerCase) selectionCriteria = selectionCriteria.concat("isLowerCase");
+        if(isNumbers) selectionCriteria = selectionCriteria.concat("isNumbers");
+        if(isSpecialCharacters) selectionCriteria = selectionCriteria.concat("isSpecialCharacters");
+        return selectionCriteria;
     }
 
     public void removeAllStreakLines(){

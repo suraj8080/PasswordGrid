@@ -40,7 +40,9 @@ public class GridDataSQLiteDataSource implements GridDataSource, AccountDataSour
                 DbContract.GRID.COL_DURATION,
                 DbContract.GRID.COL_GRID_ROW_COUNT,
                 DbContract.GRID.COL_GRID_COL_COUNT,
-                DbContract.GRID.COL_GRID_DATA
+                DbContract.GRID.COL_GRID_DATA,
+                DbContract.GRID.COL_SELECTION_CRITERIA,
+                DbContract.GRID.COL_CHOSEN_OPTION
         };
         String sel = DbContract.GRID._ID + "=?";
         String selArgs[] = {String.valueOf(gid)};
@@ -55,6 +57,8 @@ public class GridDataSQLiteDataSource implements GridDataSource, AccountDataSour
             ent.setGridRowCount(c.getInt(3));
             ent.setGridColCount(c.getInt(4));
             ent.setGridData(c.getString(5));
+            ent.setmSelectionCriteria(c.getString(6));
+            ent.setmChosenOption(c.getString(7));
             Log.d("Getting GridData ", c.getString(5));
             ent.setUsedWords(getUsedWords(gid));
         }
@@ -100,6 +104,8 @@ public class GridDataSQLiteDataSource implements GridDataSource, AccountDataSour
         values.put(DbContract.GRID.COL_GRID_COL_COUNT, gameRound.getGridColCount());
         Log.d("Saving GridData ", gameRound.getGridData());
         values.put(DbContract.GRID.COL_GRID_DATA, gameRound.getGridData());
+        values.put(DbContract.GRID.COL_SELECTION_CRITERIA, gameRound.getmSelectionCriteria());
+        values.put(DbContract.GRID.COL_CHOSEN_OPTION, gameRound.getmChosenOption());
 
         long gid;
         if(gameRound.getId()>0){
@@ -110,7 +116,7 @@ public class GridDataSQLiteDataSource implements GridDataSource, AccountDataSour
             Log.d("saveGridData updateStatus ", ""+updateStatus);
         }else {
              gid = db.insert(DbContract.GRID.TABLE_NAME, "null", values);
-            Log.d("saveGridData insertStatus ", ""+gid);
+             Log.d("saveGridData insertStatus ", ""+gid);
         }
         gameRound.setId((int) gid);
 

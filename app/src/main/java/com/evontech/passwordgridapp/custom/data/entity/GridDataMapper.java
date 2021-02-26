@@ -28,11 +28,12 @@ public class GridDataMapper extends Mapper<GridDataEntity, GridData> {
         //Log.d("row  "+obj.getGridRowCount(), "col "+obj.getGridColCount());
         if (obj.getGridData() != null && obj.getGridData().length() > 0) {
             new StringGridGenerator().setGrid(obj.getGridData(), grid.getArray());
+            gr.setmSelectionCriteria(obj.getmSelectionCriteria());
+            gr.setmChosenOption(obj.getmChosenOption());
         }
 
         if(obj.getUsedWords()!=null && obj.getUsedWords().size()>0)
         gr.addUsedWords(obj.getUsedWords());
-
         return gr;
     }
 
@@ -49,6 +50,8 @@ public class GridDataMapper extends Mapper<GridDataEntity, GridData> {
             ent.setGridRowCount(obj.getGrid().getRowCount());
             ent.setGridColCount(obj.getGrid().getColCount());
             ent.setGridData(obj.getGrid().toString());
+            ent.setmSelectionCriteria(obj.getmSelectionCriteria());
+            ent.setmChosenOption(obj.getmChosenOption());
         }
         if(obj.getUsedWords()!=null && obj.getUsedWords().size()>0)
         ent.setUsedWords(obj.getUsedWords());

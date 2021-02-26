@@ -391,6 +391,7 @@ public class GridActivity extends FullscreenActivity {
                 defaultBoardWidth();
                 Preferences preferences = getPreferences();
                 mViewModel.setGridGenerationCriteria(preferences.showUpperCharacters(), preferences.showLowerCharacters(),preferences.showNumberCharacters(), preferences.showSpecialCharacters());
+                //mViewModel.setGridChosenOption(getCurrentChosenOption());
                 mViewModel.loadGridRound(gid);
             } else {
                 rowCount = extras.getInt(EXTRA_ROW_COUNT);
@@ -399,6 +400,7 @@ public class GridActivity extends FullscreenActivity {
                 defaultBoardWidth();
                 Preferences preferences = getPreferences();
                 mViewModel.setGridGenerationCriteria(preferences.showUpperCharacters(), preferences.showLowerCharacters(),preferences.showNumberCharacters(), preferences.showSpecialCharacters());
+                mViewModel.setGridChosenOption(getCurrentChosenOption());
                 mViewModel.generateNewGridRound(rowCount, colCount);
             }
         }
@@ -538,6 +540,15 @@ public class GridActivity extends FullscreenActivity {
         selectedColor = 0;
         //isDefaultPasswordGenerated = false;
         initPwdEditText();
+    }
+
+    private String getCurrentChosenOption(){
+        if(getPreferences().selectedDragManually()) return  "selectedDragManually";
+        else if(getPreferences().selectedStartEndGrid()) return  "selectedStartEndGrid";
+        else if(getPreferences().showgridDirection()) return  "showgridDirection";
+        else if(getPreferences().showGridPattern()) return  "showGridPattern";
+        else if(getPreferences().showWordFromBorder()) return  "showWordFromBorder";
+        else return  "selectedTypeManually";
     }
 
     @Override
@@ -1268,6 +1279,31 @@ public class GridActivity extends FullscreenActivity {
            restored typed/selected word from border if chosen option is word from border or type manually,
            fix random new password generation crash on word from border and type manually chosen option.
          */
+
+            String generationCriteria = gridData.getmSelectionCriteria();
+            if(generationCriteria.contains("isUpperCase")) getPreferences().setUpperCharacters(true);
+            else getPreferences().setUpperCharacters(false);
+            if(generationCriteria.contains("isLowerCase")) getPreferences().setLowerCharacters(true);
+            else getPreferences().setLowerCharacters(false);
+            if(generationCriteria.contains("isNumbers")) getPreferences().setNumberCharacters(true);
+            else getPreferences().setNumberCharacters(false);
+            if(generationCriteria.contains("isSpecialCharacters")) getPreferences().setSpecialCharacters(true);
+            else getPreferences().setSpecialCharacters(false);
+
+        String chosenOption = gridData.getmChosenOption();
+        if(chosenOption.contains("selectedDragManually")) getPreferences().setDragManually(true);
+        else getPreferences().setDragManually(false);
+        if(chosenOption.contains("selectedStartEndGrid")) getPreferences().setStartEndGrid(true);
+        else getPreferences().setStartEndGrid(false);
+        if(chosenOption.contains("showgridDirection")) getPreferences().setGridDirection(true);
+        else getPreferences().setGridDirection(false);
+        if(chosenOption.contains("showGridPattern")) getPreferences().setGridPattern(true);
+        else getPreferences().setGridPattern(false);
+        if(chosenOption.contains("showWordFromBorder")) getPreferences().setWordFromBorder(true);
+        else getPreferences().setWordFromBorder(false);
+        if(chosenOption.contains("selectedTypeManually")) getPreferences().setTypeManually(true);
+        else getPreferences().setTypeManually(false);
+
         rowCount = gridData.getGrid().getRowCount();
         colCount = gridData.getGrid().getColCount();
 
