@@ -388,19 +388,23 @@ public class GridActivity extends FullscreenActivity {
                 rowCount = extras.getInt(EXTRA_ROW_COUNT);
                 colCount = extras.getInt(EXTRA_COL_COUNT);
                 userAccount = (UserAccount) extras.getSerializable("account");
+                mViewModel.updateAccountInfo(userAccount);
                 defaultBoardWidth();
                 Preferences preferences = getPreferences();
                 mViewModel.setGridGenerationCriteria(preferences.showUpperCharacters(), preferences.showLowerCharacters(),preferences.showNumberCharacters(), preferences.showSpecialCharacters());
+                mViewModel.setSelectedTypedWord(mTextFromBorder.getText().toString());
                 //mViewModel.setGridChosenOption(getCurrentChosenOption());
                 mViewModel.loadGridRound(gid);
             } else {
                 rowCount = extras.getInt(EXTRA_ROW_COUNT);
                 colCount = extras.getInt(EXTRA_COL_COUNT);
                 userAccount = (UserAccount) extras.getSerializable("account");
+                mViewModel.updateAccountInfo(userAccount);
                 defaultBoardWidth();
                 Preferences preferences = getPreferences();
                 mViewModel.setGridGenerationCriteria(preferences.showUpperCharacters(), preferences.showLowerCharacters(),preferences.showNumberCharacters(), preferences.showSpecialCharacters());
                 mViewModel.setGridChosenOption(getCurrentChosenOption());
+                mViewModel.setSelectedTypedWord(mTextFromBorder.getText().toString());
                 mViewModel.generateNewGridRound(rowCount, colCount);
             }
         }
@@ -677,6 +681,7 @@ public class GridActivity extends FullscreenActivity {
             }
         }
         isDefaultPasswordGenerated = true;
+        mViewModel.setSelectedTypedWord(defaultPwd);
     }
 
     private void generatePasswordByTypeManually(char c){
@@ -1291,6 +1296,7 @@ public class GridActivity extends FullscreenActivity {
             else getPreferences().setSpecialCharacters(false);
 
         String chosenOption = gridData.getmChosenOption();
+        mViewModel.setGridChosenOption(chosenOption);
         if(chosenOption.contains("selectedDragManually")) getPreferences().setDragManually(true);
         else getPreferences().setDragManually(false);
         if(chosenOption.contains("selectedStartEndGrid")) getPreferences().setStartEndGrid(true);
@@ -1303,6 +1309,10 @@ public class GridActivity extends FullscreenActivity {
         else getPreferences().setWordFromBorder(false);
         if(chosenOption.contains("selectedTypeManually")) getPreferences().setTypeManually(true);
         else getPreferences().setTypeManually(false);
+
+        if(getPreferences().showWordFromBorder() || getPreferences().selectedTypeManually()){
+            mTextFromBorder.setText(gridData.getmSelectedTypedWord());
+        }
 
         rowCount = gridData.getGrid().getRowCount();
         colCount = gridData.getGrid().getColCount();
@@ -1658,6 +1668,8 @@ public class GridActivity extends FullscreenActivity {
                         defaultBoardWidth();
                         Preferences preferences = getPreferences();
                         mViewModel.setGridGenerationCriteria(preferences.showUpperCharacters(), preferences.showLowerCharacters(), preferences.showNumberCharacters(), preferences.showSpecialCharacters());
+                        mViewModel.setGridChosenOption(getCurrentChosenOption());
+                        mViewModel.setSelectedTypedWord(mTextFromBorder.getText().toString());
                         mViewModel.generateNewGridRound(rowCount, colCount);
                     }else {
                         resetGrid();
@@ -1701,7 +1713,6 @@ public class GridActivity extends FullscreenActivity {
             mLetterBoard.setLetterSize(Util.spToPx(15f, this));
             if(colCount>18) mLetterBoard.setLetterSize(Util.spToPx(13f, this));
             //topBorderLeftMargin = (int) Util.convertDpToPx(this, 10f);
-
 
             mLetterBoardTop.setGridWidth(gridWidth);
             mLetterBoardTop.setGridHeight(gridWidth);

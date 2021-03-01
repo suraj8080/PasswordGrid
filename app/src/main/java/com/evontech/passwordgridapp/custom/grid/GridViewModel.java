@@ -1,6 +1,7 @@
 package com.evontech.passwordgridapp.custom.grid;
 
 import android.annotation.SuppressLint;
+import android.text.TextUtils;
 import android.util.Log;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
@@ -79,6 +80,7 @@ public class GridViewModel extends ViewModel {
     private SingleLiveEvent<AnswerResult> mOnAnswerResult;
 
     private String chosenOption;
+    private String selectedTypedWord;
     private boolean isUpperCase;
     private boolean isLowerCase;
     private boolean isNumbers;
@@ -117,8 +119,8 @@ public class GridViewModel extends ViewModel {
 
             mGridDataSource.getGridData(gid, gridRound -> {
                 mCurrentGridData = new GridDataMapper().map(gridRound);
-              //  Log.d("SelectionCriteria ", mCurrentGridData.getmSelectionCriteria());
-                // Log.d("ChosenOption ", mCurrentGridData.getmChosenOption());
+                Log.d("SelectionCriteria ", mCurrentGridData.getmSelectionCriteria());
+                Log.d("ChosenOption ", mCurrentGridData.getmChosenOption());
                 //..............Set generation criteria in db according to grid generation criteria and chosen option........
                 restoreGenerationCriteria(mCurrentGridData);
                 GridDataCreator.setGridGenerationCriteria(isUpperCase, isLowerCase, isNumbers, isSpecialCharacters);
@@ -156,6 +158,11 @@ public class GridViewModel extends ViewModel {
         this.chosenOption = chosenOption;
     }
 
+    public void setSelectedTypedWord(String selectedTypedWord) {
+        this.selectedTypedWord = selectedTypedWord;
+        Log.d("selectedTypedWord ", selectedTypedWord);
+    }
+
     @SuppressLint("CheckResult")
     public void generateNewGridRound(int rowCount, int colCount) {
         if (!(mCurrentState instanceof Generating)) {
@@ -168,9 +175,12 @@ public class GridViewModel extends ViewModel {
                 GridData gr = mGridDataCreator.newGridData(wordList, rowCount, colCount, "Play me");
                 List<Word> leftWordList = new ArrayList<Word>();
                 List<Word> topWordList = new ArrayList<Word>();
+                if(userAccount!=null)
+                Log.d("AccountGridId Here...", userAccount.getAccountGridId()+"");
                 if(userAccount!=null && userAccount.getAccountGridId()>0) gr.setId(userAccount.getAccountGridId());  //great...
                 gr.setmSelectionCriteria(getSelectionCriteria());
                 gr.setmChosenOption(chosenOption);
+                gr.setmSelectedTypedWord(selectedTypedWord);
                 long gid = mGridDataSource.saveGridData(new GridDataMapper().revMap(gr));
                 mCurrentLeftData = mGridDataCreator.newGridData(leftWordList, rowCount, 1, "Left Borders");
                 mCurrentTopData = mGridDataCreator.newGridData(topWordList, 1, colCount, "Top Borders");
@@ -190,6 +200,7 @@ public class GridViewModel extends ViewModel {
     public void updateGridData(){
         mCurrentGridData.setmSelectionCriteria(getSelectionCriteria());
         mCurrentGridData.setmChosenOption(chosenOption);
+        if(!TextUtils.isEmpty(selectedTypedWord)) mCurrentGridData.setmSelectedTypedWord(selectedTypedWord);
         mGridDataSource.saveGridData(new GridDataMapper().revMap(mCurrentGridData));
     }
 

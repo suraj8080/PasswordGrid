@@ -42,7 +42,8 @@ public class GridDataSQLiteDataSource implements GridDataSource, AccountDataSour
                 DbContract.GRID.COL_GRID_COL_COUNT,
                 DbContract.GRID.COL_GRID_DATA,
                 DbContract.GRID.COL_SELECTION_CRITERIA,
-                DbContract.GRID.COL_CHOSEN_OPTION
+                DbContract.GRID.COL_CHOSEN_OPTION,
+                DbContract.GRID.COL_SELECTED_TYPED_WORD
         };
         String sel = DbContract.GRID._ID + "=?";
         String selArgs[] = {String.valueOf(gid)};
@@ -59,7 +60,9 @@ public class GridDataSQLiteDataSource implements GridDataSource, AccountDataSour
             ent.setGridData(c.getString(5));
             ent.setmSelectionCriteria(c.getString(6));
             ent.setmChosenOption(c.getString(7));
+            ent.setmSelectedTypedWord(c.getString(8));
             Log.d("Getting GridData ", c.getString(5));
+            Log.d("Getting SelectedTypedWord ", c.getString(8));
             ent.setUsedWords(getUsedWords(gid));
         }
         c.close();
@@ -102,10 +105,14 @@ public class GridDataSQLiteDataSource implements GridDataSource, AccountDataSour
         values.put(DbContract.GRID.COL_DURATION, gameRound.getDuration());
         values.put(DbContract.GRID.COL_GRID_ROW_COUNT, gameRound.getGridRowCount());
         values.put(DbContract.GRID.COL_GRID_COL_COUNT, gameRound.getGridColCount());
-        Log.d("Saving GridData ", gameRound.getGridData());
-        values.put(DbContract.GRID.COL_GRID_DATA, gameRound.getGridData());
         values.put(DbContract.GRID.COL_SELECTION_CRITERIA, gameRound.getmSelectionCriteria());
         values.put(DbContract.GRID.COL_CHOSEN_OPTION, gameRound.getmChosenOption());
+        values.put(DbContract.GRID.COL_SELECTED_TYPED_WORD, gameRound.getmSelectedTypedWord());
+        Log.d("Saving SELECTION_CRITERIA ", gameRound.getmSelectionCriteria());
+        Log.d("Saving CHOSEN_OPTION ", gameRound.getmChosenOption());
+        Log.d("Saving SELECTED_TYPED_WORD ", gameRound.getmSelectedTypedWord());
+        Log.d("Saving GridData ", gameRound.getGridData());
+        values.put(DbContract.GRID.COL_GRID_DATA, gameRound.getGridData());
 
         long gid;
         if(gameRound.getId()>0){

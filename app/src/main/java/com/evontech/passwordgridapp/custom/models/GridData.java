@@ -17,13 +17,14 @@ public class GridData {
     private Grid mGrid;
     private String mSelectionCriteria;
     private String mChosenOption;
+    private String mSelectedTypedWord;
     private List<UsedWord> mUsedWords;
 
     public GridData() {
-        this(0, "", 0, null, new ArrayList<>(), "", "");
+        this(0, "", 0, null, new ArrayList<>(), "", "", "");
     }
 
-    public GridData(int id, String name, int duration, Grid grid, List<UsedWord> usedWords, String selectionCriteria, String chosenOption) {
+    public GridData(int id, String name, int duration, Grid grid, List<UsedWord> usedWords, String selectionCriteria, String chosenOption, String selectedTypedWord) {
         mId = id;
         mName = name;
         mDuration = duration;
@@ -31,6 +32,15 @@ public class GridData {
         mUsedWords = usedWords;
         mSelectionCriteria = selectionCriteria;
         mChosenOption = chosenOption;
+        mSelectedTypedWord = selectedTypedWord;
+    }
+
+    public String getmSelectedTypedWord() {
+        return mSelectedTypedWord;
+    }
+
+    public void setmSelectedTypedWord(String mSelectedTypedWord) {
+        this.mSelectedTypedWord = mSelectedTypedWord;
     }
 
     public String getmSelectionCriteria() {

@@ -30,6 +30,7 @@ public class GridDataMapper extends Mapper<GridDataEntity, GridData> {
             new StringGridGenerator().setGrid(obj.getGridData(), grid.getArray());
             gr.setmSelectionCriteria(obj.getmSelectionCriteria());
             gr.setmChosenOption(obj.getmChosenOption());
+            gr.setmSelectedTypedWord(obj.getmSelectedTypedWord());
         }
 
         if(obj.getUsedWords()!=null && obj.getUsedWords().size()>0)
@@ -52,6 +53,7 @@ public class GridDataMapper extends Mapper<GridDataEntity, GridData> {
             ent.setGridData(obj.getGrid().toString());
             ent.setmSelectionCriteria(obj.getmSelectionCriteria());
             ent.setmChosenOption(obj.getmChosenOption());
+            ent.setmSelectedTypedWord(obj.getmSelectedTypedWord());
         }
         if(obj.getUsedWords()!=null && obj.getUsedWords().size()>0)
         ent.setUsedWords(obj.getUsedWords());

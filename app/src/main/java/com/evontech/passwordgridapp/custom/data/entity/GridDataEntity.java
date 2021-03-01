@@ -19,6 +19,7 @@ public class GridDataEntity {
     private String mGridData;
     private String mSelectionCriteria;
     private String mChosenOption;
+    private String mSelectedTypedWord;
     private List<UsedWord> mUsedWords;
 
     public GridDataEntity() {
@@ -31,6 +32,15 @@ public class GridDataEntity {
         mUsedWords = null;
         mSelectionCriteria = null;
         mChosenOption = null;
+        mSelectedTypedWord = null;
+    }
+
+    public String getmSelectedTypedWord() {
+        return mSelectedTypedWord;
+    }
+
+    public void setmSelectedTypedWord(String mSelectedTypedWord) {
+        this.mSelectedTypedWord = mSelectedTypedWord;
     }
 
     public String getmSelectionCriteria() {
