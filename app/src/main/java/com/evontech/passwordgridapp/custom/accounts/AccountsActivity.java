@@ -90,6 +90,9 @@ public class AccountsActivity extends FullscreenActivity implements OnAccountCli
             Log.d("accountState: ", "Loaded...");
             Log.d("mUserAccounts Size : ", ""+mUserAccounts.size());
         }
+        /*
+
+         */
 
     }
 
@@ -149,9 +152,9 @@ public class AccountsActivity extends FullscreenActivity implements OnAccountCli
     private void setDefaultCriteria(){
         //set default selection method here.
 
-        if(!mPreferences.userSelectedDirection()) { //default direction
-            int randomSelectionOption = Util.getRandomIntRange(1,6);
-            switch (randomSelectionOption){
+        //if(!mPreferences.userSelectedDirection()) { //default direction
+            int randomdirections = Util.getRandomIntRange(1,6);
+            switch (randomdirections){
                 case 1:
                     mPreferences.selectDirection("EAST");
                     break;
@@ -170,30 +173,67 @@ public class AccountsActivity extends FullscreenActivity implements OnAccountCli
                 case 6:
                     mPreferences.selectDirection("NORTH_WEST");
                     break;
-            }
+           // }
         }
-        if(!mPreferences.userSelectedChosenOption()){
+        //if(!mPreferences.userSelectedChosenOption()){
             int randomSelectionOption = Util.getRandomIntRange(1,6);
+            Log.d("randomSelectionOption ", ""+randomSelectionOption);
             switch (randomSelectionOption){
                 case 1:
                     mPreferences.setDragManually(true);
+
+                    mPreferences.setGridPattern(false);
+                    mPreferences.setGridDirection(false);
+                    mPreferences.setWordFromBorder(false);
+                    mPreferences.setStartEndGrid(false);
+                    mPreferences.setTypeManually(false);
                     break;
                 case 2:
                     mPreferences.setStartEndGrid(true);
+
+                    mPreferences.setGridPattern(false);
+                    mPreferences.setGridDirection(false);
+                    mPreferences.setWordFromBorder(false);
+                    mPreferences.setDragManually(false);
+                    mPreferences.setTypeManually(false);
                     break;
                 case 3:
                     mPreferences.setGridDirection(true);
+
+                    mPreferences.setGridPattern(false);
+                    mPreferences.setWordFromBorder(false);
+                    mPreferences.setDragManually(false);
+                    mPreferences.setStartEndGrid(false);
+                    mPreferences.setTypeManually(false);
                     break;
                 case 4:
                     mPreferences.setGridPattern(true);
+
+                    mPreferences.setGridDirection(false);
+                    mPreferences.setWordFromBorder(false);
+                    mPreferences.setDragManually(false);
+                    mPreferences.setStartEndGrid(false);
+                    mPreferences.setTypeManually(false);
                     break;
                 case 5:
                     mPreferences.setWordFromBorder(true);
+
+                    mPreferences.setGridPattern(false);
+                    mPreferences.setGridDirection(false);
+                    mPreferences.setDragManually(false);
+                    mPreferences.setStartEndGrid(false);
+                    mPreferences.setTypeManually(false);
                     break;
                 case 6:
                     mPreferences.setTypeManually(true);
+
+                    mPreferences.setGridPattern(false);
+                    mPreferences.setGridDirection(false);
+                    mPreferences.setWordFromBorder(false);
+                    mPreferences.setDragManually(false);
+                    mPreferences.setStartEndGrid(false);
                     break;
-            }
+            //}
         }
         if(!mPreferences.showSpecialCharacters() && !mPreferences.showUpperCharacters() && !mPreferences.showLowerCharacters() && !mPreferences.showNumberCharacters() ){
             mPreferences.setSpecialCharacters(true);
@@ -201,11 +241,11 @@ public class AccountsActivity extends FullscreenActivity implements OnAccountCli
             mPreferences.setLowerCharacters(true);
             mPreferences.setNumberCharacters(true);
         }
-        if(mPreferences.getPasswordLength()<=0){
+        //if(mPreferences.getPasswordLength()<=0){
             mPreferences.setPasswordLength(14);
             mPreferences.setGridRow(14);
             mPreferences.setGridCol(14);
-        }
+        //}
         if(mPreferences.showWordFromBorder() ||  mPreferences.selectedTypeManually()) mPreferences.setGridCol(26);
     }
     private void startGrid(UserAccount userAccount){

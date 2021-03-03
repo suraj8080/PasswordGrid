@@ -80,6 +80,7 @@ public class GridViewModel extends ViewModel {
     private SingleLiveEvent<AnswerResult> mOnAnswerResult;
 
     private String chosenOption;
+    private int passwordLength;
     private String selectedTypedWord;
     private boolean isUpperCase;
     private boolean isLowerCase;
@@ -163,6 +164,10 @@ public class GridViewModel extends ViewModel {
         Log.d("selectedTypedWord ", selectedTypedWord);
     }
 
+    public void setPasswordLength(int passwordLength) {
+        this.passwordLength = passwordLength;
+    }
+
     @SuppressLint("CheckResult")
     public void generateNewGridRound(int rowCount, int colCount) {
         if (!(mCurrentState instanceof Generating)) {
@@ -200,6 +205,7 @@ public class GridViewModel extends ViewModel {
     public void updateGridData(){
         mCurrentGridData.setmSelectionCriteria(getSelectionCriteria());
         mCurrentGridData.setmChosenOption(chosenOption);
+        //mCurrentGridData.setmGridPasswordLength(passwordLength);
         if(!TextUtils.isEmpty(selectedTypedWord)) mCurrentGridData.setmSelectedTypedWord(selectedTypedWord);
         mGridDataSource.saveGridData(new GridDataMapper().revMap(mCurrentGridData));
     }

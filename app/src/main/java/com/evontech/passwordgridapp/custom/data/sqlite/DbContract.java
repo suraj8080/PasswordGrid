@@ -25,6 +25,7 @@ abstract class DbContract {
         static final String COL_SELECTION_CRITERIA = "selection_criteria";
         static final String COL_CHOSEN_OPTION = "chosen_option";
         static final String COL_SELECTED_TYPED_WORD = "selected_typed_word";
+        static final String COL_GRID_PASSWORD_LENGTH = "grid_password_length";
     }
 
     static class UsedWord implements BaseColumns {

@@ -31,6 +31,7 @@ public class DbHelper extends SQLiteOpenHelper {
                     DbContract.GRID.COL_DURATION + " INTEGER," +
                     DbContract.GRID.COL_GRID_ROW_COUNT + " INTEGER," +
                     DbContract.GRID.COL_GRID_COL_COUNT + " INTEGER," +
+                    DbContract.GRID.COL_GRID_PASSWORD_LENGTH + " INTEGER," +
                     DbContract.GRID.COL_SELECTION_CRITERIA + " TEXT," +
                     DbContract.GRID.COL_CHOSEN_OPTION + " TEXT," +
                     DbContract.GRID.COL_SELECTED_TYPED_WORD + " TEXT," +

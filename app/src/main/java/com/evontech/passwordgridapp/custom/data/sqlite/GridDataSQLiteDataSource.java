@@ -44,6 +44,7 @@ public class GridDataSQLiteDataSource implements GridDataSource, AccountDataSour
                 DbContract.GRID.COL_SELECTION_CRITERIA,
                 DbContract.GRID.COL_CHOSEN_OPTION,
                 DbContract.GRID.COL_SELECTED_TYPED_WORD
+                //DbContract.GRID.COL_GRID_PASSWORD_LENGTH
         };
         String sel = DbContract.GRID._ID + "=?";
         String selArgs[] = {String.valueOf(gid)};
@@ -61,6 +62,7 @@ public class GridDataSQLiteDataSource implements GridDataSource, AccountDataSour
             ent.setmSelectionCriteria(c.getString(6));
             ent.setmChosenOption(c.getString(7));
             ent.setmSelectedTypedWord(c.getString(8));
+           // ent.setmGridPasswordLength(c.getInt(9));
             Log.d("Getting GridData ", c.getString(5));
             Log.d("Getting SelectedTypedWord ", c.getString(8));
             ent.setUsedWords(getUsedWords(gid));
@@ -105,6 +107,7 @@ public class GridDataSQLiteDataSource implements GridDataSource, AccountDataSour
         values.put(DbContract.GRID.COL_DURATION, gameRound.getDuration());
         values.put(DbContract.GRID.COL_GRID_ROW_COUNT, gameRound.getGridRowCount());
         values.put(DbContract.GRID.COL_GRID_COL_COUNT, gameRound.getGridColCount());
+        //values.put(DbContract.GRID.COL_GRID_PASSWORD_LENGTH, gameRound.getmGridPasswordLength());
         values.put(DbContract.GRID.COL_SELECTION_CRITERIA, gameRound.getmSelectionCriteria());
         values.put(DbContract.GRID.COL_CHOSEN_OPTION, gameRound.getmChosenOption());
         values.put(DbContract.GRID.COL_SELECTED_TYPED_WORD, gameRound.getmSelectedTypedWord());
@@ -202,23 +205,25 @@ public class GridDataSQLiteDataSource implements GridDataSource, AccountDataSour
         //String sel = DbContract.UserAccounts._ID + "=?";
         //String selArgs[] = {String.valueOf(accountId)};
 
-        Cursor c = db.query(DbContract.UserAccounts.TABLE_NAME, cols, null, null, null, null, null);
         List<UserAccount> allAccounts = new ArrayList<>();
-        UserAccount userAccount = null;
-        if (c.moveToFirst()) {
-            while (!c.isAfterLast()) {
-                userAccount = new UserAccount();
-                userAccount.setId(c.getInt(0));
-                userAccount.setAccountName(c.getString(1));
-                userAccount.setUserName(c.getString(2));
-                userAccount.setAccountUrl(c.getString(3));
-                userAccount.setAccountGridId(c.getInt(4));
-                Log.d("Getting accountData ", c.getString(1));
-                allAccounts.add(userAccount);
-                c.moveToNext();
+        try {
+            Cursor c = db.query(DbContract.UserAccounts.TABLE_NAME, cols, null, null, null, null, null);
+            UserAccount userAccount = null;
+            if (c.moveToFirst()) {
+                while (!c.isAfterLast()) {
+                    userAccount = new UserAccount();
+                    userAccount.setId(c.getInt(0));
+                    userAccount.setAccountName(c.getString(1));
+                    userAccount.setUserName(c.getString(2));
+                    userAccount.setAccountUrl(c.getString(3));
+                    userAccount.setAccountGridId(c.getInt(4));
+                    Log.d("Getting accountData ", c.getString(1));
+                    allAccounts.add(userAccount);
+                    c.moveToNext();
+                }
             }
-        }
-        c.close();
+            c.close();
+        }catch (Exception e){}
         return allAccounts;
     }
 

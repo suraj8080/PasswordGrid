@@ -16,6 +16,7 @@ public class GridDataEntity {
     private int mDuration;
     private int mGridRowCount;
     private int mGridColCount;
+    private int mGridPasswordLength;
     private String mGridData;
     private String mSelectionCriteria;
     private String mChosenOption;
@@ -33,6 +34,15 @@ public class GridDataEntity {
         mSelectionCriteria = null;
         mChosenOption = null;
         mSelectedTypedWord = null;
+        mGridPasswordLength = 0;
+    }
+
+    public int getmGridPasswordLength() {
+        return mGridPasswordLength;
+    }
+
+    public void setmGridPasswordLength(int mGridPasswordLength) {
+        this.mGridPasswordLength = mGridPasswordLength;
     }
 
     public String getmSelectedTypedWord() {

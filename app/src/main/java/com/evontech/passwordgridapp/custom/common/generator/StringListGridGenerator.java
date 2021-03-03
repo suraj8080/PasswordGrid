@@ -89,6 +89,7 @@ public class StringListGridGenerator extends GridGenerator<List<String>, List<St
         return dir;
     }
 
+
     private boolean tryPlaceWord(String word, char gridArr[][]) {
         Direction startDir = getRandomDirection();
         Direction currDir = startDir;
