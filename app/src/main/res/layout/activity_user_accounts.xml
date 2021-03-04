@@ -5,29 +5,10 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".custom.accounts.UserAccountsActivity">
+    tools:context=".custom.accounts.AccountsActivity">
 
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/recycler_account"
-        android:layout_margin="16dp"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"/>
+    <include layout="@layout/content_user_accounts"/>
 
-    <TextView
-        android:textColor="@color/black"
-        android:layout_gravity="center"
-        android:id="@+id/loadingText"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="No record available"/>
+    <include layout="@layout/add_new_account"/>
 
-    <com.google.android.material.floatingactionbutton.FloatingActionButton
-        android:id="@+id/addAccount"
-        android:clickable="true"
-        android:backgroundTint="@color/white"
-        android:layout_margin="16dp"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="bottom|right|end"
-        android:src="@drawable/ic_baseline_add_24"/>
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

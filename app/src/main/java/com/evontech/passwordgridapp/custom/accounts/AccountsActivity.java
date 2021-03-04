@@ -1,5 +1,6 @@
 package com.evontech.passwordgridapp.custom.accounts;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.AppCompatButton;
@@ -17,7 +18,9 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
 import android.view.WindowManager;
+import android.widget.Button;
 import android.widget.EditText;
+import android.widget.LinearLayout;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.TextView;
@@ -32,7 +35,9 @@ import com.evontech.passwordgridapp.custom.grid.GridViewModel;
 import com.evontech.passwordgridapp.custom.models.UserAccount;
 import com.evontech.passwordgridapp.custom.settings.Preferences;
 import com.evontech.passwordgridapp.custom.settings.ViewModelFactory;
+import com.google.android.material.bottomsheet.BottomSheetBehavior;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.google.android.material.textfield.TextInputEditText;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -58,6 +63,22 @@ public class AccountsActivity extends FullscreenActivity implements OnAccountCli
     private AccountAdapter adapter;
     private AccountsViewModel mViewModel;
 
+    @BindView(R.id.bottom_sheet)
+    LinearLayout layoutBottomSheet;
+
+    @BindView(R.id.et_account_name)
+    TextInputEditText et_account_name;
+    @BindView(R.id.et_account_username)
+    TextInputEditText et_account_username;
+    @BindView(R.id.et_account_url)
+    TextInputEditText et_account_url;
+    @BindView(R.id.buttonAdd)
+    Button buttonAdd;
+    @BindView(R.id.buttonCancel)
+    Button buttonCancel;
+
+    BottomSheetBehavior sheetBehavior;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         ((PasswordGridApp) getApplication()).getAppComponent().inject(this);
@@ -67,12 +88,75 @@ public class AccountsActivity extends FullscreenActivity implements OnAccountCli
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_user_accounts);
         ButterKnife.bind(this);
+        sheetBehavior = BottomSheetBehavior.from(layoutBottomSheet);
+
+        sheetBehavior.setBottomSheetCallback(new BottomSheetBehavior.BottomSheetCallback() {
+            @Override
+            public void onStateChanged(@NonNull View bottomSheet, int newState) {
+                switch (newState) {
+                    case BottomSheetBehavior.STATE_HIDDEN:
+                        break;
+                    case BottomSheetBehavior.STATE_EXPANDED: {
+                       // btnBottomSheet.setText("Close Sheet");
+                    }
+                    break;
+                    case BottomSheetBehavior.STATE_COLLAPSED: {
+                       // btnBottomSheet.setText("Expand Sheet");
+                    }
+                    break;
+                    case BottomSheetBehavior.STATE_DRAGGING:
+                        break;
+                    case BottomSheetBehavior.STATE_SETTLING:
+                        break;
+                }
+            }
+            @Override
+            public void onSlide(@NonNull View bottomSheet, float slideOffset) {
+            }
+        });
+
+        buttonAdd.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if(TextUtils.isEmpty(et_account_name.getText().toString())) et_account_name.setError("Enter Account Name");
+                else if(TextUtils.isEmpty(et_account_username.getText().toString())) et_account_username.setError("Enter User Name");
+                else if(TextUtils.isEmpty(et_account_url.getText().toString())) et_account_url.setError("Enter Account Url");
+                else {
+                    UserAccount userAccount = new UserAccount(et_account_name.getText().toString(), et_account_username.getText().toString(), et_account_url.getText().toString());
+                    int userId = (int) mViewModel.updateUserAccount(userAccount);
+                    Log.d("userId ", ""+userId);
+                    if(userId>0) {
+                        userAccount.setId(userId);
+                        mUserAccounts.add(userAccount);
+                        adapter.notifyDataSetChanged();
+                        sheetBehavior.setState(BottomSheetBehavior.STATE_COLLAPSED);
+                        loadingText.setVisibility(View.GONE);
+                    }
+                    else Toast.makeText(AccountsActivity.this, "Updating account failure ", Toast.LENGTH_SHORT).show();
+                }
+            }
+        });
+
+        buttonCancel.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                sheetBehavior.setState(BottomSheetBehavior.STATE_COLLAPSED);
+            }
+        });
+
 
         setUpRecyclerView();
         addAccount.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                addNewAccount();
+                //addNewAccountDialog();
+                if (sheetBehavior.getState() != BottomSheetBehavior.STATE_EXPANDED) {
+                    sheetBehavior.setState(BottomSheetBehavior.STATE_EXPANDED);
+                   // btnBottomSheet.setText("Close sheet");
+                } else {
+                    sheetBehavior.setState(BottomSheetBehavior.STATE_COLLAPSED);
+                   // btnBottomSheet.setText("Expand sheet");
+                }
             }
         });
 
@@ -87,6 +171,7 @@ public class AccountsActivity extends FullscreenActivity implements OnAccountCli
             mUserAccounts.addAll(((AccountsViewModel.Loaded) accountState).accountList);
             adapter.notifyDataSetChanged();
             if(mUserAccounts.size()>0) loadingText.setVisibility(View.GONE);
+            else sheetBehavior.setState(BottomSheetBehavior.STATE_EXPANDED);
             Log.d("accountState: ", "Loaded...");
             Log.d("mUserAccounts Size : ", ""+mUserAccounts.size());
         }
@@ -104,7 +189,7 @@ public class AccountsActivity extends FullscreenActivity implements OnAccountCli
         if(mUserAccounts.size()>0) loadingText.setVisibility(View.GONE);
     }
 
-    private void addNewAccount(){
+    private void addNewAccountDialog(){
             ViewGroup viewGroup = findViewById(android.R.id.content);
             View dialogView = LayoutInflater.from(this).inflate(R.layout.add_new_account, viewGroup, false);
             AlertDialog.Builder builder = new AlertDialog.Builder(this);

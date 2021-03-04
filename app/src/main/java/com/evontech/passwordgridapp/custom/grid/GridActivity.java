@@ -195,6 +195,7 @@ public class GridActivity extends FullscreenActivity {
                     mainBoardStartRow = row;
                     mainBoardStartCol = col;
                     if(getPreferences().showgridDirection()){
+                        Log.d("inside ", "1");
                         selectedColor = streakLine.getColor();
                         if(!TextUtils.isEmpty(getPreferences().getSelectedDirection()))
                             onDirectionSelection(mainBoardStartRow, mainBoardStartCol, "");
@@ -207,7 +208,9 @@ public class GridActivity extends FullscreenActivity {
                         StringBuilder tempStr = new StringBuilder(mTextSelection.getText().toString());
                         mTextSelection.setText(tempStr.append(mainboard[row][col]));
                         Log.d("mLetterBoard all lines ", mLetterBoard.getStreakView().getmLines().size()+"");
+                        Log.d("inside ", "2");
                     }else if(getPreferences().showWordFromBorder() || getPreferences().selectedTypeManually()){
+                        Log.d("inside ", "3");
                         mLetterBoard.popStreakLine();
                         //mLetterBoard.removeAllStreakLine();
                         //mTextSelection.setText("");
@@ -536,7 +539,7 @@ public class GridActivity extends FullscreenActivity {
         mLetterBoard.removeAllStreakLine();
         mLetterBoardLeft.removeAllStreakLine();
         mLetterBoardTop.removeAllStreakLine();
-        if(getPreferences().showGridPattern()) mLetterBoard.getStreakView().setRememberStreakLine(true);
+        if(getPreferences().showGridPattern() || getPreferences().showWordFromBorder() || getPreferences().selectedTypeManually()) mLetterBoard.getStreakView().setRememberStreakLine(true);
         else mLetterBoard.getStreakView().setRememberStreakLine(false);
         if(getPreferences().selectedDragManually()) mLetterBoard.getStreakView().setmDraggingManually(true);
         else mLetterBoard.getStreakView().setmDraggingManually(false);
@@ -1724,9 +1727,9 @@ public class GridActivity extends FullscreenActivity {
                         mViewModel.setSelectedTypedWord(mTextFromBorder.getText().toString());
                         mViewModel.generateNewGridRound(rowCount, colCount);
                     }else {
-                        resetGrid();
+                        /*resetGrid();
                         if(TextUtils.isEmpty(mTextSelection.getText().toString()))
-                        generateDefaultPassword();
+                        generateDefaultPassword();*/
                     }
                 }
             }

@@ -4,11 +4,13 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="vertical"
-    android:layout_margin="5dp">
+    android:layout_marginLeft="10dp"
+    android:layout_marginRight="10dp"
+    android:layout_marginTop="5dp">
 
     <LinearLayout
         android:id="@+id/linear_account"
-        android:padding="5dp"
+        android:padding="10dp"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
@@ -17,26 +19,26 @@
         android:id="@+id/tv_account_name"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:textColor="@color/black"
+        android:textColor="@color/white"
         android:textStyle="bold"
-        android:textSize="13sp"
+        android:textSize="14sp"
         android:text="Account Name"/>
     <TextView
         android:id="@+id/tv_account_username"
         android:layout_marginTop="2dp"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:textColor="@color/black"
+        android:textColor="@color/white"
         android:textStyle="bold"
-        android:textSize="11sp"
+        android:textSize="12sp"
         android:text="Username"/>
     <TextView
         android:id="@+id/tv_account_url"
         android:layout_marginTop="2dp"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:textColor="@color/black"
-        android:textSize="11sp"
+        android:textColor="@color/white"
+        android:textSize="12sp"
         android:text="Url"/>
     </LinearLayout>
 </LinearLayout>

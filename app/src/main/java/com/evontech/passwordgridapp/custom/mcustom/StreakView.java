@@ -284,6 +284,7 @@ public class StreakView extends View {
 
         @Override
         public void onDown(MotionEvent event) {
+            Log.d("mRememberStreakLine ", ""+mRememberStreakLine);
             if(!mLines.isEmpty() && !mRememberStreakLine) mLines.pop();
             if(!mLines.isEmpty() && mDraggingManually) mLines.clear();
 
