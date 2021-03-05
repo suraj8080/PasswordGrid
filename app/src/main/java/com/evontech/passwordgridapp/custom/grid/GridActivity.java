@@ -1,5 +1,6 @@
 package com.evontech.passwordgridapp.custom.grid;
 
+import android.Manifest;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -28,6 +29,7 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.widget.AppCompatButton;
 import androidx.appcompat.widget.AppCompatEditText;
+import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.lifecycle.ViewModelProviders;
 
@@ -45,6 +47,21 @@ import com.evontech.passwordgridapp.custom.models.UsedWord;
 import com.evontech.passwordgridapp.custom.models.UserAccount;
 import com.evontech.passwordgridapp.custom.settings.Preferences;
 import com.evontech.passwordgridapp.custom.settings.ViewModelFactory;
+import com.itextpdf.kernel.colors.ColorConstants;
+import com.itextpdf.kernel.colors.DeviceRgb;
+import com.itextpdf.kernel.geom.PageSize;
+import com.itextpdf.kernel.pdf.PdfDocument;
+import com.itextpdf.kernel.pdf.PdfWriter;
+import com.itextpdf.layout.Document;
+import com.itextpdf.layout.element.Cell;
+import com.itextpdf.layout.element.LineSeparator;
+import com.itextpdf.layout.element.Paragraph;
+import com.itextpdf.layout.element.Tab;
+import com.itextpdf.layout.element.TabStop;
+import com.itextpdf.layout.element.Table;
+import com.itextpdf.layout.property.TabAlignment;
+import com.itextpdf.layout.property.TextAlignment;
+import com.itextpdf.layout.property.UnitValue;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -107,6 +124,12 @@ public class GridActivity extends FullscreenActivity {
     View indicatorGreen;
     @BindView(R.id.indicator_amber)
     View indicatorAmber;
+    @BindView(R.id.grid_account_name)
+    TextView grid_account_name;
+    @BindView(R.id.grid_user_name)
+    TextView grid_user_name;
+    @BindView(R.id.iv_share)
+    ImageView iv_share;
 
     private int rowCount;
     private int colCount;
@@ -424,6 +447,8 @@ public class GridActivity extends FullscreenActivity {
                 mViewModel.setSelectedTypedWord(mTextFromBorder.getText().toString());
                 mViewModel.generateNewGridRound(rowCount, colCount);
             }
+            grid_account_name.setText(userAccount.getAccountName());
+            grid_user_name.setText(userAccount.getUserName());
         }
 
         /*if (!getPreferences().showGridLine()) {
@@ -473,6 +498,17 @@ public class GridActivity extends FullscreenActivity {
             }
         });
 
+        iv_share.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if(ContextCompat.checkSelfPermission(GridActivity.this,
+                        Manifest.permission.WRITE_EXTERNAL_STORAGE)
+                        != PackageManager.PERMISSION_GRANTED) {
+                    ActivityCompat.requestPermissions(GridActivity.this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, 1);
+                }else shareEgridCard();
+            }
+        });
+
         mTextFromBorder.addTextChangedListener(new TextWatcher() {
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) { }
@@ -510,10 +546,6 @@ public class GridActivity extends FullscreenActivity {
             }
         });
     }
-    /*
-        Today's plan:
-        Preparing for demo on password management grid app.
-     */
 
     private void initPwdEditText(){
         if(getPreferences().showWordFromBorder() || getPreferences().selectedTypeManually()){
@@ -530,6 +562,110 @@ public class GridActivity extends FullscreenActivity {
             LinearLayout.LayoutParams param = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.MATCH_PARENT, 2f);
             linearTextSelection.setLayoutParams(param);
         }
+    }
+
+    private void shareEgridCard(){
+        Log.d("Sharing ", " E-grid Card");
+        String fileName = getFile();
+        File file = new File(fileName);
+        if(file.exists()){
+            share(fileName);
+        }
+        float mHeadingFontSize = 30.0f;
+        float mMediumFontSize = 30.0f;
+        float mGridFontSize = 15.0f;
+        float spacing = 20;
+        float cellPadding = 15;
+        /*com.itextpdf.kernel.color.Color colorAccent = new DeviceRgb(30, 136, 229);
+        com.itextpdf.kernel.color.Color colorWhite = new DeviceRgb(255, 255, 255);
+        com.itextpdf.kernel.color.Color colorBlack = new DeviceRgb(0, 0, 0);
+        com.itextpdf.kernel.color.Color colorGray = new DeviceRgb(128, 128, 128);*/
+
+        //LineSeparator lineSeparator = new LineSeparator();
+
+        try {
+            PdfDocument pdfDocument = new PdfDocument(new PdfWriter(fileName));
+            pdfDocument.setDefaultPageSize(PageSize.A4);
+            Document document = new Document(pdfDocument);
+
+            Paragraph header = new Paragraph("PasswordGrid");
+            header.setBold();
+            header.setFontSize(mHeadingFontSize);
+            header.setFontColor(ColorConstants.BLACK);
+            header.setTextAlignment(TextAlignment.CENTER);
+            header.setMargins(10f, 10f, 10f, 10f);
+            document.add(header);
+
+            /*Paragraph accountName = new Paragraph(userAccount.getAccountName());
+            accountName.setFontSize(mMediumFontSize);
+            accountName.setFontColor(ColorConstants.BLACK);
+            accountName.setTextAlignment(TextAlignment.LEFT);
+            accountName.setMargins(0f, 10f, 0f, 10f);
+            document.add(accountName);
+
+            Paragraph userName = new Paragraph(userAccount.getUserName());
+            userName.setFontSize(mHeadingFontSize);
+            userName.setFontColor(ColorConstants.BLACK);
+            userName.setTextAlignment(TextAlignment.RIGHT);
+            userName.setMargins(0f, 10f, 0f, 10f);
+            document.add(userName);*/
+
+            Paragraph p = new Paragraph(userAccount.getAccountName());
+            p.add(new Tab());
+            p.addTabStops(new TabStop(1000, TabAlignment.RIGHT));
+            p.add(userAccount.getUserName());
+            document.add(p);
+
+
+            float arr[] = {8f, 23f, 15f, 15f, 12f, 12f, 15f};
+            String entries[] = {"5/03/2021", "Software Developer", "20", "Engineer", "10", "5000/-", "35000"};
+            Table table = new Table(UnitValue.createPercentArray(arr)).useAllAvailableWidth();
+
+//Add Header Cells
+            table.addHeaderCell(new Cell().add(new Paragraph("Date").setTextAlignment(TextAlignment.CENTER)));
+            table.addHeaderCell(new Cell().add(new Paragraph("Job Name").setTextAlignment(TextAlignment.CENTER)));
+            table.addHeaderCell(new Cell().add(new Paragraph("Job Size").setTextAlignment(TextAlignment.CENTER)));
+            table.addHeaderCell(new Cell().add(new Paragraph("Job Type").setTextAlignment(TextAlignment.CENTER)));
+            table.addHeaderCell(new Cell().add(new Paragraph("Quantity").setTextAlignment(TextAlignment.CENTER)));
+            table.addHeaderCell(new Cell().add(new Paragraph("Rate").setTextAlignment(TextAlignment.CENTER)));
+            table.addHeaderCell(new Cell().add(new Paragraph("Amount").setTextAlignment(TextAlignment.CENTER)));
+
+            //for (String entry: entries) {
+                for(int i=0;i<50;i++) {
+                    table.addCell(new Cell().add(new Paragraph(entries[0]).setTextAlignment(TextAlignment.CENTER)));
+                    table.addCell(new Cell().add(new Paragraph(entries[1]).setTextAlignment(TextAlignment.CENTER)));
+                    table.addCell(new Cell().add(new Paragraph(entries[2]).setTextAlignment(TextAlignment.CENTER)));
+                    table.addCell(new Cell().add(new Paragraph(entries[3]).setTextAlignment(TextAlignment.CENTER)));
+                    table.addCell(new Cell().add(new Paragraph(entries[4]).setTextAlignment(TextAlignment.CENTER)));
+                    table.addCell(new Cell().add(new Paragraph(entries[5]).setTextAlignment(TextAlignment.CENTER)));
+                    table.addCell(new Cell().add(new Paragraph(entries[6]).setTextAlignment(TextAlignment.RIGHT)));
+                }
+            //}
+            document.add(table);
+
+            document.close();
+            Toast.makeText(this, "E-grid card pdf generated ", Toast.LENGTH_SHORT).show();
+        }catch (Exception e){
+            e.printStackTrace();
+            Toast.makeText(this, "Error in pdf generation ", Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    private void share(String fileName){
+
+    }
+
+    private String getFile(){
+        String root = "";
+        String extStorageState = Environment.getExternalStorageState();
+        if(Environment.MEDIA_MOUNTED.equals(extStorageState)){
+            root = Environment.getExternalStoragePublicDirectory("").toString();
+        }
+        File myDir = new File(root+"/PasswordGrid/PasswordGridDocuments");
+        myDir.mkdirs();
+        String fname = userAccount.getAccountName()+".pdf";
+        String filePath = root+"/PasswordGrid/PasswordGridDocuments/"+fname;
+        return  filePath;
     }
 
     private void resetGrid(){
