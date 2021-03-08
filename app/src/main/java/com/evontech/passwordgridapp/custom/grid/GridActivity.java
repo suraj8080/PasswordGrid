@@ -65,6 +65,7 @@ import com.itextpdf.layout.property.UnitValue;
 
 import java.io.File;
 import java.io.FileOutputStream;
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -566,25 +567,25 @@ public class GridActivity extends FullscreenActivity {
 
     private void shareEgridCard(){
         Log.d("Sharing ", " E-grid Card");
-        String fileName = getFile();
-        File file = new File(fileName);
+        String filePath = getFile();
+        File file = new File(filePath);
         if(file.exists()){
-            share(fileName);
+            share(filePath);
         }
         float mHeadingFontSize = 30.0f;
-        float mMediumFontSize = 30.0f;
-        float mGridFontSize = 15.0f;
+        float mMediumFontSize = 20.0f;
+        float mGridFontSize = 13.0f;
         float spacing = 20;
         float cellPadding = 15;
-        /*com.itextpdf.kernel.color.Color colorAccent = new DeviceRgb(30, 136, 229);
-        com.itextpdf.kernel.color.Color colorWhite = new DeviceRgb(255, 255, 255);
-        com.itextpdf.kernel.color.Color colorBlack = new DeviceRgb(0, 0, 0);
-        com.itextpdf.kernel.color.Color colorGray = new DeviceRgb(128, 128, 128);*/
+        com.itextpdf.kernel.colors.Color colorAccent = new DeviceRgb(30, 136, 229);
+        com.itextpdf.kernel.colors.Color colorWhite = new DeviceRgb(255, 255, 255);
+        com.itextpdf.kernel.colors.Color colorBlack = new DeviceRgb(0, 0, 0);
+        com.itextpdf.kernel.colors.Color colorGray = new DeviceRgb(128, 128, 128);
 
         //LineSeparator lineSeparator = new LineSeparator();
 
         try {
-            PdfDocument pdfDocument = new PdfDocument(new PdfWriter(fileName));
+            PdfDocument pdfDocument = new PdfDocument(new PdfWriter(filePath));
             pdfDocument.setDefaultPageSize(PageSize.A4);
             Document document = new Document(pdfDocument);
 
@@ -596,55 +597,55 @@ public class GridActivity extends FullscreenActivity {
             header.setMargins(10f, 10f, 10f, 10f);
             document.add(header);
 
-            /*Paragraph accountName = new Paragraph(userAccount.getAccountName());
-            accountName.setFontSize(mMediumFontSize);
-            accountName.setFontColor(ColorConstants.BLACK);
-            accountName.setTextAlignment(TextAlignment.LEFT);
-            accountName.setMargins(0f, 10f, 0f, 10f);
-            document.add(accountName);
-
-            Paragraph userName = new Paragraph(userAccount.getUserName());
-            userName.setFontSize(mHeadingFontSize);
-            userName.setFontColor(ColorConstants.BLACK);
-            userName.setTextAlignment(TextAlignment.RIGHT);
-            userName.setMargins(0f, 10f, 0f, 10f);
-            document.add(userName);*/
-
             Paragraph p = new Paragraph(userAccount.getAccountName());
             p.add(new Tab());
             p.addTabStops(new TabStop(1000, TabAlignment.RIGHT));
             p.add(userAccount.getUserName());
             document.add(p);
 
-
-            float arr[] = {8f, 23f, 15f, 15f, 12f, 12f, 15f};
-            String entries[] = {"5/03/2021", "Software Developer", "20", "Engineer", "10", "5000/-", "35000"};
+            float arr[] = new float[mGridData.getGrid().getColCount()+1];
+            for (int j=0;j<arr.length;j++){
+                arr[j] = 5f;
+            }
             Table table = new Table(UnitValue.createPercentArray(arr)).useAllAvailableWidth();
-
-//Add Header Cells
-            table.addHeaderCell(new Cell().add(new Paragraph("Date").setTextAlignment(TextAlignment.CENTER)));
-            table.addHeaderCell(new Cell().add(new Paragraph("Job Name").setTextAlignment(TextAlignment.CENTER)));
-            table.addHeaderCell(new Cell().add(new Paragraph("Job Size").setTextAlignment(TextAlignment.CENTER)));
-            table.addHeaderCell(new Cell().add(new Paragraph("Job Type").setTextAlignment(TextAlignment.CENTER)));
-            table.addHeaderCell(new Cell().add(new Paragraph("Quantity").setTextAlignment(TextAlignment.CENTER)));
-            table.addHeaderCell(new Cell().add(new Paragraph("Rate").setTextAlignment(TextAlignment.CENTER)));
-            table.addHeaderCell(new Cell().add(new Paragraph("Amount").setTextAlignment(TextAlignment.CENTER)));
-
-            //for (String entry: entries) {
-                for(int i=0;i<50;i++) {
-                    table.addCell(new Cell().add(new Paragraph(entries[0]).setTextAlignment(TextAlignment.CENTER)));
-                    table.addCell(new Cell().add(new Paragraph(entries[1]).setTextAlignment(TextAlignment.CENTER)));
-                    table.addCell(new Cell().add(new Paragraph(entries[2]).setTextAlignment(TextAlignment.CENTER)));
-                    table.addCell(new Cell().add(new Paragraph(entries[3]).setTextAlignment(TextAlignment.CENTER)));
-                    table.addCell(new Cell().add(new Paragraph(entries[4]).setTextAlignment(TextAlignment.CENTER)));
-                    table.addCell(new Cell().add(new Paragraph(entries[5]).setTextAlignment(TextAlignment.CENTER)));
-                    table.addCell(new Cell().add(new Paragraph(entries[6]).setTextAlignment(TextAlignment.RIGHT)));
+            char[][] topArray = mViewModel.mCurrentTopData.getGrid().getArray();
+            for (int i=0;i<mGridData.getGrid().getColCount()+1;i++){
+                //Log.d("topArray element at "+i,String.valueOf(topArray[0][i]) );
+                if(i==0)
+                    table.addHeaderCell(new Cell().add(new Paragraph(String.valueOf(' '))).setTextAlignment(TextAlignment.CENTER));
+                else{
+                    Paragraph paragraph = new Paragraph(String.valueOf(topArray[0][i-1]));
+                    paragraph.setBold();
+                    header.setFontSize(mMediumFontSize);
+                    header.setFontColor(colorWhite);
+                    header.setBackgroundColor(colorAccent);
+                    table.addHeaderCell(new Cell().add(paragraph).setTextAlignment(TextAlignment.CENTER));
                 }
-            //}
-            document.add(table);
+            }
 
+            char[][] mainArray = mGridData.getGrid().getArray();
+            for (int i=0;i<mGridData.getGrid().getRowCount();i++) {
+                for (int j = 0; j < mainArray[i].length+1; j++) {
+                    //Log.d("mainArray element at " + i, String.valueOf(mainArray[i][j]));
+                    if(j==0) {
+                        Paragraph paragraph = new Paragraph(String.valueOf(i));
+                        paragraph.setBold();
+                        header.setFontSize(mMediumFontSize);
+                        header.setFontColor(ColorConstants.WHITE);
+                        header.setBackgroundColor(colorAccent);
+                        table.addCell(new Cell().add(paragraph).setTextAlignment(TextAlignment.CENTER));
+                    }
+                    else{
+                        Paragraph paragraph = new Paragraph(String.valueOf(mainArray[i][j-1]));
+                        header.setFontSize(mGridFontSize);
+                        header.setFontColor(ColorConstants.BLACK);
+                        table.addCell(new Cell().add(paragraph).setTextAlignment(TextAlignment.CENTER));
+                    }
+                }
+            }
             document.close();
             Toast.makeText(this, "E-grid card pdf generated ", Toast.LENGTH_SHORT).show();
+            //openPdf(file.getAbsolutePath());
         }catch (Exception e){
             e.printStackTrace();
             Toast.makeText(this, "Error in pdf generation ", Toast.LENGTH_SHORT).show();
@@ -762,11 +763,19 @@ public class GridActivity extends FullscreenActivity {
         return bitmap;
     }
 
-    private void openScreenshot(File imageFile) {
+    private void openScreenshot(File filePath) {
         Intent intent = new Intent();
         intent.setAction(Intent.ACTION_VIEW);
-        Uri uri = Uri.fromFile(imageFile);
+        Uri uri = Uri.fromFile(filePath);
         intent.setDataAndType(uri, "image/*");
+        startActivity(intent);
+    }
+
+    private void openPdf(String filePath){
+        File file = new File(filePath);
+        Intent intent = new Intent(Intent.ACTION_VIEW);
+        intent.setDataAndType(Uri.fromFile(file), "application/pdf");
+        intent.setFlags(Intent.FLAG_ACTIVITY_NO_HISTORY);
         startActivity(intent);
     }
 
@@ -1461,7 +1470,9 @@ public class GridActivity extends FullscreenActivity {
         }
     }
 
+    private GridData mGridData;
     private void onGridRoundLoaded(GridData gridData) {
+        mGridData = gridData;
         /* restore stored griddata selected pin/password mode, selected character case, and selected password chosen option.
            restored typed/selected word from border if chosen option is word from border or type manually,
            fix random new password generation crash on word from border and type manually chosen option.
