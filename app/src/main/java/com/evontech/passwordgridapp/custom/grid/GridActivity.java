@@ -59,6 +59,7 @@ import com.itextpdf.layout.element.Paragraph;
 import com.itextpdf.layout.element.Tab;
 import com.itextpdf.layout.element.TabStop;
 import com.itextpdf.layout.element.Table;
+import com.itextpdf.layout.property.BorderRadius;
 import com.itextpdf.layout.property.TabAlignment;
 import com.itextpdf.layout.property.TextAlignment;
 import com.itextpdf.layout.property.UnitValue;
@@ -610,39 +611,126 @@ public class GridActivity extends FullscreenActivity {
             Table table = new Table(UnitValue.createPercentArray(arr)).useAllAvailableWidth();
             char[][] topArray = mViewModel.mCurrentTopData.getGrid().getArray();
             for (int i=0;i<mGridData.getGrid().getColCount()+1;i++){
-                //Log.d("topArray element at "+i,String.valueOf(topArray[0][i]) );
                 if(i==0)
                     table.addHeaderCell(new Cell().add(new Paragraph(String.valueOf(' '))).setTextAlignment(TextAlignment.CENTER));
                 else{
+                    Log.d("topArray element at "+i,String.valueOf(topArray[0][i-1]) );
                     Paragraph paragraph = new Paragraph(String.valueOf(topArray[0][i-1]));
                     paragraph.setBold();
                     header.setFontSize(mMediumFontSize);
-                    header.setFontColor(colorWhite);
-                    header.setBackgroundColor(colorAccent);
-                    table.addHeaderCell(new Cell().add(paragraph).setTextAlignment(TextAlignment.CENTER));
+                    header.setFontColor(ColorConstants.WHITE);
+                    //header.setBackgroundColor(colorAccent);
+                    Cell cell = new Cell();
+                    cell.setWidth(8f);
+                    cell.setBackgroundColor(colorAccent);
+                    table.addHeaderCell(cell.add(paragraph).setTextAlignment(TextAlignment.CENTER));
                 }
             }
 
             char[][] mainArray = mGridData.getGrid().getArray();
             for (int i=0;i<mGridData.getGrid().getRowCount();i++) {
                 for (int j = 0; j < mainArray[i].length+1; j++) {
-                    //Log.d("mainArray element at " + i, String.valueOf(mainArray[i][j]));
                     if(j==0) {
                         Paragraph paragraph = new Paragraph(String.valueOf(i));
                         paragraph.setBold();
                         header.setFontSize(mMediumFontSize);
-                        header.setFontColor(ColorConstants.WHITE);
-                        header.setBackgroundColor(colorAccent);
-                        table.addCell(new Cell().add(paragraph).setTextAlignment(TextAlignment.CENTER));
+                        header.setFontColor(colorWhite);
+                        //header.setBackgroundColor(colorAccent);
+                        Cell cell = new Cell();
+                        cell.setWidth(8f);
+                        cell.setBackgroundColor(colorAccent);
+                        table.addCell(cell.add(paragraph).setTextAlignment(TextAlignment.CENTER));
                     }
                     else{
+                        Log.d("mainArray element at " + i, String.valueOf(mainArray[i][j-1]));
                         Paragraph paragraph = new Paragraph(String.valueOf(mainArray[i][j-1]));
                         header.setFontSize(mGridFontSize);
                         header.setFontColor(ColorConstants.BLACK);
-                        table.addCell(new Cell().add(paragraph).setTextAlignment(TextAlignment.CENTER));
+                        Cell cell = new Cell();
+                        //cell.setBackgroundColor(colorAccent);
+                        table.addCell(cell.add(paragraph).setTextAlignment(TextAlignment.CENTER));
                     }
                 }
             }
+
+            for (UsedWord word: mGridData.getUsedWords()) {
+                if(word.isAnswered()){
+                    Log.d("savedPassword ", word.getString());
+                    UsedWord.AnswerLine line = word.getAnswerLine();
+                    Log.d("line color ", ""+line.color);
+                    Log.d("line startRow startCol ", ""+line.startRow + line.startCol);
+                    Log.d("line endRow endCol ", ""+line.endRow + line.endCol);
+                    StreakView.StreakLine newStreakLine = new StreakView.StreakLine();
+                    newStreakLine.setColor(line.color);
+                    newStreakLine.getStartIndex().set(line.startRow,line.startCol);
+                    newStreakLine.getEndIndex().set(line.endRow,line.endCol);
+                    Direction direction = Direction.fromLine(newStreakLine.getStartIndex(), newStreakLine.getEndIndex());
+                    Log.d("direction ", direction.name());
+                    Log.d("all lines ", ""+mLetterBoard.getStreakView().getmLines().size());
+
+                    if(direction==Direction.EAST){
+                        for(int i=line.startCol;i<line.endCol+1;i++) {
+                            Cell cell = table.getCell(line.startRow, i+1);
+                            if(i==line.startCol) cell.setBackgroundColor(ColorConstants.RED,-3f, 0f,0f, 0f);
+                            else if (i == line.endCol){
+                                cell.setBorderRadius(new BorderRadius(3f));
+                                cell.setBackgroundColor(ColorConstants.RED, 0f, 0f, -3f, 0f);
+                            }else cell.setBackgroundColor(ColorConstants.RED);
+                        }
+                    }else if(direction==Direction.WEST){
+                        for(int i=line.endCol;i<line.startCol-1;i--) {
+                            Cell cell = table.getCell(line.startRow, i+1);
+                            //cell.setBackgroundColor(ColorConstants.RED);
+                            cell.setBackgroundColor(ColorConstants.RED,3f, 3f, 3f,3f);
+                        }
+                    }else if(direction==Direction.SOUTH){ //pending
+                        for(int i=line.startCol;i<line.endCol+1;i++) {
+                            Cell cell = table.getCell(line.startRow, i+1);
+                            if(i==line.startCol) cell.setBackgroundColor(ColorConstants.RED,-3f, 0f,0f, 0f);
+                            else if (i == line.endCol){
+                                cell.setBorderRadius(new BorderRadius(3f));
+                                cell.setBackgroundColor(ColorConstants.RED, 0f, 0f, -3f, 0f);
+                            }else cell.setBackgroundColor(ColorConstants.RED);
+                        }
+                    }else if(direction==Direction.NORTH){ //pending
+                        for(int i=line.endCol;i<line.startCol-1;i--) {
+                            Cell cell = table.getCell(line.startRow, i+1);
+                            //cell.setBackgroundColor(ColorConstants.RED);
+                            cell.setBackgroundColor(ColorConstants.RED,3f, 3f, 3f,3f);
+                        }
+                    }/*else if(direction==Direction.SOUTH_EAST){
+                        int endRow = startRow;
+                        int endCol = startCol;
+                        while (endRow < (startRow + passwordLength) && endCol < (startCol + passwordLength)) {
+                            endRow++;
+                            endCol++;
+                            if ((endRow - startRow) >= passwordLength)
+                                break;
+                        }
+                        Log.d("endRow " + endRow, "endRow " + endCol);
+                        drawUsingDirection(startRow, startCol, endRow, endCol);
+                        //if(startRow>=8)
+                        scrollByPosition(startRow);
+                    }else if(direction==Direction.NORTH_EAST){
+                        int endRow = startRow;
+                        int endCol = startCol;
+                        while (endRow > startRow - passwordLength && endCol > startCol - passwordLength) {
+                            endRow--;
+                            endCol--;
+                            if ((startRow - endRow) >= passwordLength)
+                                break;
+                        }
+                        Log.d("endRow " + endRow, "endRow " + endCol);
+                        drawUsingDirection(startRow, startCol, endRow, endCol);
+                        scrollByPosition(endRow);
+                    }*/
+                    //if( direction!= Direction.NONE){
+                    //mTextSelection.setText(mTextSelection.getText().toString().concat(word.getString()));
+                    // }
+                }
+            }
+
+            document.add(table);
             document.close();
             Toast.makeText(this, "E-grid card pdf generated ", Toast.LENGTH_SHORT).show();
             //openPdf(file.getAbsolutePath());
