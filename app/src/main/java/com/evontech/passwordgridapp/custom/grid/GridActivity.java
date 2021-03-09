@@ -671,62 +671,92 @@ public class GridActivity extends FullscreenActivity {
                     if(direction==Direction.EAST){
                         for(int i=line.startCol;i<line.endCol+1;i++) {
                             Cell cell = table.getCell(line.startRow, i+1);
-                            if(i==line.startCol) cell.setBackgroundColor(ColorConstants.RED,-3f, 0f,0f, 0f);
+                            if(i==line.startCol) {
+                                cell.setBorderTopLeftRadius(new BorderRadius(5f));
+                                cell.setBorderBottomLeftRadius(new BorderRadius(5f));
+                                cell.setBackgroundColor(ColorConstants.RED);
+                            }
                             else if (i == line.endCol){
-                                cell.setBorderRadius(new BorderRadius(3f));
-                                cell.setBackgroundColor(ColorConstants.RED, 0f, 0f, -3f, 0f);
+                                cell.setBorderBottomRightRadius(new BorderRadius(5f));
+                                cell.setBorderTopRightRadius(new BorderRadius(5f));
+                                cell.setBackgroundColor(ColorConstants.RED);
                             }else cell.setBackgroundColor(ColorConstants.RED);
                         }
                     }else if(direction==Direction.WEST){
-                        for(int i=line.endCol;i<line.startCol-1;i--) {
+                        for(int i=line.startCol;i>=line.endCol;i--) {
                             Cell cell = table.getCell(line.startRow, i+1);
-                            //cell.setBackgroundColor(ColorConstants.RED);
-                            cell.setBackgroundColor(ColorConstants.RED,3f, 3f, 3f,3f);
-                        }
-                    }else if(direction==Direction.SOUTH){ //pending
-                        for(int i=line.startCol;i<line.endCol+1;i++) {
-                            Cell cell = table.getCell(line.startRow, i+1);
-                            if(i==line.startCol) cell.setBackgroundColor(ColorConstants.RED,-3f, 0f,0f, 0f);
-                            else if (i == line.endCol){
-                                cell.setBorderRadius(new BorderRadius(3f));
-                                cell.setBackgroundColor(ColorConstants.RED, 0f, 0f, -3f, 0f);
+                            if(i==line.endCol) {
+                                cell.setBorderTopLeftRadius(new BorderRadius(5f));
+                                cell.setBorderBottomLeftRadius(new BorderRadius(5f));
+                                cell.setBackgroundColor(ColorConstants.RED);
+                            } else if (i == line.startCol){
+                                cell.setBorderBottomRightRadius(new BorderRadius(5f));
+                                cell.setBorderTopRightRadius(new BorderRadius(5f));
+                                cell.setBackgroundColor(ColorConstants.RED);
                             }else cell.setBackgroundColor(ColorConstants.RED);
                         }
-                    }else if(direction==Direction.NORTH){ //pending
-                        for(int i=line.endCol;i<line.startCol-1;i--) {
-                            Cell cell = table.getCell(line.startRow, i+1);
-                            //cell.setBackgroundColor(ColorConstants.RED);
-                            cell.setBackgroundColor(ColorConstants.RED,3f, 3f, 3f,3f);
+                    }else if(direction==Direction.SOUTH){
+                        for(int i=line.startRow;i<line.endRow+1;i++) {
+                            Cell cell = table.getCell(i, line.startCol+1);
+                            if(i==line.startRow) {
+                                cell.setBorderTopRightRadius(new BorderRadius(5f));
+                                cell.setBorderTopLeftRadius(new BorderRadius(5f));
+                                cell.setBackgroundColor(ColorConstants.RED);
+                            } else if (i == line.endRow){
+                                cell.setBorderBottomRightRadius(new BorderRadius(5f));
+                                cell.setBorderBottomLeftRadius(new BorderRadius(5f));
+                                cell.setBackgroundColor(ColorConstants.RED);
+                            }else cell.setBackgroundColor(ColorConstants.RED);
                         }
-                    }/*else if(direction==Direction.SOUTH_EAST){
-                        int endRow = startRow;
-                        int endCol = startCol;
-                        while (endRow < (startRow + passwordLength) && endCol < (startCol + passwordLength)) {
-                            endRow++;
-                            endCol++;
-                            if ((endRow - startRow) >= passwordLength)
-                                break;
+                    }else if(direction==Direction.NORTH){
+                        for(int i=line.startRow;i>=line.endRow;i--) {
+                            Cell cell = table.getCell(i, line.startCol+1);
+                            if(i==line.endRow) {
+                                cell.setBorderTopRightRadius(new BorderRadius(5f));
+                                cell.setBorderTopLeftRadius(new BorderRadius(5f));
+                                cell.setBackgroundColor(ColorConstants.RED);
+                            } else if (i == line.startRow){
+                                cell.setBorderBottomRightRadius(new BorderRadius(5f));
+                                cell.setBorderBottomLeftRadius(new BorderRadius(5f));
+                                cell.setBackgroundColor(ColorConstants.RED);
+                            }else cell.setBackgroundColor(ColorConstants.RED);
                         }
-                        Log.d("endRow " + endRow, "endRow " + endCol);
-                        drawUsingDirection(startRow, startCol, endRow, endCol);
-                        //if(startRow>=8)
-                        scrollByPosition(startRow);
-                    }else if(direction==Direction.NORTH_EAST){
-                        int endRow = startRow;
-                        int endCol = startCol;
-                        while (endRow > startRow - passwordLength && endCol > startCol - passwordLength) {
-                            endRow--;
-                            endCol--;
-                            if ((startRow - endRow) >= passwordLength)
-                                break;
+                    }else if(direction==Direction.SOUTH_EAST){ //pending for testing
+                        for(int i=line.startRow;i<line.endRow+1;i++) {
+                            for(int j=line.startCol;j<line.endCol+1;j++) {
+                                Cell cell = table.getCell(i, j+1);
+                                if(i==line.startRow && j==line.startCol) {
+                                    cell.setBorderTopRightRadius(new BorderRadius(5f));
+                                    cell.setBorderTopLeftRadius(new BorderRadius(5f));
+                                    cell.setBackgroundColor(ColorConstants.RED);
+                                } else if (i==line.endRow && j==line.endCol){
+                                    cell.setBorderBottomRightRadius(new BorderRadius(5f));
+                                    cell.setBorderBottomLeftRadius(new BorderRadius(5f));
+                                    cell.setBackgroundColor(ColorConstants.RED);
+                                }else cell.setBackgroundColor(ColorConstants.RED);
+                            }
                         }
-                        Log.d("endRow " + endRow, "endRow " + endCol);
-                        drawUsingDirection(startRow, startCol, endRow, endCol);
-                        scrollByPosition(endRow);
-                    }*/
-                    //if( direction!= Direction.NONE){
-                    //mTextSelection.setText(mTextSelection.getText().toString().concat(word.getString()));
-                    // }
+                    }else if(direction==Direction.NORTH_EAST){ //pending for testing
+                        for(int i=line.startRow;i>=line.endRow;i--) {
+                            for(int j=line.startCol;j>=line.endCol+1;j++) {
+                                Cell cell = table.getCell(i, j+1);
+                                if(i==line.startRow && j==line.startCol) {
+                                    cell.setBorderTopRightRadius(new BorderRadius(5f));
+                                    cell.setBorderTopLeftRadius(new BorderRadius(5f));
+                                    cell.setBackgroundColor(ColorConstants.RED);
+                                } else if (i==line.endRow && j==line.endCol){
+                                    cell.setBorderBottomRightRadius(new BorderRadius(5f));
+                                    cell.setBorderBottomLeftRadius(new BorderRadius(5f));
+                                    cell.setBackgroundColor(ColorConstants.RED);
+                                }else cell.setBackgroundColor(ColorConstants.RED);
+                            }
+                        }
+                    }if( direction!= Direction.NONE){ //pending
+
+                    }
+
+                  //mTextSelection.setText(mTextSelection.getText().toString().concat(word.getString()));
+
                 }
             }
 
