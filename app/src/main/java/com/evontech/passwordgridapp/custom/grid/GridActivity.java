@@ -581,6 +581,7 @@ public class GridActivity extends FullscreenActivity {
         com.itextpdf.kernel.colors.Color colorAccent = new DeviceRgb(30, 136, 229);
         com.itextpdf.kernel.colors.Color colorWhite = new DeviceRgb(255, 255, 255);
         com.itextpdf.kernel.colors.Color colorBlack = new DeviceRgb(0, 0, 0);
+        com.itextpdf.kernel.colors.Color colorRed = new DeviceRgb(200, 100, 50);
         com.itextpdf.kernel.colors.Color colorGray = new DeviceRgb(128, 128, 128);
 
         //LineSeparator lineSeparator = new LineSeparator();
@@ -617,8 +618,9 @@ public class GridActivity extends FullscreenActivity {
                     Log.d("topArray element at "+i,String.valueOf(topArray[0][i-1]) );
                     Paragraph paragraph = new Paragraph(String.valueOf(topArray[0][i-1]));
                     paragraph.setBold();
+                    paragraph.setFontColor(colorWhite);
                     header.setFontSize(mMediumFontSize);
-                    header.setFontColor(ColorConstants.WHITE);
+                    header.setFontColor(colorWhite);
                     //header.setBackgroundColor(colorAccent);
                     Cell cell = new Cell();
                     cell.setWidth(8f);
@@ -633,6 +635,7 @@ public class GridActivity extends FullscreenActivity {
                     if(j==0) {
                         Paragraph paragraph = new Paragraph(String.valueOf(i));
                         paragraph.setBold();
+                        paragraph.setFontColor(colorWhite);
                         header.setFontSize(mMediumFontSize);
                         header.setFontColor(colorWhite);
                         //header.setBackgroundColor(colorAccent);
@@ -722,37 +725,65 @@ public class GridActivity extends FullscreenActivity {
                             }else cell.setBackgroundColor(ColorConstants.RED);
                         }
                     }else if(direction==Direction.SOUTH_EAST){ //pending for testing
+                        int j = line.startCol;
                         for(int i=line.startRow;i<line.endRow+1;i++) {
-                            for(int j=line.startCol;j<line.endCol+1;j++) {
+                           // for(int j=line.startCol;j<line.endCol+1;j++) {
                                 Cell cell = table.getCell(i, j+1);
                                 if(i==line.startRow && j==line.startCol) {
                                     cell.setBorderTopRightRadius(new BorderRadius(5f));
                                     cell.setBorderTopLeftRadius(new BorderRadius(5f));
-                                    cell.setBackgroundColor(ColorConstants.RED);
+                                    cell.setBorderBottomLeftRadius(new BorderRadius(5f));
+                                    cell.setBackgroundColor(colorGray, 0.4f);
                                 } else if (i==line.endRow && j==line.endCol){
+                                    cell.setBorderTopRightRadius(new BorderRadius(5f));
                                     cell.setBorderBottomRightRadius(new BorderRadius(5f));
                                     cell.setBorderBottomLeftRadius(new BorderRadius(5f));
-                                    cell.setBackgroundColor(ColorConstants.RED);
-                                }else cell.setBackgroundColor(ColorConstants.RED);
-                            }
+                                    cell.setBackgroundColor(colorGray,0.4f);
+                                }else {
+                                    cell.setBorderBottomRightRadius(new BorderRadius(5f));
+                                    cell.setBorderTopLeftRadius(new BorderRadius(5f));
+                                    cell.setBorderTopRightRadius(new BorderRadius(5f));
+                                    cell.setBorderBottomLeftRadius(new BorderRadius(5f));
+                                    cell.setBackgroundColor(colorGray,0.4f);
+                                }
+                                j++;
+                          //  }
                         }
-                    }else if(direction==Direction.NORTH_EAST){ //pending for testing
+                    }else if(direction==Direction.NORTH_WEST){ //pending for testing
+                        int j = line.startCol;
                         for(int i=line.startRow;i>=line.endRow;i--) {
-                            for(int j=line.startCol;j>=line.endCol+1;j++) {
-                                Cell cell = table.getCell(i, j+1);
-                                if(i==line.startRow && j==line.startCol) {
-                                    cell.setBorderTopRightRadius(new BorderRadius(5f));
-                                    cell.setBorderTopLeftRadius(new BorderRadius(5f));
-                                    cell.setBackgroundColor(ColorConstants.RED);
-                                } else if (i==line.endRow && j==line.endCol){
-                                    cell.setBorderBottomRightRadius(new BorderRadius(5f));
-                                    cell.setBorderBottomLeftRadius(new BorderRadius(5f));
-                                    cell.setBackgroundColor(ColorConstants.RED);
-                                }else cell.setBackgroundColor(ColorConstants.RED);
+                            // for(int j=line.startCol;j<line.endCol+1;j++) {
+                            Cell cell = table.getCell(i, j+1);
+                            if(i==line.startRow && j==line.startCol) {
+                                cell.setBorderTopRightRadius(new BorderRadius(5f));
+                                cell.setBorderTopLeftRadius(new BorderRadius(5f));
+                                cell.setBorderBottomLeftRadius(new BorderRadius(5f));
+                                cell.setBackgroundColor(colorGray, 0.4f);
+                            } else if (i==line.endRow && j==line.endCol){
+                                cell.setBorderTopRightRadius(new BorderRadius(5f));
+                                cell.setBorderBottomRightRadius(new BorderRadius(5f));
+                                cell.setBorderBottomLeftRadius(new BorderRadius(5f));
+                                cell.setBackgroundColor(colorGray,0.4f);
+                            }else {
+                                cell.setBorderBottomRightRadius(new BorderRadius(5f));
+                                cell.setBorderTopLeftRadius(new BorderRadius(5f));
+                                cell.setBorderTopRightRadius(new BorderRadius(5f));
+                                cell.setBorderBottomLeftRadius(new BorderRadius(5f));
+                                cell.setBackgroundColor(colorGray,0.4f);
                             }
+                            j--;
+                            //  }
                         }
-                    }if( direction!= Direction.NONE){ //pending
-
+                    }if( direction== Direction.NONE){ //pending
+                        Cell cell = table.getCell(line.startRow, line.startCol+1);
+                        cell.setBorderRadius(new BorderRadius(10f));
+                        if(colCount>18)
+                        cell.setBorderRadius(new BorderRadius(5f));
+                        //cell.setBorderBottomRightRadius(new BorderRadius(5f));
+                        //cell.setBorderTopLeftRadius(new BorderRadius(5f));
+                        //cell.setBorderTopRightRadius(new BorderRadius(5f));
+                        //cell.setBorderBottomLeftRadius(new BorderRadius(5f));
+                        cell.setBackgroundColor(colorRed,1f);
                     }
 
                   //mTextSelection.setText(mTextSelection.getText().toString().concat(word.getString()));
