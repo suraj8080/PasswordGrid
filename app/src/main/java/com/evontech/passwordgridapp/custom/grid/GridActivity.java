@@ -1,6 +1,7 @@
 package com.evontech.passwordgridapp.custom.grid;
 
 import android.Manifest;
+import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -10,6 +11,7 @@ import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
@@ -31,6 +33,7 @@ import androidx.appcompat.widget.AppCompatButton;
 import androidx.appcompat.widget.AppCompatEditText;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
+import androidx.core.content.FileProvider;
 import androidx.lifecycle.ViewModelProviders;
 
 import com.evontech.passwordgridapp.R;
@@ -64,9 +67,17 @@ import com.itextpdf.layout.property.TabAlignment;
 import com.itextpdf.layout.property.TextAlignment;
 import com.itextpdf.layout.property.UnitValue;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.io.File;
 import java.io.FileOutputStream;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.lang.reflect.Array;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -507,7 +518,10 @@ public class GridActivity extends FullscreenActivity {
                         Manifest.permission.WRITE_EXTERNAL_STORAGE)
                         != PackageManager.PERMISSION_GRANTED) {
                     ActivityCompat.requestPermissions(GridActivity.this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, 1);
-                }else shareEgridCard();
+                }else {
+                    MyAsyncTasks myAsyncTasks = new MyAsyncTasks();
+                    myAsyncTasks.execute();
+                }
             }
         });
 
@@ -566,13 +580,10 @@ public class GridActivity extends FullscreenActivity {
         }
     }
 
-    private void shareEgridCard(){
+    private String shareEgridCard(){
         Log.d("Sharing ", " E-grid Card");
         String filePath = getFile();
         File file = new File(filePath);
-        if(file.exists()){
-            share(filePath);
-        }
         float mHeadingFontSize = 30.0f;
         float mMediumFontSize = 20.0f;
         float mGridFontSize = 13.0f;
@@ -793,16 +804,44 @@ public class GridActivity extends FullscreenActivity {
 
             document.add(table);
             document.close();
-            Toast.makeText(this, "E-grid card pdf generated ", Toast.LENGTH_SHORT).show();
+            Log.d("E-grid card ","in generated");
+            //Toast.makeText(this, "E-grid card pdf generated ", Toast.LENGTH_SHORT).show();
+            return filePath;
             //openPdf(file.getAbsolutePath());
         }catch (Exception e){
             e.printStackTrace();
-            Toast.makeText(this, "Error in pdf generation ", Toast.LENGTH_SHORT).show();
+            Log.d("Error ","in pdf generation");
+            //Toast.makeText(this, "Error in pdf generation ", Toast.LENGTH_SHORT).show();
+            return filePath;
         }
     }
 
-    private void share(String fileName){
+    private ProgressDialog progressDialog;
+    public class MyAsyncTasks extends AsyncTask<String, String, String> {
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+            progressDialog = new ProgressDialog(GridActivity.this);
+            progressDialog.setMessage("Please Wait");
+            progressDialog.setCancelable(false);
+            progressDialog.show();
+        }
 
+        @Override
+        protected String doInBackground(String... params) {
+            return shareEgridCard();
+        }
+
+        @Override
+        protected void onPostExecute(String filePath) {
+            progressDialog.dismiss();
+            File file = new File(filePath);
+            if(file.exists()){
+                Log.d("file ", "exist");
+                //openPdf(filePath);
+                sharePdf(filePath);
+            }else Log.d("file ", "not exist");
+        }
     }
 
     private String getFile(){
@@ -922,9 +961,20 @@ public class GridActivity extends FullscreenActivity {
 
     private void openPdf(String filePath){
         File file = new File(filePath);
+        Uri uri = FileProvider.getUriForFile(this, getApplicationContext().getPackageName() + ".provider",file);
         Intent intent = new Intent(Intent.ACTION_VIEW);
-        intent.setDataAndType(Uri.fromFile(file), "application/pdf");
-        intent.setFlags(Intent.FLAG_ACTIVITY_NO_HISTORY);
+        intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+        intent.setDataAndType(uri, "application/pdf");
+        startActivity(intent);
+    }
+
+    private void sharePdf(String filePath){
+        File file = new File(filePath);
+        Uri uri = FileProvider.getUriForFile(this, getApplicationContext().getPackageName() + ".provider",file);
+        Intent intent = new Intent(Intent.ACTION_SEND);
+        intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+        intent.setType("application/pdf");
+        intent.putExtra(Intent.EXTRA_STREAM, uri);
         startActivity(intent);
     }
 
