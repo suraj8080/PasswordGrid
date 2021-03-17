@@ -2,11 +2,9 @@ package com.evontech.passwordgridapp.custom.settings;
 
 import android.content.Context;
 import android.content.SharedPreferences;
-import android.util.Log;
 
 
 import com.evontech.passwordgridapp.R;
-import com.evontech.passwordgridapp.custom.mcustom.StreakView;
 
 import javax.inject.Inject;
 
@@ -37,6 +35,11 @@ public class Preferences {
     private static String KEY_PASSWORD_LENGTH;
     private static String KEY_APPLY_WORD_PASSWORD;
     private static String KEY_APPLY_WORD_SELECTION;
+    private static String KEY_IS_USER_LOGGEDIN;
+    private static String KEY_USER_ID;
+    private static String KEY_USER_NAME;
+    private static String KEY_NAME;
+    private static String KEY_MOBILE;
 
     private SharedPreferences mPreferences;
 
@@ -62,10 +65,65 @@ public class Preferences {
         KEY_TYPE_MANUALLY = context.getString(R.string.pref_type_manually);
         KEY_APPLY_WORD_PASSWORD = context.getString(R.string.pref_Apply_Word_Password);
         KEY_APPLY_WORD_SELECTION = context.getString(R.string.pref_Apply_Word_Status);
-
+        KEY_USER_ID = context.getString(R.string.pref_User_Id);
+        KEY_USER_NAME = context.getString(R.string.pref_User_Name);
+        KEY_NAME = context.getString(R.string.pref_Name);
+        KEY_MOBILE = context.getString(R.string.pref_Mobile);
+        KEY_IS_USER_LOGGEDIN =  context.getString(R.string.pref_Is_User_LoggedIn);
         KEY_ROW = context.getString(R.string.pref_row);
         KEY_COL = context.getString(R.string.pref_col);
         KEY_PASSWORD_LENGTH = context.getString(R.string.pref_password_length);
+    }
+
+
+    public void setLoginStatus(boolean status){
+        mPreferences.edit()
+                .putBoolean(KEY_IS_USER_LOGGEDIN, status)
+                .apply();
+    }
+
+    public boolean getLoginStatus(){
+        return mPreferences.getBoolean(KEY_IS_USER_LOGGEDIN, false);
+    }
+
+    public void setUserId(String userId){
+        mPreferences.edit()
+                .putString(KEY_USER_ID, userId)
+                .apply();
+    }
+
+    public String getUserId(){
+        return mPreferences.getString(KEY_USER_ID, "");
+    }
+
+    public void setUserName(String userName){
+        mPreferences.edit()
+                .putString(KEY_USER_NAME, userName)
+                .apply();
+    }
+
+    public String getUserName(){
+        return mPreferences.getString(KEY_USER_NAME, "");
+    }
+
+    public void setName(String name){
+        mPreferences.edit()
+                .putString(KEY_NAME, name)
+                .apply();
+    }
+
+    public String getName(){
+        return mPreferences.getString(KEY_NAME, "");
+    }
+
+    public void setMobile(String mobile){
+        mPreferences.edit()
+                .putString(KEY_MOBILE, mobile)
+                .apply();
+    }
+
+    public String getMObile(){
+        return mPreferences.getString(KEY_MOBILE, "");
     }
 
     public void setApplyWordPassword(String word){

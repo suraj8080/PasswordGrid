@@ -5,12 +5,14 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.util.Log;
 
+import com.evontech.passwordgridapp.custom.UserLoginDataSource;
 import com.evontech.passwordgridapp.custom.data.AccountDataSource;
 import com.evontech.passwordgridapp.custom.data.GridDataSource;
 import com.evontech.passwordgridapp.custom.data.entity.GridDataEntity;
 import com.evontech.passwordgridapp.custom.models.GridDataInfo;
 import com.evontech.passwordgridapp.custom.models.UsedWord;
 import com.evontech.passwordgridapp.custom.models.UserAccount;
+import com.evontech.passwordgridapp.custom.models.AppUser;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -21,7 +23,7 @@ import javax.inject.Inject;
  * Created by Suraj Kumar on 17/12/20.
  */
 
-public class GridDataSQLiteDataSource implements GridDataSource, AccountDataSource {
+public class GridDataSQLiteDataSource implements GridDataSource, AccountDataSource, UserLoginDataSource {
 
     private com.evontech.passwordgridapp.custom.data.sqlite.DbHelper mHelper;
 
@@ -157,6 +159,7 @@ public class GridDataSQLiteDataSource implements GridDataSource, AccountDataSour
     public long saveAccountData(UserAccount userAccount) {
         SQLiteDatabase db = mHelper.getWritableDatabase();
         ContentValues values = new ContentValues();
+        values.put(DbContract.UserAccounts.COL_USER_ID, userAccount.getUserId());
         values.put(DbContract.UserAccounts.COL_ACCOUNT_NAME, userAccount.getAccountName());
         values.put(DbContract.UserAccounts.COL_ACCOUNT_USER_NAME, userAccount.getUserName());
         values.put(DbContract.UserAccounts.COL_ACCOUNT_URL, userAccount.getAccountUrl());
@@ -166,8 +169,8 @@ public class GridDataSQLiteDataSource implements GridDataSource, AccountDataSour
         long acId;
         if(userAccount.getId()>0){
             acId = userAccount.getId();
-            String where = DbContract.UserAccounts._ID + "=?";
-            String whereArgs[] = {String.valueOf(acId)};
+            String where = DbContract.UserAccounts._ID + "=?  AND " + DbContract.UserAccounts.COL_USER_ID + " = ?";
+            String whereArgs[] = {String.valueOf(acId), String.valueOf(userAccount.getUserId())};
             int updateStatus = db.update(DbContract.UserAccounts.TABLE_NAME, values,where, whereArgs);
             Log.d("saveAccountData updateStatus ", ""+updateStatus);
         }else {
@@ -183,8 +186,8 @@ public class GridDataSQLiteDataSource implements GridDataSource, AccountDataSour
         SQLiteDatabase db = mHelper.getWritableDatabase();
         ContentValues values = new ContentValues();
         values.put(DbContract.UserAccounts.COL_ACCOUNT_GRID_ID, account.getAccountGridId());
-        String where = DbContract.UserAccounts._ID + "=?";
-        String whereArgs[] = {String.valueOf(account.getId())};
+        String where = DbContract.UserAccounts._ID + "=?  AND " + DbContract.UserAccounts.COL_USER_ID + " = ?";
+        String whereArgs[] = {String.valueOf(account.getId()), String.valueOf(account.getUserId())};
         int updateStatus = db.update(DbContract.UserAccounts.TABLE_NAME, values,where, whereArgs);
         Log.d("updateAccountInfo gridId ", ""+account.getAccountGridId());
         Log.d("updateAccountInfo updateStatus ", ""+updateStatus);
@@ -192,32 +195,34 @@ public class GridDataSQLiteDataSource implements GridDataSource, AccountDataSour
     }
 
     @Override
-    public List<UserAccount> getAllAccountData() {
+    public List<UserAccount> getAllAccountData(int userId) {
         SQLiteDatabase db = mHelper.getReadableDatabase();
 
         String cols[] = {
                 DbContract.UserAccounts._ID,
+                DbContract.UserAccounts.COL_USER_ID,
                 DbContract.UserAccounts.COL_ACCOUNT_NAME,
                 DbContract.UserAccounts.COL_ACCOUNT_USER_NAME,
                 DbContract.UserAccounts.COL_ACCOUNT_URL,
                 DbContract.UserAccounts.COL_ACCOUNT_GRID_ID
         };
-        //String sel = DbContract.UserAccounts._ID + "=?";
-        //String selArgs[] = {String.valueOf(accountId)};
+        String sel = DbContract.UserAccounts.COL_USER_ID + "=?";
+        String selArgs[] = {String.valueOf(userId)};
 
         List<UserAccount> allAccounts = new ArrayList<>();
         try {
-            Cursor c = db.query(DbContract.UserAccounts.TABLE_NAME, cols, null, null, null, null, null);
+            Cursor c = db.query(DbContract.UserAccounts.TABLE_NAME, cols, sel, selArgs, null, null, null);
             UserAccount userAccount = null;
             if (c.moveToFirst()) {
                 while (!c.isAfterLast()) {
                     userAccount = new UserAccount();
                     userAccount.setId(c.getInt(0));
-                    userAccount.setAccountName(c.getString(1));
-                    userAccount.setUserName(c.getString(2));
-                    userAccount.setAccountUrl(c.getString(3));
-                    userAccount.setAccountGridId(c.getInt(4));
-                    Log.d("Getting accountData ", c.getString(1));
+                    userAccount.setUserId(c.getInt(1));
+                    userAccount.setAccountName(c.getString(2));
+                    userAccount.setUserName(c.getString(3));
+                    userAccount.setAccountUrl(c.getString(4));
+                    userAccount.setAccountGridId(c.getInt(5));
+                    Log.d("Getting accountData ", c.getString(2));
                     allAccounts.add(userAccount);
                     c.moveToNext();
                 }
@@ -228,7 +233,7 @@ public class GridDataSQLiteDataSource implements GridDataSource, AccountDataSour
     }
 
     @Override
-    public UserAccount getAccountData(int accountId) {
+    public UserAccount getAccountData(int accountId, int userId) {
         SQLiteDatabase db = mHelper.getReadableDatabase();
 
         String cols[] = {
@@ -238,10 +243,10 @@ public class GridDataSQLiteDataSource implements GridDataSource, AccountDataSour
                 DbContract.UserAccounts.COL_ACCOUNT_URL,
                 DbContract.UserAccounts.COL_ACCOUNT_GRID_ID
         };
-        String sel = DbContract.UserAccounts._ID + "=?";
-        String selArgs[] = {String.valueOf(accountId)};
+        String where = DbContract.UserAccounts._ID + "=?  AND " + DbContract.UserAccounts.COL_USER_ID + " = ?";
+        String whereArgs[] = {String.valueOf(accountId), String.valueOf(userId)};
 
-        Cursor c = db.query(DbContract.UserAccounts.TABLE_NAME, cols, sel, selArgs, null, null, null);
+        Cursor c = db.query(DbContract.UserAccounts.TABLE_NAME, cols, where, whereArgs, null, null, null);
         UserAccount userAccount = null;
         if (c.moveToFirst()) {
             userAccount = new UserAccount();
@@ -254,6 +259,60 @@ public class GridDataSQLiteDataSource implements GridDataSource, AccountDataSour
         }
         c.close();
         return userAccount;
+    }
+
+    @Override
+    public long registerUserLogin(AppUser user) {
+        SQLiteDatabase db = mHelper.getWritableDatabase();
+        ContentValues values = new ContentValues();
+        values.put(DbContract.UserLogin.COL_NAME, user.getName());
+        values.put(DbContract.UserLogin.COL_MOBILE, user.getMobile());
+        values.put(DbContract.UserLogin.COL_LOGIN_USER_NAME, user.getUserName());
+        values.put(DbContract.UserLogin.COL_LOGIN_USER_PASSWORD, user.getUserPassword());
+        Log.d("Register Useer ", ""+user.getId());
+
+        long acId;
+        if(user.getId()>0){
+            acId = user.getId();
+            String where = DbContract.UserLogin._ID + "=?";
+            String whereArgs[] = {String.valueOf(acId)};
+            int updateStatus = db.update(DbContract.UserLogin.TABLE_NAME, values,where, whereArgs);
+            Log.d(" user login updateStatus ", ""+updateStatus);
+        }else {
+            acId = db.insert(DbContract.UserLogin.TABLE_NAME, "null", values);
+            Log.d("user registration status ", ""+acId);
+        }
+        user.setId((int) acId);
+        return acId;
+    }
+
+    @Override
+    public AppUser userLogin(AppUser user) {
+        SQLiteDatabase db = mHelper.getReadableDatabase();
+
+        String cols[] = {
+                DbContract.UserLogin._ID,
+                DbContract.UserLogin.COL_NAME,
+                DbContract.UserLogin.COL_MOBILE,
+                DbContract.UserLogin.COL_LOGIN_USER_NAME,
+                DbContract.UserLogin.COL_LOGIN_USER_PASSWORD
+        };
+        String sel = DbContract.UserLogin.COL_LOGIN_USER_NAME + "=?  AND " + DbContract.UserLogin.COL_LOGIN_USER_PASSWORD + " = ?";
+        String selArgs[] = {user.getUserName(), user.getUserPassword()};
+
+        Cursor c = db.query(DbContract.UserLogin.TABLE_NAME, cols, sel, selArgs, null, null, null);
+        AppUser appUser = null;
+        if (c.moveToFirst()) {
+            appUser = new AppUser();
+            appUser.setId(c.getInt(0));
+            appUser.setName(c.getString(1));
+            appUser.setMobile(c.getString(2));
+            appUser.setUserName(c.getString(3));
+            appUser.setUserPassword(c.getString(4));
+            Log.d("Getting UserLogin Data ", c.getString(2));
+        }
+        c.close();
+        return appUser;
     }
 
     @Override

@@ -553,6 +553,10 @@ public class GridActivity extends FullscreenActivity {
                                 mTextSelection.setText(temp.substring(0, temp.length() - 1));
                             }*/
                         }
+                        /*
+
+                         */
+
                     } else {
                         wordFromBorder = new StringBuilder();
                         mTextSelection.setText("");

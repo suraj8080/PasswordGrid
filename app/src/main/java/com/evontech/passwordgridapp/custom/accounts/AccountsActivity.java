@@ -20,6 +20,7 @@ import android.view.Window;
 import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
@@ -27,6 +28,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.evontech.passwordgridapp.R;
+import com.evontech.passwordgridapp.custom.AppUser.Login;
 import com.evontech.passwordgridapp.custom.FullscreenActivity;
 import com.evontech.passwordgridapp.custom.PasswordGridApp;
 import com.evontech.passwordgridapp.custom.common.Util;
@@ -58,8 +60,7 @@ public class AccountsActivity extends FullscreenActivity implements OnAccountCli
     TextView loadingText;
     @Inject
     Preferences mPreferences;
-    @Inject
-    ViewModelFactory mViewModelFactory;
+    @Inject ViewModelFactory mViewModelFactory;
     private AccountAdapter adapter;
     private AccountsViewModel mViewModel;
 
@@ -76,6 +77,13 @@ public class AccountsActivity extends FullscreenActivity implements OnAccountCli
     Button buttonAdd;
     @BindView(R.id.buttonCancel)
     Button buttonCancel;
+
+    @BindView(R.id.tv_name)
+    TextView tv_name;
+    @BindView(R.id.tv_mobile)
+    TextView tv_mobile;
+    @BindView(R.id.buttonLogout)
+    ImageView buttonLogout;
 
     BottomSheetBehavior sheetBehavior;
 
@@ -160,7 +168,25 @@ public class AccountsActivity extends FullscreenActivity implements OnAccountCli
             }
         });
 
+        tv_name.setText(getPreferences().getName());
+        tv_mobile.setText(getPreferences().getMObile());
+        buttonLogout.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                getPreferences().setLoginStatus(false);
+                getPreferences().setName("");
+                getPreferences().setMobile("");
+                getPreferences().setUserId("");
+                getPreferences().setUserName("");
+                startActivity(new Intent(AccountsActivity.this, Login.class));
+                finish();
+            }
+        });
+
+        String userId = getPreferences().getUserId();
+        Log.d("Logged In UserId ", userId);
         mViewModel = ViewModelProviders.of(this, mViewModelFactory).get(AccountsViewModel.class);
+        mViewModel.setUserId(Integer.parseInt(userId));
         mViewModel.getOnAccountState().observe(this, this::onAccountStateChanged);
     }
 
@@ -175,10 +201,6 @@ public class AccountsActivity extends FullscreenActivity implements OnAccountCli
             Log.d("accountState: ", "Loaded...");
             Log.d("mUserAccounts Size : ", ""+mUserAccounts.size());
         }
-        /*
-
-         */
-
     }
 
     private void setUpRecyclerView(){

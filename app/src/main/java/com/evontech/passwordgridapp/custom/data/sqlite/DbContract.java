@@ -17,6 +17,7 @@ abstract class DbContract {
     static class GRID implements BaseColumns {
         static final String TABLE_NAME = "grid";
 
+        static final String COL_USER_ID = "user_id";
         static final String COL_NAME = "name";
         static final String COL_DURATION = "duration";
         static final String COL_GRID_ROW_COUNT = "grid_row_count";
@@ -42,9 +43,19 @@ abstract class DbContract {
     static class UserAccounts implements BaseColumns {
         static final String TABLE_NAME = "user_account";
 
+        static final String COL_USER_ID = "user_id";
         static final String COL_ACCOUNT_NAME = "account_name";
         static final String COL_ACCOUNT_USER_NAME = "user_name";
         static final String COL_ACCOUNT_URL = "account_url";
         static final String COL_ACCOUNT_GRID_ID = "account_grid_id";
+    }
+
+    static class UserLogin implements BaseColumns {
+        static final String TABLE_NAME = "user_login";
+
+        static final String COL_NAME = "login_name";
+        static final String COL_MOBILE = "login_mobile";
+        static final String COL_LOGIN_USER_NAME = "login_user_name";
+        static final String COL_LOGIN_USER_PASSWORD = "login_user_password";
     }
 }

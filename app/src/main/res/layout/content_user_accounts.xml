@@ -2,21 +2,23 @@
 <androidx.coordinatorlayout.widget.CoordinatorLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:background="@color/white">
 
     <androidx.recyclerview.widget.RecyclerView
-        android:layout_marginTop="10dp"
+        android:layout_marginTop="5dp"
         android:id="@+id/recycler_account"
         android:layout_width="match_parent"
         android:layout_height="match_parent"/>
 
     <TextView
-        android:textColor="@color/gray"
+        android:layout_margin="15dp"
+        android:textColor="@color/black"
         android:layout_gravity="center"
         android:id="@+id/loadingText"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="No accounts added. Click plus icon to add new account."/>
+        android:text="Click plus icon to add new account."/>
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/addAccount"

@@ -13,6 +13,16 @@ import java.util.List;
 
 public class AccountsViewModel extends ViewModel {
 
+    private int userId;
+
+    public int getUserId() {
+        return userId;
+    }
+
+    public void setUserId(int userId) {
+        this.userId = userId;
+    }
+
     static abstract class AccountState {}
     static class Loading extends AccountState {
         private Loading() {
@@ -43,11 +53,12 @@ public class AccountsViewModel extends ViewModel {
 
     public void loadAccounts() {
             mAllAccountsData = new ArrayList<>();
-            mAllAccountsData = accountDataSource.getAllAccountData();
+            mAllAccountsData = accountDataSource.getAllAccountData(userId);
             setAccountState(new Loaded(mAllAccountsData));
     }
 
     public long updateUserAccount(UserAccount userAccount){
+         userAccount.setUserId(userId);
         return accountDataSource.saveAccountData(userAccount);
     }
 

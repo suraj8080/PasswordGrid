@@ -4,6 +4,7 @@ import java.io.Serializable;
 
 public class UserAccount implements Serializable {
     private int id;
+    private int userId;
     private String accountName;
     private String userName;
     private String accountUrl;
@@ -17,6 +18,14 @@ public class UserAccount implements Serializable {
         this.accountName = accountName;
         this.userName = userName;
         this.accountUrl = accountUrl;
+    }
+
+    public int getUserId() {
+        return userId;
+    }
+
+    public void setUserId(int userId) {
+        this.userId = userId;
     }
 
     public int getId() {

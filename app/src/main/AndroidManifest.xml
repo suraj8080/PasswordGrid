@@ -25,8 +25,14 @@
             android:name=".custom.grid.GridActivity"
             android:screenOrientation="landscape" />
         <activity
+            android:name=".custom.AppUser.Registration"
+            android:screenOrientation="portrait" />
+        <activity
             android:name=".custom.accounts.AccountsActivity"
-            android:screenOrientation="landscape">
+            android:screenOrientation="portrait"/>
+        <activity
+            android:name=".custom.AppUser.Login"
+            android:screenOrientation="portrait">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 

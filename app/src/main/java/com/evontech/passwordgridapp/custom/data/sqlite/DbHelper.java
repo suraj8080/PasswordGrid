@@ -27,6 +27,7 @@ public class DbHelper extends SQLiteOpenHelper {
     private static final String SQL_CREATE_TABLE_GRID =
             "CREATE TABLE " + DbContract.GRID.TABLE_NAME + " (" +
                     DbContract.GRID._ID + " INTEGER PRIMARY KEY AUTOINCREMENT," +
+                    DbContract.GRID.COL_USER_ID + " TEXT," +
                     DbContract.GRID.COL_NAME + " TEXT," +
                     DbContract.GRID.COL_DURATION + " INTEGER," +
                     DbContract.GRID.COL_GRID_ROW_COUNT + " INTEGER," +
@@ -40,10 +41,19 @@ public class DbHelper extends SQLiteOpenHelper {
     private static final String SQL_CREATE_TABLE_USER_ACCOUNT =
             "CREATE TABLE " + DbContract.UserAccounts.TABLE_NAME + " (" +
                     DbContract.UserAccounts._ID + " INTEGER PRIMARY KEY AUTOINCREMENT," +
+                    DbContract.UserAccounts.COL_USER_ID + " TEXT," +
                     DbContract.UserAccounts.COL_ACCOUNT_NAME + " TEXT," +
                     DbContract.UserAccounts.COL_ACCOUNT_USER_NAME + " TEXT," +
                     DbContract.UserAccounts.COL_ACCOUNT_URL + " TEXT," +
                     DbContract.UserAccounts.COL_ACCOUNT_GRID_ID + " INTEGER)";
+
+    private static final String SQL_CREATE_TABLE_USER_LOGIN =
+            "CREATE TABLE " + DbContract.UserLogin.TABLE_NAME + " (" +
+                    DbContract.UserLogin._ID + " INTEGER PRIMARY KEY AUTOINCREMENT," +
+                    DbContract.UserLogin.COL_NAME + " TEXT," +
+                    DbContract.UserLogin.COL_MOBILE + " TEXT," +
+                    DbContract.UserLogin.COL_LOGIN_USER_NAME + " TEXT UNIQUE," +
+                    DbContract.UserLogin.COL_LOGIN_USER_PASSWORD + " TEXT)";
 
     public DbHelper(Context context) {
         super(context, DB_NAME, null, DB_VERSION);
@@ -54,6 +64,7 @@ public class DbHelper extends SQLiteOpenHelper {
         db.execSQL(SQL_CREATE_TABLE_USED_WORD);
         db.execSQL(SQL_CREATE_TABLE_GRID);
         db.execSQL(SQL_CREATE_TABLE_USER_ACCOUNT);
+        db.execSQL(SQL_CREATE_TABLE_USER_LOGIN);
     }
 
     @Override

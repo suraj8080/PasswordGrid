@@ -1,6 +1,8 @@
 package com.evontech.passwordgridapp.custom.di.component;
 
 
+import com.evontech.passwordgridapp.custom.AppUser.Login;
+import com.evontech.passwordgridapp.custom.AppUser.Registration;
 import com.evontech.passwordgridapp.custom.accounts.AccountsActivity;
 import com.evontech.passwordgridapp.custom.grid.GridActivity;
 import com.evontech.passwordgridapp.custom.grid.GridCriteriaActivity;
@@ -25,4 +27,6 @@ public interface AppComponent {
     void inject(MainActivity activity);
     void inject(GridCriteriaActivity gridCriteriaActivity);
     void inject(AccountsActivity accountsActivity);
+    void inject(Registration registrationActivity);
+    void inject(Login loginActivity);
 }

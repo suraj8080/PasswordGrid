@@ -11,10 +11,11 @@
     app:layout_behavior="com.google.android.material.bottomsheet.BottomSheetBehavior">
 
     <androidx.cardview.widget.CardView
-        android:background="@color/white"
+        app:cardBackgroundColor="@color/colorAccent"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        app:cardCornerRadius="15dp">
+        app:cardCornerRadius="15dp"
+        android:layout_marginBottom="-15dp">
     <LinearLayout
         android:layout_margin="10dp"
         android:layout_width="match_parent"
@@ -28,7 +29,7 @@
             android:layout_marginRight="10dp"
             android:layout_marginBottom="5dp"
             android:layout_marginLeft="10dp"
-            android:textColor="@color/black"
+            android:textColor="@color/white"
             android:textStyle="bold"
             android:textSize="18sp"
             android:text="Add Account"/>
@@ -46,10 +47,11 @@
                 android:layout_weight=".7"
                 android:layout_height="wrap_content"
                 android:layout_marginRight="10dp"
-                android:textColor="@color/black"
+                android:textColor="@color/white"
                 android:textSize="13sp"
                 android:text="Enter Account Name"/>
             <com.google.android.material.textfield.TextInputEditText
+                android:textColor="@color/white"
                 android:background="@drawable/linear_layout_border"
                 android:padding="10dp"
                 android:id="@+id/et_account_name"
@@ -73,10 +75,11 @@
                 android:layout_weight=".7"
                 android:layout_height="wrap_content"
                 android:layout_marginRight="10dp"
-                android:textColor="@color/black"
+                android:textColor="@color/white"
                 android:textSize="13sp"
                 android:text="Enter Username"/>
             <com.google.android.material.textfield.TextInputEditText
+                android:textColor="@color/white"
                 android:background="@drawable/linear_layout_border"
                 android:padding="10dp"
                 android:id="@+id/et_account_username"
@@ -102,11 +105,12 @@
                 android:layout_weight=".7"
                 android:layout_height="wrap_content"
                 android:layout_marginRight="10dp"
-                android:textColor="@color/black"
+                android:textColor="@color/white"
                 android:textSize="13sp"
                 android:text="Enter Account Url"/>
             <com.google.android.material.textfield.TextInputEditText
                 android:background="@drawable/linear_layout_border"
+                android:textColor="@color/white"
                 android:padding="10dp"
                 android:id="@+id/et_account_url"
                 android:layout_width="0dp"
@@ -127,21 +131,21 @@
                 android:layout_marginRight="5dp"
                 android:layout_marginLeft="5dp"
                 android:id="@+id/buttonAdd"
-                android:layout_width="150dp"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:background="@drawable/button_background_rounded_corner"
+                android:background="@drawable/linear_layout_border"
                 android:text="Add"
-                android:textColor="#FFF" />
+                android:textColor="@color/white" />
             <androidx.appcompat.widget.AppCompatButton
                 android:layout_marginRight="5dp"
                 android:layout_marginLeft="5dp"
                 android:id="@+id/buttonCancel"
-                android:layout_width="150dp"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
-                android:background="@drawable/button_background_rounded_corner"
+                android:background="@drawable/linear_layout_border"
                 android:text="Cancel"
-                android:textColor="#FFF" />
+                android:textColor="@color/white" />
         </LinearLayout>
 
     </LinearLayout>

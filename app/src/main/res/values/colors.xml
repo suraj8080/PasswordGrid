@@ -14,4 +14,7 @@
     <color name="selTextBgColor">#F06292</color>
 
     <color name="gray">#aa808080</color>
+
+    <color name="iron">#CCCCCC</color>
+    <color name="primary">#E43F3F</color>
 </resources>

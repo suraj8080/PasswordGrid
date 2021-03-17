@@ -21,6 +21,11 @@
     <string name="pref_type_manually">TypeManually</string>
     <string name="pref_Apply_Word_Password">KeyApplyWordPassword</string>
     <string name="pref_Apply_Word_Status">KeyApplyWordStatus</string>
+    <string name="pref_User_Id">KeyUserId</string>
+    <string name="pref_User_Name">KeyUserName</string>
+    <string name="pref_Name">KeyName</string>
+    <string name="pref_Mobile">KeyMobile</string>
+    <string name="pref_Is_User_LoggedIn">KeyIsUserLoggedIn</string>
     <string name="pref_user_selected_chosen_option">userSelectedChosenOption</string>
     <string name="pref_row">pref_row</string>
     <string name="pref_col">col</string>

@@ -15,7 +15,7 @@ public interface AccountDataSource {
 
     long saveAccountData(UserAccount userAccount);
 
-    UserAccount getAccountData(int accountId);
+    UserAccount getAccountData(int accountId, int userId);
 
-    List<UserAccount> getAllAccountData();
+    List<UserAccount> getAllAccountData(int userId);
 }
