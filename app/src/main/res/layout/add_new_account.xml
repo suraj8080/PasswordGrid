@@ -50,7 +50,8 @@
                 android:textColor="@color/white"
                 android:textSize="13sp"
                 android:text="Enter Account Name"/>
-            <com.google.android.material.textfield.TextInputEditText
+            <AutoCompleteTextView
+                android:completionThreshold="1"
                 android:textColor="@color/white"
                 android:background="@drawable/linear_layout_border"
                 android:padding="10dp"
@@ -78,7 +79,8 @@
                 android:textColor="@color/white"
                 android:textSize="13sp"
                 android:text="Enter Username"/>
-            <com.google.android.material.textfield.TextInputEditText
+            <AutoCompleteTextView
+                android:completionThreshold="1"
                 android:textColor="@color/white"
                 android:background="@drawable/linear_layout_border"
                 android:padding="10dp"
@@ -108,7 +110,8 @@
                 android:textColor="@color/white"
                 android:textSize="13sp"
                 android:text="Enter Account Url"/>
-            <com.google.android.material.textfield.TextInputEditText
+            <AutoCompleteTextView
+                android:completionThreshold="1"
                 android:background="@drawable/linear_layout_border"
                 android:textColor="@color/white"
                 android:padding="10dp"

@@ -11,13 +11,18 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.text.Editable;
 import android.text.TextUtils;
+import android.text.TextWatcher;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
 import android.view.WindowManager;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
+import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
@@ -42,6 +47,7 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.textfield.TextInputEditText;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import javax.inject.Inject;
@@ -68,11 +74,11 @@ public class AccountsActivity extends FullscreenActivity implements OnAccountCli
     LinearLayout layoutBottomSheet;
 
     @BindView(R.id.et_account_name)
-    TextInputEditText et_account_name;
+    AutoCompleteTextView et_account_name;
     @BindView(R.id.et_account_username)
-    TextInputEditText et_account_username;
+    AutoCompleteTextView et_account_username;
     @BindView(R.id.et_account_url)
-    TextInputEditText et_account_url;
+    AutoCompleteTextView et_account_url;
     @BindView(R.id.buttonAdd)
     Button buttonAdd;
     @BindView(R.id.buttonCancel)
@@ -157,6 +163,9 @@ public class AccountsActivity extends FullscreenActivity implements OnAccountCli
         addAccount.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                et_account_name.setText("");
+                et_account_username.setText("");
+                et_account_url.setText("");
                 //addNewAccountDialog();
                 if (sheetBehavior.getState() != BottomSheetBehavior.STATE_EXPANDED) {
                     sheetBehavior.setState(BottomSheetBehavior.STATE_EXPANDED);
@@ -188,6 +197,44 @@ public class AccountsActivity extends FullscreenActivity implements OnAccountCli
         mViewModel = ViewModelProviders.of(this, mViewModelFactory).get(AccountsViewModel.class);
         mViewModel.setUserId(Integer.parseInt(userId));
         mViewModel.getOnAccountState().observe(this, this::onAccountStateChanged);
+
+        String[] accounts_name_array = getResources().getStringArray(R.array.account_name_array);
+        ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, accounts_name_array);
+        et_account_name.setAdapter(adapter);
+
+        String[] accounts_url_array = getResources().getStringArray(R.array.account_url_array);
+        ArrayAdapter<String> adapter2 = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, accounts_url_array);
+        et_account_url.setAdapter(adapter2);
+
+        et_account_name.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                int index = indexOf(accounts_name_array, et_account_name.getText().toString());
+                Log.d("index ", ""+index);
+                et_account_url.setText(accounts_url_array[index]);
+            }
+        });
+        et_account_name.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                if(TextUtils.isEmpty(s)) et_account_url.setText("");
+            }
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) { }
+            @Override
+            public void afterTextChanged(Editable s) { }
+        });
+    }
+
+    private int indexOf(String[] arr, String object){
+        if (arr == null) return -1;
+        int len = arr.length;
+        int i = 0;
+        while (i < len) {
+            if (arr[i].equals(object)) return i;
+            else i = i + 1;
+        }
+        return -1;
     }
 
     private void onAccountStateChanged(AccountsViewModel.AccountState accountState) {
@@ -200,6 +247,16 @@ public class AccountsActivity extends FullscreenActivity implements OnAccountCli
             else sheetBehavior.setState(BottomSheetBehavior.STATE_EXPANDED);
             Log.d("accountState: ", "Loaded...");
             Log.d("mUserAccounts Size : ", ""+mUserAccounts.size());
+
+            int size = 0;
+            if(mUserAccounts!=null) size = mUserAccounts.size();
+            String[] accounts_username_array = new String[size];
+            Log.d("size ", ""+size);
+            for(int i=0;i<size;i++){
+                accounts_username_array[i] = mUserAccounts.get(i).getUserName();
+            }
+            ArrayAdapter<String> adapter1 = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, accounts_username_array);
+            et_account_username.setAdapter(adapter1);
         }
     }
 

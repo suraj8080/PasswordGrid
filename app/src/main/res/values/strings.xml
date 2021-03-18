@@ -57,4 +57,28 @@
     <string name="reverse_matching">Reverse matching</string>
     <string name="pref_grayscale">grayscale</string>
     <string name="grayscale">Grayscale</string>
+
+    <string-array name="account_name_array">
+        <item>Facebook</item>
+        <item>Amazon</item>
+        <item>Flipcart</item>
+        <item>Instagram</item>
+        <item>Twitter</item>
+        <item>WhatsApp</item>
+        <item>ICICI</item>
+        <item>SBI</item>
+    </string-array>
+
+    <string-array name="account_url_array">
+        <item>www.facebook.com</item>
+        <item>www.amazon.in</item>
+        <item>www.flipcart.com</item>
+        <item>www.instagram.com</item>
+        <item>www.twitter.com</item>
+        <item>www.whatsapp.com</item>
+        <item>www.icici.com</item>
+        <item>www.sbi.com</item>
+    </string-array>
+
+
 </resources>
