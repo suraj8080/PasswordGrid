@@ -30,13 +30,13 @@ public interface GridDataSource {
 
     }
 
-    void getGridData(int gid, GridRoundCallback callback);
+    void getGridData(int gid, int userId, GridRoundCallback callback);
 
     void getGridDataInfos(InfosCallback callback);
 
     void getGridDataInfo(int gid, StatCallback callback);
 
-    long saveGridData(GridDataEntity gridDataEntity);
+    long saveGridData(GridDataEntity gridDataEntity, int userId);
 
     void deleteGridData(int gid);
 
@@ -44,9 +44,9 @@ public interface GridDataSource {
 
     void saveGridDataDuration(int gid, int newDuration);
 
-    void markWordAsAnswered(int index, UsedWord usedWord);
+    void markWordAsAnswered(int index, int userId, UsedWord usedWord);
 
-    void deleteAllLines(int gid);
+    void deleteAllLines(int gid, int userId);
 
     int updateAccountInfo(UserAccount account);
 }

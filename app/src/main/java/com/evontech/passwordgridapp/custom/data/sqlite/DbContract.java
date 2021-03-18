@@ -33,6 +33,7 @@ abstract class DbContract {
         static final String TABLE_NAME = "used_words";
 
         static final String COL_GRID_ID = "grid_round_id";
+        static final String COL_USER_ID = "user_id";
         static final String COL_WORD_STRING = "word_id";
         static final String COL_ANSWER_LINE_DATA = "answer_line_data";
         static final String COL_LINE_COLOR = "line_color";

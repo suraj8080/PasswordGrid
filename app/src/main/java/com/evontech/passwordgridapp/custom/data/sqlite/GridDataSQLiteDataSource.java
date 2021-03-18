@@ -33,7 +33,7 @@ public class GridDataSQLiteDataSource implements GridDataSource, AccountDataSour
     }
 
     @Override
-    public void getGridData(int gid, GridRoundCallback callback) {
+    public void getGridData(int gid, int userId, GridRoundCallback callback) {
         SQLiteDatabase db = mHelper.getReadableDatabase();
 
         String cols[] = {
@@ -48,8 +48,8 @@ public class GridDataSQLiteDataSource implements GridDataSource, AccountDataSour
                 DbContract.GRID.COL_SELECTED_TYPED_WORD
                 //DbContract.GRID.COL_GRID_PASSWORD_LENGTH
         };
-        String sel = DbContract.GRID._ID + "=?";
-        String selArgs[] = {String.valueOf(gid)};
+        String sel = DbContract.GRID._ID + "=? AND " + DbContract.GRID.COL_USER_ID + " = ?";
+        String selArgs[] = {String.valueOf(gid), String.valueOf(userId)};
 
         Cursor c = db.query(DbContract.GRID.TABLE_NAME, cols, sel, selArgs, null, null, null);
         GridDataEntity ent = null;
@@ -67,7 +67,8 @@ public class GridDataSQLiteDataSource implements GridDataSource, AccountDataSour
            // ent.setmGridPasswordLength(c.getInt(9));
             Log.d("Getting GridData ", c.getString(5));
             Log.d("Getting SelectedTypedWord ", c.getString(8));
-            ent.setUsedWords(getUsedWords(gid));
+            Log.d("Getting userId ", userId+"");
+            ent.setUsedWords(getUsedWords(gid, userId));
         }
         c.close();
 
@@ -102,9 +103,10 @@ public class GridDataSQLiteDataSource implements GridDataSource, AccountDataSour
     }
 
     @Override
-    public long saveGridData(GridDataEntity gameRound) {
+    public long saveGridData(GridDataEntity gameRound, int userId) {
         SQLiteDatabase db = mHelper.getWritableDatabase();
         ContentValues values = new ContentValues();
+        values.put(DbContract.GRID.COL_USER_ID, userId);
         values.put(DbContract.GRID.COL_NAME, gameRound.getName());
         values.put(DbContract.GRID.COL_DURATION, gameRound.getDuration());
         values.put(DbContract.GRID.COL_GRID_ROW_COUNT, gameRound.getGridRowCount());
@@ -117,13 +119,14 @@ public class GridDataSQLiteDataSource implements GridDataSource, AccountDataSour
         Log.d("Saving CHOSEN_OPTION ", gameRound.getmChosenOption());
         Log.d("Saving SELECTED_TYPED_WORD ", gameRound.getmSelectedTypedWord());
         Log.d("Saving GridData ", gameRound.getGridData());
+        Log.d("Saving userId ", userId+"");
         values.put(DbContract.GRID.COL_GRID_DATA, gameRound.getGridData());
 
         long gid;
         if(gameRound.getId()>0){
             gid = gameRound.getId();
-            String where = DbContract.GRID._ID + "=?";
-            String whereArgs[] = {String.valueOf(gid)};
+            String where = DbContract.GRID._ID + "=? AND " + DbContract.GRID.COL_USER_ID + " = ?";
+            String whereArgs[] = {String.valueOf(gid), String.valueOf(userId)};
             int updateStatus = db.update(DbContract.GRID.TABLE_NAME, values,where, whereArgs);
             Log.d("saveGridData updateStatus ", ""+updateStatus);
         }else {
@@ -164,6 +167,7 @@ public class GridDataSQLiteDataSource implements GridDataSource, AccountDataSour
         values.put(DbContract.UserAccounts.COL_ACCOUNT_USER_NAME, userAccount.getUserName());
         values.put(DbContract.UserAccounts.COL_ACCOUNT_URL, userAccount.getAccountUrl());
         Log.d("Saving AccountData ", ""+userAccount.getId());
+        Log.d("UserAccounts userId ", ""+userAccount.getUserId());
         values.put(DbContract.UserAccounts.COL_ACCOUNT_GRID_ID, userAccount.getAccountGridId());
 
         long acId;
@@ -189,6 +193,7 @@ public class GridDataSQLiteDataSource implements GridDataSource, AccountDataSour
         String where = DbContract.UserAccounts._ID + "=?  AND " + DbContract.UserAccounts.COL_USER_ID + " = ?";
         String whereArgs[] = {String.valueOf(account.getId()), String.valueOf(account.getUserId())};
         int updateStatus = db.update(DbContract.UserAccounts.TABLE_NAME, values,where, whereArgs);
+        Log.d("UserAccounts userId ", ""+account.getUserId());
         Log.d("updateAccountInfo gridId ", ""+account.getAccountGridId());
         Log.d("updateAccountInfo updateStatus ", ""+updateStatus);
         return updateStatus;
@@ -225,6 +230,7 @@ public class GridDataSQLiteDataSource implements GridDataSource, AccountDataSour
                     Log.d("Getting accountData ", c.getString(2));
                     allAccounts.add(userAccount);
                     c.moveToNext();
+                    Log.d("UserAccounts userId ", ""+userAccount.getUserId());
                 }
             }
             c.close();
@@ -297,7 +303,7 @@ public class GridDataSQLiteDataSource implements GridDataSource, AccountDataSour
                 DbContract.UserLogin.COL_LOGIN_USER_NAME,
                 DbContract.UserLogin.COL_LOGIN_USER_PASSWORD
         };
-        String sel = DbContract.UserLogin.COL_LOGIN_USER_NAME + "=?  AND " + DbContract.UserLogin.COL_LOGIN_USER_PASSWORD + " = ?";
+        String sel = DbContract.UserLogin.COL_LOGIN_USER_NAME + "=? AND " + DbContract.UserLogin.COL_LOGIN_USER_PASSWORD + " = ?";
         String selArgs[] = {user.getUserName(), user.getUserPassword()};
 
         Cursor c = db.query(DbContract.UserLogin.TABLE_NAME, cols, sel, selArgs, null, null, null);
@@ -328,10 +334,10 @@ public class GridDataSQLiteDataSource implements GridDataSource, AccountDataSour
     }
 
     @Override
-    public void deleteAllLines(int gid) {
+    public void deleteAllLines(int gid, int userId) {
         SQLiteDatabase db = mHelper.getWritableDatabase();
-        String selArgs[] = {String.valueOf(gid)};
-        String sel = com.evontech.passwordgridapp.custom.data.sqlite.DbContract.UsedWord.COL_GRID_ID + "=?";
+        String sel = DbContract.UsedWord.COL_GRID_ID + "=? AND " + DbContract.GRID.COL_USER_ID + " = ?";
+        String selArgs[] = {String.valueOf(gid), String.valueOf(userId)};
         db.delete(com.evontech.passwordgridapp.custom.data.sqlite.DbContract.UsedWord.TABLE_NAME, sel, selArgs);
     }
 
@@ -356,24 +362,24 @@ public class GridDataSQLiteDataSource implements GridDataSource, AccountDataSour
     }
 
     @Override
-    public void markWordAsAnswered(int index, UsedWord usedWord) {
+    public void markWordAsAnswered(int index, int userId, UsedWord usedWord) {
         SQLiteDatabase db = mHelper.getWritableDatabase();
         if(index==0) {
-            String sel = DbContract.UsedWord.COL_GRID_ID + "=?";
-            String selArgs[] = {String.valueOf(usedWord.getId())};
+            String sel = DbContract.UsedWord.COL_GRID_ID + "=?  AND " + DbContract.UsedWord.COL_USER_ID + " = ?";
+            String selArgs[] = {String.valueOf(usedWord.getId()), String.valueOf(userId)};
             int status = db.delete(DbContract.UsedWord.TABLE_NAME, sel, selArgs);
             Log.d("markWordAsAnswered deleteStatus ", "" + status);
         }
-
         ContentValues values = new ContentValues();
-        values.put(com.evontech.passwordgridapp.custom.data.sqlite.DbContract.UsedWord.COL_ANSWER_LINE_DATA, usedWord.getAnswerLine().toString());
-        values.put(com.evontech.passwordgridapp.custom.data.sqlite.DbContract.UsedWord.COL_LINE_COLOR, usedWord.getAnswerLine().color);
-
-        values.put(com.evontech.passwordgridapp.custom.data.sqlite.DbContract.UsedWord.COL_GRID_ID, usedWord.getId());
-        values.put(com.evontech.passwordgridapp.custom.data.sqlite.DbContract.UsedWord.COL_WORD_STRING, usedWord.getString());
-        long insertedId = db.insert(com.evontech.passwordgridapp.custom.data.sqlite.DbContract.UsedWord.TABLE_NAME, "null", values);
+        values.put(DbContract.UsedWord.COL_USER_ID, userId);
+        values.put(DbContract.UsedWord.COL_ANSWER_LINE_DATA, usedWord.getAnswerLine().toString());
+        values.put(DbContract.UsedWord.COL_LINE_COLOR, usedWord.getAnswerLine().color);
+        values.put(DbContract.UsedWord.COL_GRID_ID, usedWord.getId());
+        values.put(DbContract.UsedWord.COL_WORD_STRING, usedWord.getString());
+        long insertedId = db.insert(DbContract.UsedWord.TABLE_NAME, "null", values);
         usedWord.setId((int) insertedId);
         Log.d("markWordAsAnswered updateStatus ", ""+insertedId);
+        Log.d("Saving userId ", userId+"");
 
         /*String where = com.evontech.passwordgridapp.custom.data.sqlite.DbContract.UsedWord._ID + "=?";
         String whereArgs[] = {String.valueOf(usedWord.getId())};
@@ -382,6 +388,47 @@ public class GridDataSQLiteDataSource implements GridDataSource, AccountDataSour
 
         int updateStatus = db.update(com.evontech.passwordgridapp.custom.data.sqlite.DbContract.UsedWord.TABLE_NAME, values, where, whereArgs);
         Log.d("Line updateStatus ", ""+updateStatus);*/
+    }
+
+    private List<UsedWord> getUsedWords(int gid, int userId) {
+        SQLiteDatabase db = mHelper.getReadableDatabase();
+        String cols[] = {
+                DbContract.UsedWord._ID,
+                DbContract.UsedWord.COL_WORD_STRING,
+                DbContract.UsedWord.COL_ANSWER_LINE_DATA,
+                DbContract.UsedWord.COL_LINE_COLOR,
+                DbContract.UsedWord.COL_IS_MYSTERY,
+                DbContract.UsedWord.COL_REVEAL_COUNT
+        };
+        String sel = DbContract.UsedWord.COL_GRID_ID + "=? AND " + DbContract.UsedWord.COL_USER_ID + " = ?";
+        String selArgs[] = {String.valueOf(gid), String.valueOf(userId)};
+        Cursor c = db.query(DbContract.UsedWord.TABLE_NAME, cols, sel, selArgs, null, null, null);
+        List<UsedWord> usedWordList = new ArrayList<>();
+        if (c.moveToFirst()) {
+            while (!c.isAfterLast()) {
+                int id = c.getInt(0);
+                String str = c.getString(1);
+                String lineData = c.getString(2);
+                int col = c.getInt(3);
+                UsedWord.AnswerLine answerLine = null;
+                if (lineData != null) {
+                    answerLine = new UsedWord.AnswerLine();
+                    answerLine.fromString(lineData);
+                    answerLine.color = col;
+                }
+                UsedWord usedWord = new UsedWord();
+                usedWord.setId(id);
+                usedWord.setString(str);
+                usedWord.setAnswered(lineData != null);
+                usedWord.setAnswerLine(answerLine);
+                usedWord.setIsMystery(Boolean.valueOf(c.getString(4)));
+                usedWord.setRevealCount(c.getInt(5));
+                usedWordList.add(usedWord);
+                c.moveToNext();
+            }
+        }
+        c.close();
+        return usedWordList;
     }
 
     private String getGameDataInfoQuery(int gid) {
@@ -415,52 +462,4 @@ public class GridDataSQLiteDataSource implements GridDataSource, AccountDataSour
         return gdi;
     }
 
-    private List<UsedWord> getUsedWords(int gid) {
-        SQLiteDatabase db = mHelper.getReadableDatabase();
-
-        String cols[] = {
-                com.evontech.passwordgridapp.custom.data.sqlite.DbContract.UsedWord._ID,
-                com.evontech.passwordgridapp.custom.data.sqlite.DbContract.UsedWord.COL_WORD_STRING,
-                com.evontech.passwordgridapp.custom.data.sqlite.DbContract.UsedWord.COL_ANSWER_LINE_DATA,
-                com.evontech.passwordgridapp.custom.data.sqlite.DbContract.UsedWord.COL_LINE_COLOR,
-                com.evontech.passwordgridapp.custom.data.sqlite.DbContract.UsedWord.COL_IS_MYSTERY,
-                com.evontech.passwordgridapp.custom.data.sqlite.DbContract.UsedWord.COL_REVEAL_COUNT
-        };
-        String sel = com.evontech.passwordgridapp.custom.data.sqlite.DbContract.UsedWord.COL_GRID_ID + "=?";
-        String selArgs[] = {String.valueOf(gid)};
-
-        Cursor c = db.query(com.evontech.passwordgridapp.custom.data.sqlite.DbContract.UsedWord.TABLE_NAME, cols, sel, selArgs, null, null, null);
-
-        List<UsedWord> usedWordList = new ArrayList<>();
-        if (c.moveToFirst()) {
-            while (!c.isAfterLast()) {
-                int id = c.getInt(0);
-                String str = c.getString(1);
-                String lineData = c.getString(2);
-                int col = c.getInt(3);
-
-                UsedWord.AnswerLine answerLine = null;
-                if (lineData != null) {
-                    answerLine = new UsedWord.AnswerLine();
-                    answerLine.fromString(lineData);
-                    answerLine.color = col;
-                }
-
-                UsedWord usedWord = new UsedWord();
-                usedWord.setId(id);
-                usedWord.setString(str);
-                usedWord.setAnswered(lineData != null);
-                usedWord.setAnswerLine(answerLine);
-                usedWord.setIsMystery(Boolean.valueOf(c.getString(4)));
-                usedWord.setRevealCount(c.getInt(5));
-
-                usedWordList.add(usedWord);
-
-                c.moveToNext();
-            }
-        }
-        c.close();
-
-        return usedWordList;
-    }
 }

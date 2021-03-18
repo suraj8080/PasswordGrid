@@ -13,10 +13,10 @@ public class DbHelper extends SQLiteOpenHelper {
     private static final String DB_NAME = "data.db";
     private static final int DB_VERSION = 1;
 
-
     private static final String SQL_CREATE_TABLE_USED_WORD =
             "CREATE TABLE " + DbContract.UsedWord.TABLE_NAME + " (" +
                     DbContract.UsedWord._ID + " INTEGER PRIMARY KEY AUTOINCREMENT," +
+                    DbContract.UsedWord.COL_USER_ID + " INTEGER," +
                     DbContract.UsedWord.COL_GRID_ID + " INTEGER," +
                     DbContract.UsedWord.COL_WORD_STRING + " TEXT," +
                     DbContract.UsedWord.COL_ANSWER_LINE_DATA + " TEXT," +

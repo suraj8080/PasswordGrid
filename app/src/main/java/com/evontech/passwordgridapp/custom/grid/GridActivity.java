@@ -57,7 +57,6 @@ import com.itextpdf.kernel.pdf.PdfDocument;
 import com.itextpdf.kernel.pdf.PdfWriter;
 import com.itextpdf.layout.Document;
 import com.itextpdf.layout.element.Cell;
-import com.itextpdf.layout.element.LineSeparator;
 import com.itextpdf.layout.element.Paragraph;
 import com.itextpdf.layout.element.Tab;
 import com.itextpdf.layout.element.TabStop;
@@ -66,23 +65,12 @@ import com.itextpdf.layout.property.BorderRadius;
 import com.itextpdf.layout.property.TabAlignment;
 import com.itextpdf.layout.property.TextAlignment;
 import com.itextpdf.layout.property.UnitValue;
-
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-
 import java.io.File;
 import java.io.FileOutputStream;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.lang.reflect.Array;
-import java.net.HttpURLConnection;
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.regex.Pattern;
-
 import javax.inject.Inject;
 import butterknife.BindColor;
 import butterknife.BindView;
@@ -1509,6 +1497,7 @@ public class GridActivity extends FullscreenActivity {
                                 StringListGridGenerator.placeRandomWordAt(streakLine.getStartIndex().row, streakLine.getStartIndex().col, direction, tempArray, ""+randompwdArray[index]);
                                 mLetterAdapter.setGrid(tempArray);
                                 mViewModel.answerWord(index, ""+randompwdArray[index], STREAK_LINE_MAPPER.revMap(streakLine), true /*getPreferences().reverseMatching()*/);
+                                mViewModel.setSelectedTypedWord(mTextFromBorder.getText().toString());
                                 mViewModel.updateGridData();
                                 index++;
                             }
@@ -1577,6 +1566,7 @@ public class GridActivity extends FullscreenActivity {
                                 StringListGridGenerator.placeRandomWordAt(streakLine.getStartIndex().row, streakLine.getStartIndex().col, direction, tempArray, partPwd);
                                 mLetterAdapter.setGrid(tempArray);
                                 mViewModel.answerWord(index, partPwd, STREAK_LINE_MAPPER.revMap(streakLine), true /*getPreferences().reverseMatching()*/);
+                                mViewModel.setSelectedTypedWord(mTextFromBorder.getText().toString());
                                 mViewModel.updateGridData();
                                 index++;
                             }
@@ -1603,6 +1593,7 @@ public class GridActivity extends FullscreenActivity {
                                 streakLine.getEndIndex().row, streakLine.getEndIndex().col, mLetterAdapter.getGrid());
                         mViewModel.answerWord(index, word, STREAK_LINE_MAPPER.revMap(streakLine), true /*getPreferences().reverseMatching()*/);
                     }
+                    mViewModel.setSelectedTypedWord(mTextFromBorder.getText().toString());
                     mViewModel.updateGridData();
                 }
             }

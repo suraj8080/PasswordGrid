@@ -118,7 +118,7 @@ public class GridViewModel extends ViewModel {
         if (!(mCurrentState instanceof Generating)) {
             setGridState(new Loading(gid));
 
-            mGridDataSource.getGridData(gid, gridRound -> {
+            mGridDataSource.getGridData(gid, userAccount.getUserId(), gridRound -> {
                 mCurrentGridData = new GridDataMapper().map(gridRound);
                 Log.d("SelectionCriteria ", mCurrentGridData.getmSelectionCriteria());
                 Log.d("ChosenOption ", mCurrentGridData.getmChosenOption());
@@ -186,7 +186,7 @@ public class GridViewModel extends ViewModel {
                 gr.setmSelectionCriteria(getSelectionCriteria());
                 gr.setmChosenOption(chosenOption);
                 gr.setmSelectedTypedWord(selectedTypedWord);
-                long gid = mGridDataSource.saveGridData(new GridDataMapper().revMap(gr));
+                long gid = mGridDataSource.saveGridData(new GridDataMapper().revMap(gr), userAccount.getUserId());
                 mCurrentLeftData = mGridDataCreator.newGridData(leftWordList, rowCount, 1, "Left Borders");
                 mCurrentTopData = mGridDataCreator.newGridData(topWordList, 1, colCount, "Top Borders");
                 gr.setId((int) gid);
@@ -207,7 +207,7 @@ public class GridViewModel extends ViewModel {
         mCurrentGridData.setmChosenOption(chosenOption);
         //mCurrentGridData.setmGridPasswordLength(passwordLength);
         if(!TextUtils.isEmpty(selectedTypedWord)) mCurrentGridData.setmSelectedTypedWord(selectedTypedWord);
-        mGridDataSource.saveGridData(new GridDataMapper().revMap(mCurrentGridData));
+        mGridDataSource.saveGridData(new GridDataMapper().revMap(mCurrentGridData), userAccount.getUserId());
     }
 
     private String getSelectionCriteria(){
@@ -220,7 +220,7 @@ public class GridViewModel extends ViewModel {
     }
 
     public void removeAllStreakLines(){
-        mGridDataSource.deleteAllLines(mCurrentGridData.getId());
+        mGridDataSource.deleteAllLines(mCurrentGridData.getId(), userAccount.getUserId());
     }
 
     public void answerWord(int index, String answerStr, UsedWord.AnswerLine answerLine, boolean reverseMatching) {   //helpful while saving password after selection
@@ -230,7 +230,7 @@ public class GridViewModel extends ViewModel {
         //boolean correct = correctWord != null;
         //mOnAnswerResult.setValue(new AnswerResult(correct, correctWord != null ? correctWord.getId() : -1));
         //if (correct) {
-            mGridDataSource.markWordAsAnswered(index, correctWord);
+            mGridDataSource.markWordAsAnswered(index, userAccount.getUserId(), correctWord);
            /* if (mCurrentGridData.isFinished()) {
                 setGridState(new Finished(mCurrentGridData));
             }*/
