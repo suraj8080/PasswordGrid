@@ -29,6 +29,7 @@
             android:screenOrientation="portrait" />
         <activity
             android:name=".custom.accounts.AccountsActivity"
+            android:windowSoftInputMode="stateAlwaysHidden"
             android:screenOrientation="portrait"/>
         <activity
             android:name=".custom.AppUser.Login"
