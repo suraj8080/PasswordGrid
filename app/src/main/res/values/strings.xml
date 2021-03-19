@@ -59,6 +59,10 @@
     <string name="grayscale">Grayscale</string>
 
     <string-array name="account_name_array">
+        <item>Gmail</item>
+        <item>Yahoo</item>
+        <item>Skype</item>
+        <item>Outlook</item>
         <item>Facebook</item>
         <item>Amazon</item>
         <item>Flipcart</item>
@@ -70,6 +74,10 @@
     </string-array>
 
     <string-array name="account_url_array">
+        <item>www.google.gmail.com</item>
+        <item>www.yahoo.com</item>
+        <item>www.skype.com</item>
+        <item>www.outlook.com</item>
         <item>www.facebook.com</item>
         <item>www.amazon.in</item>
         <item>www.flipcart.com</item>

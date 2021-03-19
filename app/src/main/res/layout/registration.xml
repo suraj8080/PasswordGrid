@@ -60,7 +60,7 @@
                 android:id="@+id/input_mobile"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:inputType="textCapWords"
+                android:inputType="number"
                 android:textColor="@color/black"
                 android:hint="Mobile" />
         </com.google.android.material.textfield.TextInputLayout>
