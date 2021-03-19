@@ -217,7 +217,7 @@ public class AccountsActivity extends FullscreenActivity implements OnAccountCli
         et_account_name.addTextChangedListener(new TextWatcher() {
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
-                if(TextUtils.isEmpty(s)) et_account_url.setText("");
+                if(TextUtils.isEmpty(s) || indexOf(accounts_name_array, String.valueOf(s))==-1) et_account_url.setText("");
             }
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) { }
