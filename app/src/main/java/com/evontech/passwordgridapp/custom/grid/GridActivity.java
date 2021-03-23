@@ -993,16 +993,21 @@ public class GridActivity extends FullscreenActivity {
     private void generateDefault_WordFromBorder(){
         isDefaultPasswordGenerated = false;
         String defaultPwd ="";
-        if(getPreferences().getPasswordLength()==14) defaultPwd = "SECUREPASSWORD";
-        else defaultPwd = Util.getRandomWords(getPreferences().getPasswordLength());
+
+        int passwordLength = 0;
+        if(getPreferences().isPasswordSelected()) passwordLength = getPreferences().getPasswordLength();
+        else passwordLength = getPreferences().getPinLength();
+
+        if(passwordLength==14) defaultPwd = "SECUREPASSWORD";
+        else defaultPwd = Util.getRandomWords(passwordLength);
         String applyWord = getPreferences().getApplyWordPassword().replaceAll("\\s","")/*.toUpperCase()*/;
         if(!TextUtils.isEmpty(applyWord)){
-            if(getPreferences().getPasswordLength()<=applyWord.length())
-            defaultPwd = applyWord.substring(0,getPreferences().getPasswordLength());
+            if(passwordLength<=applyWord.length())
+            defaultPwd = applyWord.substring(0,passwordLength);
             else {
                 StringBuilder sbPwd = new StringBuilder();
-                int iteration = getPreferences().getPasswordLength()/applyWord.length();
-                int reminder = getPreferences().getPasswordLength()%applyWord.length();
+                int iteration = passwordLength/applyWord.length();
+                int reminder = passwordLength%applyWord.length();
                 Log.d("iteration "+iteration, " reminder "+reminder);
                 for (int i=0;i<iteration;i++)
                     sbPwd = sbPwd.append(applyWord);
@@ -1035,6 +1040,10 @@ public class GridActivity extends FullscreenActivity {
         }
         isDefaultPasswordGenerated = true;
         mViewModel.setSelectedTypedWord(defaultPwd);
+
+        List<String> pwdList = new ArrayList<>();
+        pwdList.add(mTextSelection.getText().toString());
+        checkPasswordCriteria(pwdList);
     }
 
     private void generatePasswordByTypeManually(char c){
@@ -1061,9 +1070,12 @@ public class GridActivity extends FullscreenActivity {
     private void generateDefault_GridPattern(){
         char [][] mainboard = mLetterAdapter.getGrid();
         char [][] mPattern;
+        int passwordLength = 0;
+        if(getPreferences().isPasswordSelected()) passwordLength = getPreferences().getPasswordLength();
+        else passwordLength = getPreferences().getPinLength();
         int randomPattern = 6; //Util.getRandomIntRange(1,5);
-        if(getPreferences().getPasswordLength()<=4) randomPattern = 5;
-        else if(getPreferences().getPasswordLength()<14) randomPattern = 4;
+        if(passwordLength<=4) randomPattern = 5;
+        else if(passwordLength<14) randomPattern = 4;
 
         Log.d("randomPattern ", ""+randomPattern);
         switch (randomPattern) {
@@ -1117,8 +1129,9 @@ public class GridActivity extends FullscreenActivity {
         }
         //Log.d("row ", (mPattern.length)+"");
         //Log.d("col ",  (mPattern[0].length)+"");
-        if(getPreferences().getPasswordLength()>4 && getPreferences().getPasswordLength()<14){
-            int diff = 14 - getPreferences().getPasswordLength();
+
+        if(passwordLength >4 && passwordLength<14){
+            int diff = 14 - passwordLength;
             for(int i=mPattern.length-1;i>=0;i--){
                 for (int j=0;j<mPattern[i].length;j++) {
                     if(diff>0 && mPattern[i][j]!='0'){
@@ -1127,8 +1140,8 @@ public class GridActivity extends FullscreenActivity {
                     }
                 }
             }
-        }else if(getPreferences().getPasswordLength()>14){
-            int diff = getPreferences().getPasswordLength();
+        }else if(passwordLength>14){
+            int diff = passwordLength;
             int tempRow = diff/rowCount;
             if(diff%rowCount>0) tempRow++;
             mPattern = new char[tempRow+5][colCount-5];
@@ -1174,11 +1187,17 @@ public class GridActivity extends FullscreenActivity {
             }
         }
         scrollByPosition(randomStartRow);
+
+        List<String> pwdList = new ArrayList<>();
+        pwdList.add(mTextSelection.getText().toString());
+        checkPasswordCriteria(pwdList);
     }
 
     private void generateDefault_DragManual_StartEndGrid(){
         int randomDirection = Util.getRandomIntRange(1,3);
-        int passwordLength = getPreferences().getPasswordLength()-1;
+        int passwordLength = 0;
+        if(getPreferences().isPasswordSelected()) passwordLength =getPreferences().getPasswordLength()-1;
+        else passwordLength = getPreferences().getPinLength()-1;
         Log.d("randomDirection ", ""+randomDirection);
         int randomForwordReverse;
         int randomRowIndex;
@@ -1218,7 +1237,9 @@ public class GridActivity extends FullscreenActivity {
         String direction;
         if(TextUtils.isEmpty(mDirection)) direction = getPreferences().getSelectedDirection();
         else direction = mDirection;
-        int passwordLength = getPreferences().getPasswordLength()-1;
+        int passwordLength = 0;
+        if(getPreferences().isPasswordSelected()) passwordLength = getPreferences().getPasswordLength()-1;
+        else passwordLength = getPreferences().getPinLength()-1;
         if(direction.equals("EAST")){
             drawUsingDirection(startRow, startCol, startRow, startCol+passwordLength);
             if(!isDefaultPasswordGenerated)
@@ -1263,6 +1284,10 @@ public class GridActivity extends FullscreenActivity {
     }
 
     private void drawUsingDirection(int startRow, int startCol, int endRow, int endCol){
+        int passwordLength = 0;
+        if(getPreferences().isPasswordSelected()) passwordLength = getPreferences().getPasswordLength();
+        else passwordLength = getPreferences().getPinLength();
+
         int newLineStartRow = startRow, newLineStartCol = startCol, newLineEndRow = endRow, newLineEndCol = endCol;
         StreakView.StreakLine checkLine = new StreakView.StreakLine();
         checkLine.getStartIndex().set(startRow,startCol);
@@ -1309,7 +1334,7 @@ public class GridActivity extends FullscreenActivity {
                 lastPartPwd.add(Util.getStringInRange(mLetterAdapter, newStreakLine.getStartIndex(), newStreakLine.getEndIndex()));
             mLetterBoard.addStreakLine(newStreakLine);
             if(direction == Direction.EAST && endCol>=colCount){
-                int leftToTraverse = getPreferences().getPasswordLength() -(colCount-newLineStartCol);
+                int leftToTraverse = passwordLength -(colCount-newLineStartCol);
                 int iteration = leftToTraverse / colCount;
                 int reminder = leftToTraverse % colCount;
                 if(reminder>0) iteration = iteration + 1;
@@ -1331,7 +1356,7 @@ public class GridActivity extends FullscreenActivity {
                     }
 
             }else if(direction == Direction.WEST && endCol<0){
-                int leftToTraverse = getPreferences().getPasswordLength() - (newLineStartCol+1);
+                int leftToTraverse = passwordLength - (newLineStartCol+1);
                 int iteration = leftToTraverse / colCount;
                 int reminder = leftToTraverse % colCount;
                 if(reminder>0) iteration = iteration + 1;
@@ -1351,7 +1376,7 @@ public class GridActivity extends FullscreenActivity {
                         lastPartPwd.add(Util.getStringInRange(mLetterAdapter, newStreakLine1.getStartIndex(), newStreakLine1.getEndIndex()));
                 }
             }else if(direction == Direction.SOUTH && endRow>=rowCount){
-                int leftToTraverse = getPreferences().getPasswordLength() - (rowCount-newLineStartRow);
+                int leftToTraverse = passwordLength - (rowCount-newLineStartRow);
                 int iteration = leftToTraverse / rowCount;
                 int reminder = leftToTraverse % rowCount;
                 if(reminder>0) iteration = iteration + 1;
@@ -1373,7 +1398,7 @@ public class GridActivity extends FullscreenActivity {
                         lastPartPwd.add(Util.getStringInRange(mLetterAdapter, newStreakLine1.getStartIndex(), newStreakLine1.getEndIndex()));
                 }
             }else if(direction == Direction.NORTH && endRow<0){
-                int leftToTraverse = getPreferences().getPasswordLength() - (newLineStartRow+1);
+                int leftToTraverse = passwordLength - (newLineStartRow+1);
                 int iteration = leftToTraverse / rowCount;
                 int reminder = leftToTraverse % rowCount;
                 if(reminder>0) iteration = iteration + 1;
@@ -1395,7 +1420,7 @@ public class GridActivity extends FullscreenActivity {
                         lastPartPwd.add(Util.getStringInRange(mLetterAdapter, newStreakLine1.getStartIndex(), newStreakLine1.getEndIndex()));
                 }
             }else if(direction == Direction.SOUTH_EAST){
-                int leftToTraverse = getPreferences().getPasswordLength() - (newLineEndRow-newLineStartRow) - 1;
+                int leftToTraverse = passwordLength - (newLineEndRow-newLineStartRow) - 1;
                 int noOfCharInIteration;
                 while (newLineStartRow > 0 && newLineStartCol >0) {
                     newLineStartRow--;
@@ -1426,7 +1451,7 @@ public class GridActivity extends FullscreenActivity {
                         lastPartPwd.add(Util.getStringInRange(mLetterAdapter, newStreakLine1.getStartIndex(), newStreakLine1.getEndIndex()));
                 }
             }else if(direction == Direction.NORTH_WEST){
-                int leftToTraverse = getPreferences().getPasswordLength() - (newLineStartRow - newLineEndRow + 1);
+                int leftToTraverse = passwordLength - (newLineStartRow - newLineEndRow + 1);
                 int noOfCharInIteration;
                 while (newLineStartRow <rowCount-1 && newLineStartCol <colCount-1) {
                     newLineStartRow++;
@@ -1475,8 +1500,11 @@ public class GridActivity extends FullscreenActivity {
 
         Log.d("password ", password);
         String passwordAlert = GridDataCreator.checkPasswordCriteria(password);
+        int passwordLength = 0;
+        if(getPreferences().isPasswordSelected()) passwordLength = getPreferences().getPasswordLength();
+        else passwordLength = getPreferences().getPinLength();
         if(!passwordAlert.equals("true")) {
-            if(password.length()>=getPreferences().getPasswordLength()){ //replace it automatically when password select actual length but not get desired password
+            if(password.length()>=passwordLength){ //replace it automatically when password select actual length but not get desired password
                 if(streakLineList!=null) {
                     int randomPwdLengh =0;
                     if(lastPartPwd!=null) {
@@ -1577,7 +1605,7 @@ public class GridActivity extends FullscreenActivity {
                 }
             }else Toast.makeText(GridActivity.this, "Alert: " + passwordAlert, Toast.LENGTH_SHORT).show();
         }
-        else if(password.length()< getPreferences().getPasswordLength())
+        else if(password.length()< passwordLength)
             Toast.makeText(GridActivity.this, "Alert: generated password length is less than password criteria",Toast.LENGTH_SHORT).show();
         else {//if(passwordAlert.equals("true") && mTextSelection.getText().toString().length()>= getPreferences().getPasswordLength())
             Toast.makeText(GridActivity.this, "Your grid will stored in secure wallet ", Toast.LENGTH_SHORT).show();
@@ -1741,6 +1769,7 @@ public class GridActivity extends FullscreenActivity {
             }
         }
 
+        passwordStrengthIndicator(mTextSelection.getText().toString());
         doneLoadingContent();
     }
 
@@ -1951,29 +1980,55 @@ public class GridActivity extends FullscreenActivity {
         int usedCharacters = getUsedSymbolLength();
         int passwordCharacters = passwordStrength(password);
         double enTropyBit = calculateEntropyBits(password.length(), usedCharacters);
+
         Log.d("enTropyBit ", String.valueOf(enTropyBit));
         if(enTropyBit>=128 && passwordCharacters>=75) { // strong pwd
         }else if(enTropyBit>=75 && passwordCharacters>=50){ // medium pwd
         }else { // weak pwd
         }
-        if(usedCharacters>=94 && password.length()>=14 && passwordCharacters>=100 ||
-                usedCharacters>=62 && password.length()>=20 && passwordCharacters>=75 ||
-                usedCharacters>=52 && password.length()>=26 && passwordCharacters>=50 ||
-                usedCharacters>=26 && password.length()>=50 && passwordCharacters>=25) { //Strong
-            indicatorGreen.setBackground(ContextCompat.getDrawable(this,R.drawable.green_indicator));
-            indicatorAmber.setBackground(ContextCompat.getDrawable(this,R.drawable.default_indicator));
-            indicatorRed.setBackground(ContextCompat.getDrawable(this,R.drawable.default_indicator));
-        } else if(usedCharacters>=94 && password.length()>=8 && passwordCharacters>=75 ||
-                usedCharacters>=62 && password.length()>=10 && passwordCharacters>=75 ||
-                usedCharacters>=52 && password.length()>=14 && passwordCharacters>=50 ||
-                usedCharacters>=26 && password.length()>=26 && passwordCharacters>=26) { //Semi Strong
-            indicatorAmber.setBackground(ContextCompat.getDrawable(this,R.drawable.amber_indicator));
-            indicatorGreen.setBackground(ContextCompat.getDrawable(this,R.drawable.default_indicator));
-            indicatorRed.setBackground(ContextCompat.getDrawable(this,R.drawable.default_indicator));
-        } else { //Weak   //if(usedCharacters< 52 && password.length()<8 && passwordCharacters<26) return 1;
-            indicatorRed.setBackground(ContextCompat.getDrawable(this,R.drawable.red_indicator));
-            indicatorGreen.setBackground(ContextCompat.getDrawable(this,R.drawable.default_indicator));
-            indicatorAmber.setBackground(ContextCompat.getDrawable(this,R.drawable.default_indicator));
+
+        if(getPreferences().isPasswordSelected()) { // password mode
+            if (usedCharacters >= 94 && password.length() >= 14 && passwordCharacters >= 100 ||
+                    usedCharacters >= 62 && password.length() >= 20 && passwordCharacters >= 75 ||
+                    usedCharacters >= 52 && password.length() >= 26 && passwordCharacters >= 50 ||
+                    usedCharacters >= 26 && password.length() >= 50 && passwordCharacters >= 25) { //Strong
+                indicatorGreen.setBackground(ContextCompat.getDrawable(this, R.drawable.green_indicator));
+                indicatorAmber.setBackground(ContextCompat.getDrawable(this, R.drawable.default_indicator));
+                indicatorRed.setBackground(ContextCompat.getDrawable(this, R.drawable.default_indicator));
+            } else if (usedCharacters >= 94 && password.length() >= 8 && passwordCharacters >= 75 ||
+                    usedCharacters >= 62 && password.length() >= 10 && passwordCharacters >= 75 ||
+                    usedCharacters >= 52 && password.length() >= 14 && passwordCharacters >= 50 ||
+                    usedCharacters >= 26 && password.length() >= 26 && passwordCharacters >= 26) { //Semi Strong
+                indicatorAmber.setBackground(ContextCompat.getDrawable(this, R.drawable.amber_indicator));
+                indicatorGreen.setBackground(ContextCompat.getDrawable(this, R.drawable.default_indicator));
+                indicatorRed.setBackground(ContextCompat.getDrawable(this, R.drawable.default_indicator));
+            } else { //Weak   //if(usedCharacters< 52 && password.length()<8 && passwordCharacters<26) return 1;
+                indicatorRed.setBackground(ContextCompat.getDrawable(this, R.drawable.red_indicator));
+                indicatorGreen.setBackground(ContextCompat.getDrawable(this, R.drawable.default_indicator));
+                indicatorAmber.setBackground(ContextCompat.getDrawable(this, R.drawable.default_indicator));
+            }
+        }else { //pin mode
+            if (usedCharacters >= 94 && password.length() >= 6 && passwordCharacters >= 100 ||
+                    usedCharacters >= 62 && password.length() >= 6 && passwordCharacters >= 75 ||
+                    usedCharacters >= 52 && password.length() >= 6 && passwordCharacters >= 50 ||
+                    usedCharacters >= 26 && password.length() >= 4 && passwordCharacters >= 25 ||
+                    usedCharacters >= 10 && password.length() >= 4 && passwordCharacters >= 25) { //Strong
+                indicatorGreen.setBackground(ContextCompat.getDrawable(this, R.drawable.green_indicator));
+                indicatorAmber.setBackground(ContextCompat.getDrawable(this, R.drawable.default_indicator));
+                indicatorRed.setBackground(ContextCompat.getDrawable(this, R.drawable.default_indicator));
+            } else if (usedCharacters >= 94 && password.length() >= 4 && passwordCharacters >= 75 ||
+                    usedCharacters >= 62 && password.length() >= 4 && passwordCharacters >= 75 ||
+                    usedCharacters >= 52 && password.length() >= 4 && passwordCharacters >= 50 ||
+                    usedCharacters >= 26 && password.length() >= 4 && passwordCharacters >= 26 ||
+                    usedCharacters >= 10 && password.length() >= 4 && passwordCharacters >= 25) { //Semi Strong
+                indicatorAmber.setBackground(ContextCompat.getDrawable(this, R.drawable.amber_indicator));
+                indicatorGreen.setBackground(ContextCompat.getDrawable(this, R.drawable.default_indicator));
+                indicatorRed.setBackground(ContextCompat.getDrawable(this, R.drawable.default_indicator));
+            } else { //Weak   //if(usedCharacters< 52 && password.length()<8 && passwordCharacters<26) return 1;
+                indicatorRed.setBackground(ContextCompat.getDrawable(this, R.drawable.red_indicator));
+                indicatorGreen.setBackground(ContextCompat.getDrawable(this, R.drawable.default_indicator));
+                indicatorAmber.setBackground(ContextCompat.getDrawable(this, R.drawable.default_indicator));
+            }
         }
         if(getPreferences().showWordFromBorder() && getPreferences().getApplyWordStatus() ||
                 getPreferences().selectedTypeManually() && getPreferences().getApplyWordStatus()){

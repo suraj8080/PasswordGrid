@@ -33,6 +33,7 @@ public class Preferences {
     private static String KEY_ROW;
     private static String KEY_COL;
     private static String KEY_PASSWORD_LENGTH;
+    private static String KEY_PIN_LENGTH;
     private static String KEY_APPLY_WORD_PASSWORD;
     private static String KEY_APPLY_WORD_SELECTION;
     private static String KEY_IS_USER_LOGGEDIN;
@@ -73,6 +74,7 @@ public class Preferences {
         KEY_ROW = context.getString(R.string.pref_row);
         KEY_COL = context.getString(R.string.pref_col);
         KEY_PASSWORD_LENGTH = context.getString(R.string.pref_password_length);
+        KEY_PIN_LENGTH = context.getString(R.string.pref_pin_length);
     }
 
 
@@ -307,6 +309,16 @@ public class Preferences {
     public void setPasswordLength(int length) {
         mPreferences.edit()
                 .putInt(KEY_PASSWORD_LENGTH, length)
+                .apply();
+    }
+
+    public int getPinLength(){
+        return mPreferences.getInt(KEY_PIN_LENGTH, 0);
+    }
+
+    public void setPinLength(int length){
+        mPreferences.edit()
+                .putInt(KEY_PIN_LENGTH, length)
                 .apply();
     }
 

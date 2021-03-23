@@ -16,6 +16,7 @@ import com.evontech.passwordgridapp.R;
 import com.evontech.passwordgridapp.custom.FullscreenActivity;
 import com.evontech.passwordgridapp.custom.PasswordGridApp;
 import com.evontech.passwordgridapp.custom.accounts.AccountsActivity;
+import com.evontech.passwordgridapp.custom.grid.GridCriteriaActivity;
 import com.evontech.passwordgridapp.custom.models.AppUser;
 import com.evontech.passwordgridapp.custom.settings.ViewModelFactory;
 
@@ -110,13 +111,15 @@ public class Registration extends FullscreenActivity {
 
     public void onSignupSuccess(AppUser user) {
         _signupButton.setEnabled(true);
-        Toast.makeText(getBaseContext(), "Registration Sucessful", Toast.LENGTH_LONG).show();
-        startActivity(new Intent(Registration.this, AccountsActivity.class));
         getPreferences().setLoginStatus(true);
         getPreferences().setName(user.getName());
         getPreferences().setMobile(user.getMobile());
         getPreferences().setUserId(String.valueOf(user.getId()));
         getPreferences().setUserName(user.getUserName());
+        Toast.makeText(getBaseContext(), "Registration Sucessful", Toast.LENGTH_LONG).show();
+        Intent intent = new Intent(Registration.this, GridCriteriaActivity.class);
+        intent.putExtra("action", "onRegistration");
+        startActivity(intent);
         finish();
         // set user logged in here
     }

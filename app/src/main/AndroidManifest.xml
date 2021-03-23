@@ -19,7 +19,7 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.PasswordGridApp">
         <activity android:name=".custom.grid.GridCriteriaActivity"
-            android:screenOrientation="landscape"/>
+            android:screenOrientation="locked"/>
         <activity android:name=".custom.grid.MainActivity" />
         <activity
             android:name=".custom.grid.GridActivity"

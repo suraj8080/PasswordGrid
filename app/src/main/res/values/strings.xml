@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">PasswordGrid</string>
+    <string name="app_name">Grid-Lock</string>
 
     <string name="new_grid_loading_text">Generating grid data…</string>
     <string name="summary_about">Passwrod grid app, where the user get random generated password using dynamic grid of letters in horizontal, vertical and diagonal direction.</string>
@@ -30,6 +30,7 @@
     <string name="pref_row">pref_row</string>
     <string name="pref_col">col</string>
     <string name="pref_password_length">passwordLength</string>
+    <string name="pref_pin_length">pinLength</string>
 
     <string name="pref_showGridLine">showGridLine</string>
     <string name="pref_snapToGrid">snapToGrid</string>

@@ -7,6 +7,7 @@ import androidx.appcompat.widget.AppCompatButton;
 import androidx.appcompat.widget.AppCompatCheckBox;
 import androidx.appcompat.widget.AppCompatEditText;
 import android.content.Intent;
+import android.content.pm.ActivityInfo;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextUtils;
@@ -25,6 +26,7 @@ import android.widget.Toast;
 import com.evontech.passwordgridapp.R;
 import com.evontech.passwordgridapp.custom.FullscreenActivity;
 import com.evontech.passwordgridapp.custom.PasswordGridApp;
+import com.evontech.passwordgridapp.custom.accounts.AccountsActivity;
 import com.evontech.passwordgridapp.custom.common.Util;
 import com.evontech.passwordgridapp.custom.settings.Preferences;
 import com.google.android.material.textfield.TextInputEditText;
@@ -84,6 +86,12 @@ public class GridCriteriaActivity extends AppCompatActivity {
         setContentView(R.layout.activity_grid_criteria);
         ButterKnife.bind(this);
         ((PasswordGridApp) getApplication()).getAppComponent().inject(this);
+
+        if(getIntent()!=null && getIntent().hasExtra("action") && getIntent().getStringExtra("action").equals("onRegistration")) {
+            setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+            btnGenerateGrid.setText("Next");
+        }
+        else setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
     }
 
     private void initCriteria(){
@@ -137,13 +145,15 @@ public class GridCriteriaActivity extends AppCompatActivity {
                     int pLength = Integer.parseInt(String.valueOf(s));
                     if(pLength<8 && mPreferences.isPasswordSelected()) pLength = 8;
                     else if(pLength<4 && mPreferences.isPinSelected()) pLength = 4;
+                    if(mPreferences.isPasswordSelected())
                     mPreferences.setPasswordLength(pLength);
+                    else mPreferences.setPinLength(pLength);
                     if(pLength>26) pLength = 26;
                     //mPreferences.setPasswordLength(pLength);
-                    if(mPreferences.isPasswordSelected()) {
+                    //if(mPreferences.isPasswordSelected()) {
                         mPreferences.setGridCol(pLength);
                         mPreferences.setGridRow(pLength);
-                    }
+                    //}
                     Log.d("Editable ", String.valueOf(pLength));
                 }else {
                     if(mPreferences.isPasswordSelected())
@@ -154,12 +164,21 @@ public class GridCriteriaActivity extends AppCompatActivity {
             }
         });
 
-        if(mPreferences.getPasswordLength()>0)
+        Log.d("isPasswordSelected ", ""+mPreferences.isPasswordSelected());
+        Log.d("isPinSelected ", ""+mPreferences.isPinSelected());
+
+        Log.d("pinLength ", String.valueOf(mPreferences.getPinLength()));
+        if(mPreferences.isPasswordSelected() && mPreferences.getPasswordLength()>0)
             etPassword.setText(String.valueOf(mPreferences.getPasswordLength()));
+        else if(mPreferences.isPinSelected() && mPreferences.getPinLength()>0)
+            etPassword.setText(String.valueOf(mPreferences.getPinLength()));
         btnGenerateGrid.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if(isSettingRequest){
+                if(getIntent()!=null && getIntent().hasExtra("action") && getIntent().getStringExtra("action").equals("onRegistration")) {
+                    startActivity(new Intent(GridCriteriaActivity.this, AccountsActivity.class));
+                    finish();
+                } else if(isSettingRequest){
                     backPressed();
                 }else {
                     if (mPreferences.isPasswordSelected() && mPreferences.getPasswordLength() < 8) {
@@ -498,6 +517,7 @@ public class GridCriteriaActivity extends AppCompatActivity {
                 if(mPreferences.showNumberCharacters()) beforeMatcherString.append("showNumberCharacters");
                 if(mPreferences.showSpecialCharacters()) beforeMatcherString.append("showSpecialCharacters");
                 beforeMatcherString.append(mPreferences.getPasswordLength());
+                beforeMatcherString.append(mPreferences.getPinLength());
                 if(mPreferences.selectedDragManually()) beforeMatcherString.append("selectedDragManually");
                 if(mPreferences.selectedStartEndGrid()) beforeMatcherString.append("selectedStartEndGrid");
                 if(mPreferences.showgridDirection()) beforeMatcherString.append("showgridDirection");
@@ -525,10 +545,12 @@ public class GridCriteriaActivity extends AppCompatActivity {
         checkBox_uppercaese.setChecked(false);
         checkBox_lowercaese.setChecked(false);
         checkBox_special.setChecked(false);
-        etPassword.setText("6");
-        mPreferences.setGridCol(6);
-        mPreferences.setGridRow(6);
-        mPreferences.setPasswordLength(6);
+        int pinLength = mPreferences.getPinLength();
+        if(pinLength<=0) pinLength = 6;
+        etPassword.setText(String.valueOf(pinLength));
+        mPreferences.setGridCol(pinLength);
+        mPreferences.setGridRow(pinLength);
+        mPreferences.setPinLength(pinLength);
     }
 
     private void passwordModeEnabled(){
@@ -556,6 +578,7 @@ public class GridCriteriaActivity extends AppCompatActivity {
         if(mPreferences.showNumberCharacters()) afterMatcherString.append("showNumberCharacters");
         if(mPreferences.showSpecialCharacters()) afterMatcherString.append("showSpecialCharacters");
         afterMatcherString.append(mPreferences.getPasswordLength());
+        afterMatcherString.append(mPreferences.getPinLength());
         if(mPreferences.selectedDragManually()) afterMatcherString.append("selectedDragManually");
         if(mPreferences.selectedStartEndGrid()) afterMatcherString.append("selectedStartEndGrid");
         if(mPreferences.showgridDirection()) afterMatcherString.append("showgridDirection");

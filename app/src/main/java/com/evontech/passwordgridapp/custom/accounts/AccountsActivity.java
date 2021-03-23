@@ -317,7 +317,7 @@ public class AccountsActivity extends FullscreenActivity implements OnAccountCli
     private void setDefaultCriteria(){
         //set default selection method here.
 
-        //if(!mPreferences.userSelectedDirection()) { //default direction
+        if(!mPreferences.userSelectedDirection()) { //default direction
             int randomdirections = Util.getRandomIntRange(1,6);
             switch (randomdirections){
                 case 1:
@@ -338,9 +338,9 @@ public class AccountsActivity extends FullscreenActivity implements OnAccountCli
                 case 6:
                     mPreferences.selectDirection("NORTH_WEST");
                     break;
-           // }
+            }
         }
-        //if(!mPreferences.userSelectedChosenOption()){
+        if(!mPreferences.userSelectedChosenOption()){
             int randomSelectionOption = Util.getRandomIntRange(1,6);
             Log.d("randomSelectionOption ", ""+randomSelectionOption);
             switch (randomSelectionOption){
@@ -398,7 +398,7 @@ public class AccountsActivity extends FullscreenActivity implements OnAccountCli
                     mPreferences.setDragManually(false);
                     mPreferences.setStartEndGrid(false);
                     break;
-            //}
+            }
         }
         if(!mPreferences.showSpecialCharacters() && !mPreferences.showUpperCharacters() && !mPreferences.showLowerCharacters() && !mPreferences.showNumberCharacters() ){
             mPreferences.setSpecialCharacters(true);
@@ -406,11 +406,15 @@ public class AccountsActivity extends FullscreenActivity implements OnAccountCli
             mPreferences.setLowerCharacters(true);
             mPreferences.setNumberCharacters(true);
         }
-        //if(mPreferences.getPasswordLength()<=0){
+        if(mPreferences.isPasswordSelected() && mPreferences.getPasswordLength()<=0){
             mPreferences.setPasswordLength(14);
             mPreferences.setGridRow(14);
             mPreferences.setGridCol(14);
-        //}
+        }else if(mPreferences.isPinSelected() && mPreferences.getPinLength()<=0){
+            mPreferences.setPinLength(6);
+            mPreferences.setGridRow(6);
+            mPreferences.setGridCol(6);
+        }
         if(mPreferences.showWordFromBorder() ||  mPreferences.selectedTypeManually()) mPreferences.setGridCol(26);
     }
     private void startGrid(UserAccount userAccount){
