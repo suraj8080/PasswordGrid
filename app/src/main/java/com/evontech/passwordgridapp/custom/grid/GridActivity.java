@@ -8,7 +8,6 @@ import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
-import android.graphics.Paint;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.AsyncTask;
@@ -65,6 +64,7 @@ import com.itextpdf.layout.property.BorderRadius;
 import com.itextpdf.layout.property.TabAlignment;
 import com.itextpdf.layout.property.TextAlignment;
 import com.itextpdf.layout.property.UnitValue;
+
 import java.io.File;
 import java.io.FileOutputStream;
 import java.util.ArrayList;
@@ -72,7 +72,9 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.regex.Pattern;
+
 import javax.inject.Inject;
+
 import butterknife.BindColor;
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -361,45 +363,6 @@ public class GridActivity extends FullscreenActivity {
                          mLetterBoard.addStreakLine(newStreakLine);*/
                     }
 
-                    /*
-
-
-                }
-                else {
-                    mLetterBoardTop.removeAllStreakLine();
-                    topBorderEndRow = 0;
-                    topBorderEndtCol = 0;
-                }
-            }
-        });
-
-        mLetterBoardLeft.setOnLetterSelectionListener(new LetterBoard.OnLetterSelectionListener() {
-            @Override
-            public void onSelectionBegin(StreakView.StreakLine streakLine, String str) {
-                leftBorderStartRow = streakLine.getStartIndex().row;
-                leftBorderStartCol = streakLine.getStartIndex().col;
-                isSingleCellSelected = false;
-                Log.d("GridActivity leftBorder ", "start row: "+leftBorderStartRow +" start col: "+leftBorderStartCol);
-            }
-            @Override
-            public void onSelectionDrag(StreakView.StreakLine streakLine, String str) {
-
-            }
-            @Override
-            public void onSelectionEnd(StreakView.StreakLine streakLine, String str) {
-                int row = streakLine.getEndIndex().row;
-                int col = streakLine.getEndIndex().col;
-                if(row == streakLine.getStartIndex().row && col == streakLine.getStartIndex().col) { // if we want to select any rows using left borders.
-                    mLetterBoardLeft.removeAllStreakLine();
-                    /*leftBorderEndRow = row;
-                    leftBorderEndCol = col;
-                    mLetterBoardTop.removeAllStreakLine();
-                    Log.d("GridActivity leftBorder ", "end row: "+leftBorderEndRow +" end col: "+leftBorderEndCol);
-                    StreakView.StreakLine newStreakLine = new StreakView.StreakLine();
-                    newStreakLine.getStartIndex().set(leftBorderStartRow,leftBorderStartCol);
-                    newStreakLine.getEndIndex().set(row,getPreferences().getGridCol());
-                    mLetterBoard.removeAllStreakLine();
-                    mLetterBoard.addStreakLine(newStreakLine);*/
                 } else {
                     mLetterBoardLeft.removeAllStreakLine();
                     leftBorderEndRow = 0;
@@ -542,10 +505,6 @@ public class GridActivity extends FullscreenActivity {
                                 mTextSelection.setText(temp.substring(0, temp.length() - 1));
                             }*/
                         }
-                        /*
-
-                         */
-
                     } else {
                         wordFromBorder = new StringBuilder();
                         mTextSelection.setText("");
@@ -1527,131 +1486,101 @@ public class GridActivity extends FullscreenActivity {
                     if(leftToTraverse>0)
                     rejoinNext(newStreakLine,newStreakLine1, direction, leftToTraverse);
 
-                /*int leftToTraverse = passwordLength - (newLineEndRow-newLineStartRow) - 1;
-                int noOfCharInIteration;
-                while (newLineStartRow > 0 && newLineStartCol >0) {
-                    newLineStartRow--;
-                    newLineStartCol--;
-                    if (newLineStartRow == 0 || newLineStartCol ==0)
-                        break;
-                }
-                noOfCharInIteration = newLineEndRow - newLineStartRow +1;
-                    Log.d("tempStartRow " + newLineStartRow, "tempStartCol " + newLineStartCol);
-                    int iteration = leftToTraverse / noOfCharInIteration;
-                    int reminder = leftToTraverse % noOfCharInIteration;
-                    if (reminder > 0) iteration = iteration + 1;
-                    Log.d("leftToTraverse " + leftToTraverse, " iteration " + iteration + " reminder " + reminder);
-                    for (int i = 0; i < iteration; i++) {
-                        StreakView.StreakLine newStreakLine1 = new StreakView.StreakLine();
-                        newStreakLine1.setColor(selectedColor);
-                        newStreakLine1.getStartIndex().set(newLineStartRow, newLineStartCol);
-                        //newStreakLine1.getEndIndex().set((endRow - newLineEndRow) - 1, newLineStartCol);
-                        if (reminder > 0 && i == iteration - 1)
-                            newStreakLine1.getEndIndex().set(newLineStartRow + (reminder - 1), newLineStartCol + (reminder - 1));
-                        else newStreakLine1.getEndIndex().set(newLineEndRow, newLineEndCol);
-                        mLetterBoard.addStreakLine(newStreakLine1);
-                        if (Direction.fromLine(newStreakLine1.getStartIndex(), newStreakLine1.getEndIndex()) == Direction.NONE) {
-                            char mgrid[][] = mLetterAdapter.getGrid();
-                            lastPartPwd.add(String.valueOf(mgrid[newStreakLine1.getStartIndex().row][newStreakLine1.getStartIndex().col]));
-                            Log.d("row " + newStreakLine1.getStartIndex().row, "row " + newStreakLine1.getStartIndex().col);
-                            //Log.d("lastPartPwd", lastPartPwd);
-                        } else
-                            lastPartPwd.add(Util.getStringInRange(mLetterAdapter, newStreakLine1.getStartIndex(), newStreakLine1.getEndIndex()));
-                    }*/
             }else if(direction == Direction.NORTH_WEST){
-                int leftToTraverse = passwordLength - (newLineStartRow - newLineEndRow + 1);
-                int noOfCharInIteration;
+                int leftToTraverse = passwordLength - (newLineStartRow - newLineEndRow) - 1;
+                int tempLineEndRow = newLineStartRow + 1;
+                int tempLineEndcol = newLineStartCol + 1;
                 while (newLineStartRow <rowCount-1 && newLineStartCol <colCount-1) {
                     newLineStartRow++;
                     newLineStartCol++;
                     if (newLineStartRow == rowCount-1 || newLineStartCol == colCount-1)
                         break;
                 }
-                noOfCharInIteration = newLineStartRow - newLineEndRow + 1;
-                Log.d("tempStartRow " + newLineStartRow, "tempStartCol " + newLineStartCol);
-                int iteration = leftToTraverse / noOfCharInIteration;
-                int reminder = leftToTraverse % noOfCharInIteration;
-                if(reminder>0) iteration = iteration + 1;
-                Log.d("leftToTraverse "+leftToTraverse, " iteration "+iteration +" reminder "+reminder);/**/
-                for (int i=0;i<iteration;i++) {
-                    StreakView.StreakLine newStreakLine1 = new StreakView.StreakLine();
-                    newStreakLine1.setColor(selectedColor);
-                    newStreakLine1.getStartIndex().set(newLineStartRow, newLineStartCol);
-                    //newStreakLine1.getEndIndex().set((endRow - newLineEndRow) - 1, newLineStartCol);
-                    if(reminder>0 && i ==iteration-1) newStreakLine1.getEndIndex().set(newLineStartRow - (reminder-1), newLineStartCol - (reminder-1));
-                    else newStreakLine1.getEndIndex().set(newLineEndRow, newLineEndCol);
-                    mLetterBoard.addStreakLine(newStreakLine1);
-                    if (Direction.fromLine(newStreakLine1.getStartIndex(), newStreakLine1.getEndIndex()) == Direction.NONE) {
-                        char mgrid[][] = mLetterAdapter.getGrid();
-                        lastPartPwd.add(String.valueOf(mgrid[newStreakLine1.getStartIndex().row][newStreakLine1.getStartIndex().col]));
-                        Log.d("row " + newStreakLine1.getStartIndex().row, "row " + newStreakLine1.getStartIndex().col);
-                        //Log.d("lastPartPwd", lastPartPwd);
-                    } else
-                        lastPartPwd.add(Util.getStringInRange(mLetterAdapter, newStreakLine1.getStartIndex(), newStreakLine1.getEndIndex()));
-                }
+                StreakView.StreakLine newStreakLine1 = null;
+                if (tempLineEndRow <= rowCount-1 && tempLineEndcol<=colCount-1) {
+                        newStreakLine1 = new StreakView.StreakLine();
+                        newStreakLine1.setColor(selectedColor);
+                        newStreakLine1.getStartIndex().set(newLineStartRow, newLineStartCol);
+                        newStreakLine1.getEndIndex().set(tempLineEndRow, tempLineEndcol);
+                        mLetterBoard.addStreakLine(newStreakLine1);
+                        if (Direction.fromLine(newStreakLine1.getStartIndex(), newStreakLine1.getEndIndex()) == Direction.NONE) {
+                            char mgrid[][] = mLetterAdapter.getGrid();
+                            lastPartPwd.add(String.valueOf(mgrid[newStreakLine1.getStartIndex().row][newStreakLine1.getStartIndex().col]));
+                            Log.d("startRow " + newStreakLine1.getStartIndex().row, "startrCol " + newStreakLine1.getStartIndex().col);
+                            Log.d("endRow " + newStreakLine1.getEndIndex().row, "endCol " + newStreakLine1.getEndIndex().col);
+                            //Log.d("lastPartPwd", lastPartPwd);
+                        } else
+                            lastPartPwd.add(Util.getStringInRange(mLetterAdapter, newStreakLine1.getStartIndex(), newStreakLine1.getEndIndex()));
+                        Log.d("leftToTraverse ", "" + leftToTraverse);
+                        leftToTraverse = leftToTraverse - (newLineStartRow - tempLineEndRow) - 1;
+                    }
+                    Log.d("leftToTraverse ", "" + leftToTraverse);
+                    if(leftToTraverse>0)
+                    rejoinNext(newStreakLine,newStreakLine1, direction, leftToTraverse);
             }else if(direction == Direction.SOUTH_WEST){ // (-1,1)
-                int leftToTraverse = passwordLength - (newLineEndRow - newLineStartRow + 1);
-                int noOfCharInIteration;
+                int leftToTraverse = passwordLength - (newLineEndRow - newLineStartRow) - 1;
+                int tempLineEndRow = newLineStartRow - 1;
+                int tempLineEndcol = newLineStartCol + 1;
                 while (newLineStartRow >0 && newLineStartCol <colCount-1) {
                     newLineStartRow--;
                     newLineStartCol++;
                     if (newLineStartRow == 0 || newLineStartCol == colCount-1)
                         break;
                 }
-                noOfCharInIteration =  newLineEndRow - newLineStartRow + 1;
-                Log.d("tempStartRow " + newLineStartRow, "tempStartCol " + newLineStartCol);
-                int iteration = leftToTraverse / noOfCharInIteration;
-                int reminder = leftToTraverse % noOfCharInIteration;
-                if(reminder>0) iteration = iteration + 1;
-                Log.d("leftToTraverse "+leftToTraverse, " iteration "+iteration +" reminder "+reminder);/**/
-                for (int i=0;i<iteration;i++) {
-                    StreakView.StreakLine newStreakLine1 = new StreakView.StreakLine();
+                StreakView.StreakLine newStreakLine1 = null;
+                if (tempLineEndRow >= 0 && tempLineEndcol<=colCount-1) {
+                    newStreakLine1 = new StreakView.StreakLine();
                     newStreakLine1.setColor(selectedColor);
                     newStreakLine1.getStartIndex().set(newLineStartRow, newLineStartCol);
-                    //newStreakLine1.getEndIndex().set((endRow - newLineEndRow) - 1, newLineStartCol);
-                    if(reminder>0 && i ==iteration-1) newStreakLine1.getEndIndex().set(newLineStartRow + (reminder-1), newLineStartCol - (reminder-1));
-                    else newStreakLine1.getEndIndex().set(newLineEndRow, newLineEndCol);
+                    newStreakLine1.getEndIndex().set(tempLineEndRow, tempLineEndcol);
                     mLetterBoard.addStreakLine(newStreakLine1);
                     if (Direction.fromLine(newStreakLine1.getStartIndex(), newStreakLine1.getEndIndex()) == Direction.NONE) {
                         char mgrid[][] = mLetterAdapter.getGrid();
                         lastPartPwd.add(String.valueOf(mgrid[newStreakLine1.getStartIndex().row][newStreakLine1.getStartIndex().col]));
-                        Log.d("row " + newStreakLine1.getStartIndex().row, "row " + newStreakLine1.getStartIndex().col);
+                        Log.d("startRow " + newStreakLine1.getStartIndex().row, "startrCol " + newStreakLine1.getStartIndex().col);
+                        Log.d("endRow " + newStreakLine1.getEndIndex().row, "endCol " + newStreakLine1.getEndIndex().col);
                         //Log.d("lastPartPwd", lastPartPwd);
                     } else
                         lastPartPwd.add(Util.getStringInRange(mLetterAdapter, newStreakLine1.getStartIndex(), newStreakLine1.getEndIndex()));
+                    Log.d("leftToTraverse ", "" + leftToTraverse);
+                    leftToTraverse = leftToTraverse - (tempLineEndRow - newLineStartRow ) - 1;
                 }
+                Log.d("leftToTraverse ", "" + leftToTraverse);
+                if(leftToTraverse>0)
+                    rejoinNext(newStreakLine,newStreakLine1, direction, leftToTraverse);
             }else if(direction == Direction.NORTH_EAST){ // (1,-1)
-                int leftToTraverse = passwordLength - (newLineStartRow - newLineEndRow + 1);
-                int noOfCharInIteration;
+                int leftToTraverse = passwordLength - (newLineStartRow - newLineEndRow) - 1;
+                int tempLineEndRow = newLineStartRow + 1;
+                int tempLineEndcol = newLineStartCol - 1;
                 while (newLineStartRow <rowCount-1 && newLineStartCol >0) {
                     newLineStartRow++;
                     newLineStartCol--;
                     if (newLineStartCol == 0 || newLineStartRow == rowCount-1)
                         break;
                 }
-                noOfCharInIteration = newLineStartRow - newLineEndRow + 1;
-                Log.d("tempStartRow " + newLineStartRow, "tempStartCol " + newLineStartCol);
-                int iteration = leftToTraverse / noOfCharInIteration;
-                int reminder = leftToTraverse % noOfCharInIteration;
-                if(reminder>0) iteration = iteration + 1;
-                Log.d("leftToTraverse "+leftToTraverse, " iteration "+iteration +" reminder "+reminder);/**/
-                for (int i=0;i<iteration;i++) {
-                    StreakView.StreakLine newStreakLine1 = new StreakView.StreakLine();
+                StreakView.StreakLine newStreakLine1 = null;
+                if (tempLineEndRow <= rowCount-1 && tempLineEndcol>=0) {
+                    newStreakLine1 = new StreakView.StreakLine();
                     newStreakLine1.setColor(selectedColor);
                     newStreakLine1.getStartIndex().set(newLineStartRow, newLineStartCol);
-                    //newStreakLine1.getEndIndex().set((endRow - newLineEndRow) - 1, newLineStartCol);
-                    if(reminder>0 && i ==iteration-1) newStreakLine1.getEndIndex().set(newLineStartRow - (reminder-1), newLineStartCol + (reminder-1));
-                    else newStreakLine1.getEndIndex().set(newLineEndRow, newLineEndCol);
+                    newStreakLine1.getEndIndex().set(tempLineEndRow, tempLineEndcol);
                     mLetterBoard.addStreakLine(newStreakLine1);
                     if (Direction.fromLine(newStreakLine1.getStartIndex(), newStreakLine1.getEndIndex()) == Direction.NONE) {
                         char mgrid[][] = mLetterAdapter.getGrid();
                         lastPartPwd.add(String.valueOf(mgrid[newStreakLine1.getStartIndex().row][newStreakLine1.getStartIndex().col]));
-                        Log.d("row " + newStreakLine1.getStartIndex().row, "row " + newStreakLine1.getStartIndex().col);
+                        Log.d("startRow " + newStreakLine1.getStartIndex().row, "startrCol " + newStreakLine1.getStartIndex().col);
+                        Log.d("endRow " + newStreakLine1.getEndIndex().row, "endCol " + newStreakLine1.getEndIndex().col);
                         //Log.d("lastPartPwd", lastPartPwd);
                     } else
                         lastPartPwd.add(Util.getStringInRange(mLetterAdapter, newStreakLine1.getStartIndex(), newStreakLine1.getEndIndex()));
+                    Log.d("leftToTraverse ", "" + leftToTraverse);
+                    leftToTraverse = leftToTraverse - (newLineStartRow - tempLineEndRow) - 1;
                 }
+                Log.d("leftToTraverse ", "" + leftToTraverse);
+                if(leftToTraverse>0)
+                rejoinNext(newStreakLine,newStreakLine1, direction, leftToTraverse);
             }
+
             String finalPwd = "";
             for (String pwd: lastPartPwd) finalPwd = finalPwd.concat(pwd);
             mTextSelection.setText(finalPwd);
@@ -1664,6 +1593,7 @@ public class GridActivity extends FullscreenActivity {
 
     private void rejoinNext(StreakView.StreakLine streakLine, StreakView.StreakLine newStreakLine, Direction direction, int leftToTraverse){
         int newLineStartRow=0, newLineStartCol=0, newLineEndRow=0, newLineEndCol=0;
+        int noOfCharInIteration = 0;
         if(direction==Direction.SOUTH_EAST){
             boolean traverseUp = true;
             if(streakLine.getEndIndex().row<rowCount-1){
@@ -1683,7 +1613,7 @@ public class GridActivity extends FullscreenActivity {
                     newLineEndRow = streakLine.getStartIndex().row -1;
                     newLineEndCol = colCount-1;
                 }
-            }else {
+            }else { // for 0:0-rowCount:coloumCount full length
                 newLineStartRow = streakLine.getStartIndex().row;
                 newLineStartCol = streakLine.getStartIndex().col;
                 newLineEndRow = streakLine.getEndIndex().row;
@@ -1704,20 +1634,149 @@ public class GridActivity extends FullscreenActivity {
                     if (newLineEndRow == rowCount - 1 || newLineEndCol == colCount - 1)
                         break;
                 }
+                noOfCharInIteration =  (newLineEndRow - newLineStartRow) +1;
+        }else if(direction==Direction.NORTH_WEST){
+            boolean traverseDown = true;
+            if(streakLine.getEndIndex().col>0){
+                if(newStreakLine!=null){
+                    newLineStartRow = newStreakLine.getStartIndex().row + 1;
+                    newLineStartCol = 0;
+                    newLineEndRow = newStreakLine.getStartIndex().row + 1;
+                    newLineEndCol = 0;
+                }else {
+                    newLineStartRow = streakLine.getStartIndex().row + 1;
+                    newLineStartCol = 0;
+                    newLineEndRow = streakLine.getStartIndex().row + 1;
+                    newLineEndCol = 0;
+                }
+            }else if(streakLine.getEndIndex().col<=0 && streakLine.getEndIndex().row>0){
+                newLineStartRow = streakLine.getEndIndex().row - 1;
+                newLineStartCol = colCount-1;
+                newLineEndRow = streakLine.getEndIndex().row - 1;
+                newLineEndCol = colCount-1;
+            }else { // for 0:0-rowCount:coloumCount full length
+                newLineStartRow = streakLine.getStartIndex().row;
+                newLineStartCol = streakLine.getStartIndex().col;
+                newLineEndRow = streakLine.getEndIndex().row;
+                newLineEndCol = streakLine.getEndIndex().col;
+                traverseDown = false;
+            }
+                while (newLineEndRow > 0 && newLineEndCol > 0) {
+                    newLineEndRow--;
+                    newLineEndCol--;
+                    if (newLineEndRow == 0 || newLineEndCol == 0)
+                        break;
+                }
+            if(traverseDown) {
+                while (newLineStartRow < rowCount - 1 && newLineStartCol < colCount - 1) {
+                    newLineStartRow++;
+                    newLineStartCol++;
+                if (newLineStartRow == rowCount - 1 || newLineStartCol == colCount - 1)
+                    break;
+            }
+            }
+            noOfCharInIteration =  (newLineStartRow - newLineEndRow) +1;
+        }else if(direction==Direction.SOUTH_WEST){
+            boolean traverseUp = true;
+            if(streakLine.getEndIndex().row<rowCount-1){
+                newLineStartRow = streakLine.getEndIndex().row +1;
+                newLineStartCol = colCount-1;
+                newLineEndRow = streakLine.getEndIndex().row +1;
+                newLineEndCol = colCount-1;
+            }else if(streakLine.getEndIndex().row>=rowCount-1 && streakLine.getEndIndex().col>0){
+                if(newStreakLine!=null){
+                    newLineStartRow = newStreakLine.getStartIndex().row - 1;
+                    newLineStartCol = 0;
+                    newLineEndRow = newStreakLine.getStartIndex().row - 1;
+                    newLineEndCol = 0;
+                }else {
+                    newLineStartRow = streakLine.getStartIndex().row -1;
+                    newLineStartCol = 0;
+                    newLineEndRow = streakLine.getStartIndex().row -1;
+                    newLineEndCol = 0;
+                }
+            }else { // for rowCount:0-0:coloumCount full length
+                newLineStartRow = streakLine.getStartIndex().row;
+                newLineStartCol = streakLine.getStartIndex().col;
+                newLineEndRow = streakLine.getEndIndex().row;
+                newLineEndCol = streakLine.getEndIndex().col;
+                traverseUp = false;
+            }
+            if(traverseUp) {
+                while (newLineStartRow > 0 && newLineStartCol < colCount - 1) {
+                    newLineStartRow--;
+                    newLineStartCol++;
+                    if (newLineStartRow == 0 || newLineStartCol == colCount - 1)
+                        break;
+                }
+            }
+            while (newLineEndRow <rowCount-1 && newLineEndCol >0) {
+                newLineEndRow++;
+                newLineEndCol--;
+                if (newLineEndCol == 0 || newLineEndRow == rowCount-1)
+                    break;
+            }
+            noOfCharInIteration =  (newLineEndRow - newLineStartRow) +1;
+        }else if(direction==Direction.NORTH_EAST){
+            boolean traverseDown = true;
+            if(streakLine.getEndIndex().row>0){
+                    newLineStartRow = streakLine.getEndIndex().row -1;
+                    newLineStartCol = 0;
+                    newLineEndRow = streakLine.getEndIndex().row -1;
+                    newLineEndCol = 0;
+            }else if(streakLine.getEndIndex().row<=0 && streakLine.getEndIndex().col<colCount-1){
+                if(newStreakLine!=null){
+                    newLineStartRow = newStreakLine.getStartIndex().row + 1;
+                    newLineStartCol = colCount-1;
+                    newLineEndRow = newStreakLine.getStartIndex().row + 1;
+                    newLineEndCol = colCount-1;
+                }else {
+                    newLineStartRow = streakLine.getStartIndex().row +1;
+                    newLineStartCol = colCount-1;
+                    newLineEndRow = streakLine.getStartIndex().row + 1;
+                    newLineEndCol = colCount-1;
+                }
+            }else {// for 0:coloumCount-rowCount:0 full length
+                newLineStartRow = streakLine.getStartIndex().row;
+                newLineStartCol = streakLine.getStartIndex().col;
+                newLineEndRow = streakLine.getEndIndex().row;
+                newLineEndCol = streakLine.getEndIndex().col;
+                traverseDown = false;
+            }
+            if(traverseDown) {
+                while (newLineStartRow < rowCount - 1 && newLineStartCol > 0) {
+                    newLineStartRow++;
+                    newLineStartCol--;
+                    if (newLineStartCol == 0 || newLineStartRow == rowCount - 1)
+                        break;
+                }
+            }
+            while (newLineEndRow > 0 && newLineEndCol < colCount - 1) {
+                newLineEndRow--;
+                newLineEndCol++;
+                if (newLineEndRow == 0 || newLineEndCol == colCount - 1)
+                    break;
+            }
+            noOfCharInIteration =  (newLineStartRow - newLineEndRow) +1;
         }
-        int noOfCharInIteration =  newLineEndRow - newLineStartRow +1;;
         int iteration = leftToTraverse / noOfCharInIteration;
         int reminder = leftToTraverse % noOfCharInIteration;
         if (reminder > 0) iteration = iteration + 1;
         Log.d("leftToTraverse " + leftToTraverse, " iteration " + iteration + " reminder " + reminder);
         for (int i = 0; i < iteration; i++) {
+            Log.d("leftToTraverse ", leftToTraverse + "");
             StreakView.StreakLine newStreakLine1 = new StreakView.StreakLine();
             newStreakLine1.setColor(selectedColor);
             newStreakLine1.getStartIndex().set(newLineStartRow, newLineStartCol);
-            Log.d("leftToTraverse ", leftToTraverse + "");
             if (reminder > 0 && i == iteration - 1) {
                 if(direction==Direction.SOUTH_EAST)
-                newStreakLine1.getEndIndex().set(newStreakLine1.getStartIndex().row + (reminder - 1), newStreakLine1.getStartIndex().col + (reminder - 1));
+                    newStreakLine1.getEndIndex().set(newStreakLine1.getStartIndex().row + (reminder - 1), newStreakLine1.getStartIndex().col + (reminder - 1));
+                else if(direction== Direction.NORTH_WEST)
+                    newStreakLine1.getEndIndex().set(newStreakLine1.getStartIndex().row - (reminder - 1), newStreakLine1.getStartIndex().col - (reminder - 1));
+                else if(direction==Direction.SOUTH_WEST)
+                    newStreakLine1.getEndIndex().set(newStreakLine1.getStartIndex().row + (reminder - 1), newStreakLine1.getStartIndex().col - (reminder - 1));
+                else // else if(direction==Direction.NORTH_EAST)
+                    newStreakLine1.getEndIndex().set(newStreakLine1.getStartIndex().row - (reminder - 1), newStreakLine1.getStartIndex().col + (reminder - 1));
             }
             else newStreakLine1.getEndIndex().set(newLineEndRow, newLineEndCol);
             mLetterBoard.addStreakLine(newStreakLine1);
@@ -1777,6 +1836,7 @@ public class GridActivity extends FullscreenActivity {
                                     if (yMax < line.getEndIndex().row)
                                         yMax = line.getEndIndex().row;
                                     if (xMin > line.getStartIndex().col)
+
                                         xMin = line.getStartIndex().col;
                                     if (yMin > line.getStartIndex().row)
                                         yMin = line.getStartIndex().row;
@@ -1838,21 +1898,6 @@ public class GridActivity extends FullscreenActivity {
                                         usedPwd = usedPwd.concat(partPwd);
                                     }
                                 }
-
-                                /*else if (index == lastPartPwd.size() - 1) {
-                                    if (lastPartPwd.get(index).length() > randomPassword.length() - lastPartPwd.get(0).length())
-                                        partPwd = randomPassword.substring(lastPartPwd.get(0).length());
-                                    else
-                                        partPwd = randomPassword.substring(lastPartPwd.get(0).length(), lastPartPwd.get(0).length() + lastPartPwd.get(index).length());
-                                    if (lastPartPwd.get(index).length() > partPwd.length()) {
-                                        String lPart = randomPassword.substring(0, lastPartPwd.get(index).length() - partPwd.length());
-                                        partPwd = partPwd.concat(lPart);
-                                    }
-                                } else {
-                                    String fPart = randomPassword.substring(lastPartPwd.get(0).length());
-                                    String lPart = randomPassword.substring(0, lastPartPwd.get(0).length());
-                                    partPwd = fPart.concat(lPart);
-                                }*/
                                 Log.d("start " + lastPartPwd.get(0).length(), "end " + lastPartPwd.get(index).length());
                                 Log.d("partPwd ", partPwd);
                                 mTextSelection.setText(mTextSelection.getText().toString().concat(partPwd));
@@ -2168,57 +2213,8 @@ public class GridActivity extends FullscreenActivity {
         }
     }
 
-    private void showFinishGrid(int gridId) {
-        /*Intent intent = new Intent(this, GridOverActivity.class);
-        intent.putExtra(GridOverActivity.EXTRA_GRID_ROUND_ID, gridId);
-        startActivity(intent);
-        finish();*/
-    }
-
-    private void setGridAsAlreadyFinished() {
-        mLetterBoard.getStreakView().setInteractive(false);
-    }
-
-    //
-    private TextView createUsedWordTextView(UsedWord uw) {
-        TextView tv = new TextView(this);
-        tv.setPadding(10, 5, 10, 5);
-        if (uw.isAnswered()) {
-         //   if (getPreferences().grayscale()) {
-                uw.getAnswerLine().color = mGrayColor;
-        //    }
-            tv.setBackgroundColor(uw.getAnswerLine().color);
-            tv.setText(uw.getString());
-            tv.setTextColor(Color.WHITE);
-            tv.setPaintFlags(tv.getPaintFlags() | Paint.STRIKE_THRU_TEXT_FLAG);
-
-            mLetterBoard.addStreakLine(STREAK_LINE_MAPPER.map(uw.getAnswerLine()));
-        }
-        else {
-            String str = uw.getString();
-            if (uw.isMystery()) {
-                int revealCount = uw.getRevealCount();
-                String uwString = uw.getString();
-                str = "";
-                for (int i = 0; i < uwString.length(); i++) {
-                    if (revealCount > 0) {
-                        str += uwString.charAt(i);
-                        revealCount--;
-                    }
-                    else {
-                        str += " ?";
-                    }
-                }
-            }
-            tv.setText(str);
-        }
-
-        tv.setTag(uw);
-        return tv;
-    }
 
     //method to calculate the entropy of a random password:
-
     private double calculateEntropyBits(int passwordLength, int usedSymbolLength){
         Log.d("passwordLength "+passwordLength, "usedSymbolLength "+usedSymbolLength);
         return (double) (Math.log(Math.pow(usedSymbolLength, passwordLength)) / Math.log(2));
