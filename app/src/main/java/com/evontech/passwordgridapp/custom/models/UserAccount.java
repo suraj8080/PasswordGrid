@@ -9,15 +9,25 @@ public class UserAccount implements Serializable {
     private String userName;
     private String accountUrl;
     private String accountPwd;
+    private String accountCategory;
     private int accountGridId;
 
     public UserAccount() {
     }
 
-    public UserAccount(String accountName, String userName, String accountUrl) {
+    public UserAccount(String accountName, String userName, String accountUrl, String accountCategory) {
         this.accountName = accountName;
         this.userName = userName;
         this.accountUrl = accountUrl;
+        this.accountCategory = accountCategory;
+    }
+
+    public String getAccountCategory() {
+        return accountCategory;
+    }
+
+    public void setAccountCategory(String accountCategory) {
+        this.accountCategory = accountCategory;
     }
 
     public int getUserId() {

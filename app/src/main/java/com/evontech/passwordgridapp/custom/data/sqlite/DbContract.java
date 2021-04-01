@@ -48,6 +48,7 @@ abstract class DbContract {
         static final String COL_ACCOUNT_NAME = "account_name";
         static final String COL_ACCOUNT_USER_NAME = "user_name";
         static final String COL_ACCOUNT_URL = "account_url";
+        static final String COL_ACCOUNT_CATEGORY = "account_category";
         static final String COL_ACCOUNT_GRID_ID = "account_grid_id";
     }
 

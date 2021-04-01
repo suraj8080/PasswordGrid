@@ -72,6 +72,10 @@
         <item>WhatsApp</item>
         <item>ICICI</item>
         <item>SBI</item>
+        <item>Google Drive</item>
+        <item>Paytm</item>
+        <item>Phone Pay</item>
+        <item>Google Pay</item>
     </string-array>
 
     <string-array name="account_url_array">
@@ -87,7 +91,31 @@
         <item>www.whatsapp.com</item>
         <item>www.icici.com</item>
         <item>www.sbi.com</item>
+        <item>www.google.drive.com</item>
+        <item>www.paytm.com</item>
+        <item>www.phonepay.com</item>
+        <item>www.googlepay.com</item>
     </string-array>
+
+    <string-array name="account_category_array">
+        <item>Emails</item>
+        <item>Emails</item>
+        <item>Messagings</item>
+        <item>Emails</item>
+        <item>Social</item>
+        <item>Shopping</item>
+        <item>Shopping</item>
+        <item>Social</item>
+        <item>Social</item>
+        <item>Messagings</item>
+        <item>Finance</item>
+        <item>Finance</item>
+        <item>Personal</item>
+        <item>Wallets</item>
+        <item>Wallets</item>
+        <item>Wallets</item>
+    </string-array>
+
 
 
 </resources>

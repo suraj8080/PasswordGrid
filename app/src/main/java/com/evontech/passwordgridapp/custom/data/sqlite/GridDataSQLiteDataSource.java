@@ -165,6 +165,7 @@ public class GridDataSQLiteDataSource implements GridDataSource, AccountDataSour
         values.put(DbContract.UserAccounts.COL_USER_ID, userAccount.getUserId());
         values.put(DbContract.UserAccounts.COL_ACCOUNT_NAME, userAccount.getAccountName());
         values.put(DbContract.UserAccounts.COL_ACCOUNT_USER_NAME, userAccount.getUserName());
+        values.put(DbContract.UserAccounts.COL_ACCOUNT_CATEGORY, userAccount.getAccountCategory());
         values.put(DbContract.UserAccounts.COL_ACCOUNT_URL, userAccount.getAccountUrl());
         Log.d("Saving AccountData ", ""+userAccount.getId());
         Log.d("UserAccounts userId ", ""+userAccount.getUserId());
@@ -209,6 +210,7 @@ public class GridDataSQLiteDataSource implements GridDataSource, AccountDataSour
                 DbContract.UserAccounts.COL_ACCOUNT_NAME,
                 DbContract.UserAccounts.COL_ACCOUNT_USER_NAME,
                 DbContract.UserAccounts.COL_ACCOUNT_URL,
+                DbContract.UserAccounts.COL_ACCOUNT_CATEGORY,
                 DbContract.UserAccounts.COL_ACCOUNT_GRID_ID
         };
         String sel = DbContract.UserAccounts.COL_USER_ID + "=?";
@@ -226,7 +228,8 @@ public class GridDataSQLiteDataSource implements GridDataSource, AccountDataSour
                     userAccount.setAccountName(c.getString(2));
                     userAccount.setUserName(c.getString(3));
                     userAccount.setAccountUrl(c.getString(4));
-                    userAccount.setAccountGridId(c.getInt(5));
+                    userAccount.setAccountCategory(c.getString(5));
+                    userAccount.setAccountGridId(c.getInt(6));
                     Log.d("Getting accountData ", c.getString(2));
                     allAccounts.add(userAccount);
                     c.moveToNext();
@@ -247,6 +250,7 @@ public class GridDataSQLiteDataSource implements GridDataSource, AccountDataSour
                 DbContract.UserAccounts.COL_ACCOUNT_NAME,
                 DbContract.UserAccounts.COL_ACCOUNT_USER_NAME,
                 DbContract.UserAccounts.COL_ACCOUNT_URL,
+                DbContract.UserAccounts.COL_ACCOUNT_CATEGORY,
                 DbContract.UserAccounts.COL_ACCOUNT_GRID_ID
         };
         String where = DbContract.UserAccounts._ID + "=?  AND " + DbContract.UserAccounts.COL_USER_ID + " = ?";
@@ -260,7 +264,8 @@ public class GridDataSQLiteDataSource implements GridDataSource, AccountDataSour
             userAccount.setAccountName(c.getString(1));
             userAccount.setUserName(c.getString(2));
             userAccount.setAccountUrl(c.getString(3));
-            userAccount.setAccountGridId(c.getInt(4));
+            userAccount.setAccountCategory(c.getString(4));
+            userAccount.setAccountGridId(c.getInt(5));
             Log.d("Getting accountData ", c.getString(1));
         }
         c.close();

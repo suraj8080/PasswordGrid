@@ -46,9 +46,11 @@ import com.google.android.material.bottomsheet.BottomSheetBehavior;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.textfield.TextInputEditText;
 
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import javax.inject.Inject;
 
@@ -79,6 +81,8 @@ public class AccountsActivity extends FullscreenActivity implements OnAccountCli
     AutoCompleteTextView et_account_username;
     @BindView(R.id.et_account_url)
     AutoCompleteTextView et_account_url;
+    @BindView(R.id.et_category)
+    AutoCompleteTextView et_account_category;
     @BindView(R.id.buttonAdd)
     Button buttonAdd;
     @BindView(R.id.buttonCancel)
@@ -92,6 +96,11 @@ public class AccountsActivity extends FullscreenActivity implements OnAccountCli
     ImageView buttonLogout;
 
     BottomSheetBehavior sheetBehavior;
+
+    private final ArrayList<String> accounts_name_array = new ArrayList<>();
+    private final ArrayList<String> accounts_url_array = new ArrayList<>();
+    private final ArrayList<String> accounts_category_array = new ArrayList<>();
+    private final ArrayList<String> accounts_username_array = new ArrayList<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -135,8 +144,9 @@ public class AccountsActivity extends FullscreenActivity implements OnAccountCli
                 if(TextUtils.isEmpty(et_account_name.getText().toString())) et_account_name.setError("Enter Account Name");
                 else if(TextUtils.isEmpty(et_account_username.getText().toString())) et_account_username.setError("Enter User Name");
                 else if(TextUtils.isEmpty(et_account_url.getText().toString())) et_account_url.setError("Enter Account Url");
+                else if(TextUtils.isEmpty(et_account_category.getText().toString())) et_account_category.setError("Enter Account Category");
                 else {
-                    UserAccount userAccount = new UserAccount(et_account_name.getText().toString(), et_account_username.getText().toString(), et_account_url.getText().toString());
+                    UserAccount userAccount = new UserAccount(et_account_name.getText().toString(), et_account_username.getText().toString(), et_account_url.getText().toString(),et_account_category.getText().toString());
                     int userId = (int) mViewModel.updateUserAccount(userAccount);
                     Log.d("userId ", ""+userId);
                     if(userId>0) {
@@ -145,6 +155,7 @@ public class AccountsActivity extends FullscreenActivity implements OnAccountCli
                         adapter.notifyDataSetChanged();
                         sheetBehavior.setState(BottomSheetBehavior.STATE_COLLAPSED);
                         loadingText.setVisibility(View.GONE);
+                        onAccountLoaded();
                     }
                     else Toast.makeText(AccountsActivity.this, "Updating account failure ", Toast.LENGTH_SHORT).show();
                 }
@@ -198,27 +209,23 @@ public class AccountsActivity extends FullscreenActivity implements OnAccountCli
         mViewModel.setUserId(Integer.parseInt(userId));
         mViewModel.getOnAccountState().observe(this, this::onAccountStateChanged);
 
-        String[] accounts_name_array = getResources().getStringArray(R.array.account_name_array);
-        ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, accounts_name_array);
-        et_account_name.setAdapter(adapter);
-
-        String[] accounts_url_array = getResources().getStringArray(R.array.account_url_array);
-        ArrayAdapter<String> adapter2 = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, accounts_url_array);
-        et_account_url.setAdapter(adapter2);
-
         et_account_name.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                int index = indexOf(accounts_name_array, et_account_name.getText().toString());
+                int index = accounts_name_array.indexOf(et_account_name.getText().toString());
                 Log.d("index ", ""+index);
-                et_account_url.setText(accounts_url_array[index]);
+                et_account_url.setText(accounts_url_array.get(index));
+                et_account_category.setText(accounts_category_array.get(index));
             }
         });
         et_account_name.addTextChangedListener(new TextWatcher() {
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
                 Log.d("textChanged ", ""+s);
-                if(TextUtils.isEmpty(s) || indexOf(accounts_name_array, String.valueOf(s))==-1) et_account_url.setText("");
+                if(TextUtils.isEmpty(s) || !accounts_name_array.contains(String.valueOf(s))) {
+                    et_account_url.setText("");
+                    et_account_category.setText("");
+                }
             }
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) { }
@@ -248,17 +255,45 @@ public class AccountsActivity extends FullscreenActivity implements OnAccountCli
             else sheetBehavior.setState(BottomSheetBehavior.STATE_EXPANDED);
             Log.d("accountState: ", "Loaded...");
             Log.d("mUserAccounts Size : ", ""+mUserAccounts.size());
-
-            int size = 0;
-            if(mUserAccounts!=null) size = mUserAccounts.size();
-            String[] accounts_username_array = new String[size];
-            Log.d("size ", ""+size);
-            for(int i=0;i<size;i++){
-                accounts_username_array[i] = mUserAccounts.get(i).getUserName();
-            }
-            ArrayAdapter<String> adapter1 = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, accounts_username_array);
-            et_account_username.setAdapter(adapter1);
+            //if(accounts_name_array.size()==0)
+            onAccountLoaded();
         }
+    }
+
+    private void onAccountLoaded(){
+        accounts_name_array.clear();
+        accounts_category_array.clear();
+        accounts_url_array.clear();
+        accounts_username_array.clear();
+        int size = 0;
+        if(mUserAccounts!=null) size = mUserAccounts.size();
+
+        String[] name_array = getResources().getStringArray(R.array.account_name_array);
+        String[] url_array = getResources().getStringArray(R.array.account_url_array);
+        String[] category_array = getResources().getStringArray(R.array.account_category_array);
+        accounts_name_array.addAll(Arrays.asList(name_array));
+        accounts_url_array.addAll(Arrays.asList(url_array));
+        accounts_category_array.addAll(Arrays.asList(category_array));
+
+        for(int i=0;i<size;i++){
+            if(!accounts_name_array.contains(mUserAccounts.get(i).getAccountName())) {
+                Log.d("adding account ", mUserAccounts.get(i).getAccountName());
+                accounts_name_array.add(mUserAccounts.get(i).getAccountName());
+                accounts_url_array.add(mUserAccounts.get(i).getAccountUrl());
+                accounts_category_array.add(mUserAccounts.get(i).getAccountCategory());
+            }
+            if(!accounts_username_array.contains(mUserAccounts.get(i).getUserName()))
+            accounts_username_array.add(mUserAccounts.get(i).getUserName());
+        }
+
+        ArrayAdapter<String> adapter1 = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, accounts_username_array);
+        et_account_username.setAdapter(adapter1);
+        ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, accounts_name_array);
+        et_account_name.setAdapter(adapter);
+        ArrayAdapter<String> adapter2 = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, accounts_url_array.stream().distinct().collect(Collectors.toList()));
+        et_account_url.setAdapter(adapter2);
+        ArrayAdapter<String> adapter3 = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, accounts_category_array.stream().distinct().collect(Collectors.toList()));
+        et_account_category.setAdapter(adapter3);
     }
 
     private void setUpRecyclerView(){
@@ -288,7 +323,7 @@ public class AccountsActivity extends FullscreenActivity implements OnAccountCli
                 else if(TextUtils.isEmpty(et_account_username.getText().toString())) et_account_username.setError("Enter User Name");
                 else if(TextUtils.isEmpty(et_account_url.getText().toString())) et_account_url.setError("Enter Account Url");
                 else {
-                    UserAccount userAccount = new UserAccount(et_account_name.getText().toString(), et_account_username.getText().toString(), et_account_url.getText().toString());
+                    UserAccount userAccount = new UserAccount(et_account_name.getText().toString(), et_account_username.getText().toString(), et_account_url.getText().toString(),et_account_category.getText().toString());
                     int userId = (int) mViewModel.updateUserAccount(userAccount);
                     Log.d("userId ", ""+userId);
                     if(userId>0) {

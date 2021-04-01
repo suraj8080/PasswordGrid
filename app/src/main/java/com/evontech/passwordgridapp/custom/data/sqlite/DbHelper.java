@@ -42,9 +42,10 @@ public class DbHelper extends SQLiteOpenHelper {
             "CREATE TABLE " + DbContract.UserAccounts.TABLE_NAME + " (" +
                     DbContract.UserAccounts._ID + " INTEGER PRIMARY KEY AUTOINCREMENT," +
                     DbContract.UserAccounts.COL_USER_ID + " TEXT," +
-                    DbContract.UserAccounts.COL_ACCOUNT_NAME + " TEXT," +
+                    DbContract.UserAccounts.COL_ACCOUNT_NAME + " TEXT UNIQUE," +
                     DbContract.UserAccounts.COL_ACCOUNT_USER_NAME + " TEXT," +
                     DbContract.UserAccounts.COL_ACCOUNT_URL + " TEXT," +
+                    DbContract.UserAccounts.COL_ACCOUNT_CATEGORY + " TEXT," +
                     DbContract.UserAccounts.COL_ACCOUNT_GRID_ID + " INTEGER)";
 
     private static final String SQL_CREATE_TABLE_USER_LOGIN =
