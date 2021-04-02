@@ -30,6 +30,7 @@
     </LinearLayout>
 
     <LinearLayout
+        android:orientation="horizontal"
         android:layout_marginTop="5dp"
         android:layout_marginRight="5dp"
         android:layout_alignParentRight="true"
@@ -37,6 +38,22 @@
         android:gravity="center_vertical"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content">
+        <ImageView
+            android:layout_marginRight="5dp"
+            android:layout_marginLeft="5dp"
+            android:id="@+id/buttonSearch"
+            android:layout_width="30dp"
+            android:layout_height="30dp"
+            android:layout_gravity="center"
+            android:src="@drawable/ic_baseline_search_24" />
+        <ImageView
+            android:layout_marginRight="5dp"
+            android:layout_marginLeft="5dp"
+            android:id="@+id/buttonFilter"
+            android:layout_width="30dp"
+            android:layout_height="30dp"
+            android:layout_gravity="center"
+            android:src="@drawable/ic_baseline_filter_alt_24" />
         <ImageView
             android:layout_marginRight="5dp"
             android:layout_marginLeft="5dp"
