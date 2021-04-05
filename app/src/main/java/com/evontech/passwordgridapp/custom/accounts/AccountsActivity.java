@@ -6,17 +6,14 @@ import android.text.Editable;
 import android.text.TextUtils;
 import android.text.TextWatcher;
 import android.util.Log;
-import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.ViewGroup;
 import android.view.Window;
 import android.view.WindowManager;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
 import android.widget.Button;
-import android.widget.EditText;
 import android.widget.ExpandableListAdapter;
 import android.widget.ExpandableListView;
 import android.widget.ImageView;
@@ -25,11 +22,8 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
-import androidx.appcompat.app.AlertDialog;
-import androidx.appcompat.widget.AppCompatButton;
 import androidx.appcompat.widget.PopupMenu;
 import androidx.lifecycle.ViewModelProviders;
-import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.evontech.passwordgridapp.R;
@@ -47,9 +41,7 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 import javax.inject.Inject;
@@ -73,10 +65,14 @@ public class AccountsActivity extends FullscreenActivity implements OnAccountCli
     @Inject ViewModelFactory mViewModelFactory;
     private AccountsViewModel mViewModel;
 
-    @BindView(R.id.buttonFilter)
+    @BindView(R.id.iconFilter)
     ImageView filterIcon;
-    @BindView(R.id.buttonSearch)
+    @BindView(R.id.tv_filter)
+    TextView tv_filter;
+    @BindView(R.id.iconSearch)
     ImageView searchIcon;
+    @BindView(R.id.et_search_accounts)
+    AutoCompleteTextView et_search_accounts;
 
     @BindView(R.id.bottom_sheet)
     LinearLayout layoutBottomSheet;
@@ -98,19 +94,20 @@ public class AccountsActivity extends FullscreenActivity implements OnAccountCli
     TextView tv_name;
     @BindView(R.id.tv_mobile)
     TextView tv_mobile;
-    @BindView(R.id.buttonLogout)
-    ImageView buttonLogout;
+    @BindView(R.id.iconLogout)
+    ImageView iconLogout;
 
     private BottomSheetBehavior sheetBehavior;
 
+    private final ArrayList<String> search_accounts_array = new ArrayList<>();
     private final ArrayList<String> accounts_name_array = new ArrayList<>();
     private final ArrayList<String> accounts_url_array = new ArrayList<>();
     private final ArrayList<String> accounts_category_array = new ArrayList<>();
     private final ArrayList<String> accounts_username_array = new ArrayList<>();
 
 
-    private List<String> expandableListTitle;
-    private HashMap<String, List<UserAccount>> expandableListDetail;
+    private List<String> expandableListTitle = new ArrayList<>();
+    private HashMap<String, List<UserAccount>> expandableListDetail = new HashMap<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -145,36 +142,6 @@ public class AccountsActivity extends FullscreenActivity implements OnAccountCli
             }
             @Override
             public void onSlide(@NonNull View bottomSheet, float slideOffset) {
-            }
-        });
-
-        filterIcon.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                PopupMenu popup = new PopupMenu(AccountsActivity.this, filterIcon);
-                popup.getMenuInflater().inflate(R.menu.filter_menu, popup.getMenu());
-                popup.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
-                    public boolean onMenuItemClick(MenuItem item) {
-                        Toast.makeText(AccountsActivity.this,"You Clicked : " + item.getTitle(), Toast.LENGTH_SHORT).show();
-                        return true;
-                    }
-                });
-                popup.show();
-            }
-        });
-
-        searchIcon.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                PopupMenu popup = new PopupMenu(AccountsActivity.this, filterIcon);
-                popup.getMenuInflater().inflate(R.menu.search_menu, popup.getMenu());
-                popup.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
-                    public boolean onMenuItemClick(MenuItem item) {
-                        Toast.makeText(AccountsActivity.this,"You Clicked : " + item.getTitle(), Toast.LENGTH_SHORT).show();
-                        return true;
-                    }
-                });
-                popup.show();
             }
         });
 
@@ -226,10 +193,10 @@ public class AccountsActivity extends FullscreenActivity implements OnAccountCli
                 }
             }
         });
-
-        tv_name.setText(getPreferences().getName());
+        String fName[] = getPreferences().getName().split(" ");
+        tv_name.setText(fName[0]);
         tv_mobile.setText(getPreferences().getMObile());
-        buttonLogout.setOnClickListener(new View.OnClickListener() {
+        iconLogout.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 getPreferences().setLoginStatus(false);
@@ -271,6 +238,72 @@ public class AccountsActivity extends FullscreenActivity implements OnAccountCli
             @Override
             public void afterTextChanged(Editable s) { }
         });
+
+        filterIcon.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                PopupMenu popup = new PopupMenu(AccountsActivity.this, filterIcon);
+                popup.getMenuInflater().inflate(R.menu.filter_menu, popup.getMenu());
+                popup.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
+                    public boolean onMenuItemClick(MenuItem item) {
+                        tv_filter.setText(item.getTitle());
+                        applyFilter(item.getTitle().toString());
+                        //Toast.makeText(AccountsActivity.this,"You Clicked : " + item.getTitle(), Toast.LENGTH_SHORT).show();
+                        return true;
+                    }
+                });
+                popup.show();
+            }
+        });
+
+        et_search_accounts.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+               applySearch(et_search_accounts.getText().toString());
+            }
+        });
+        et_search_accounts.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                Log.d("textChanged ", ""+s);
+                if(TextUtils.isEmpty(s)){
+                    mUserAccounts.clear();
+                    mViewModel.loadAccounts();
+                }else if(!search_accounts_array.contains(String.valueOf(s))) {
+                    loadingText.setText("No record found.");
+                    loadingText.setVisibility(View.VISIBLE);
+                }
+            }
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) { }
+            @Override
+            public void afterTextChanged(Editable s) { }
+        });
+        searchIcon.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+            }
+        });
+    }
+
+    private void applyFilter(String filterOption){
+        Log.d("filterOption ", filterOption);
+    }
+
+    private void applySearch(String searchItem){
+        Log.d("searchItem ", searchItem);
+        List<UserAccount> tempUserAccounts = new ArrayList<>();
+        for (UserAccount account:mUserAccounts){
+            if(account.getAccountName().contains(searchItem) || account.getAccountCategory().contains(searchItem))
+                tempUserAccounts.add(account);
+        }
+        if(tempUserAccounts.size()>0) {
+            Log.d("tempUserAccount ", tempUserAccounts.size()+"");
+            mUserAccounts.clear();
+            mUserAccounts.addAll(tempUserAccounts);
+            onAccountLoaded();
+        }
     }
 
     private void onAccountStateChanged(AccountsViewModel.AccountState accountState) {
@@ -291,6 +324,8 @@ public class AccountsActivity extends FullscreenActivity implements OnAccountCli
         accounts_category_array.clear();
         accounts_url_array.clear();
         accounts_username_array.clear();
+        expandableListTitle.clear();
+        expandableListDetail.clear();
         int size = 0;
         if(mUserAccounts!=null) size = mUserAccounts.size();
 
@@ -313,6 +348,9 @@ public class AccountsActivity extends FullscreenActivity implements OnAccountCli
             if(!accounts_username_array.contains(mUserAccounts.get(i).getUserName()))
             accounts_username_array.add(mUserAccounts.get(i).getUserName());
 
+            search_accounts_array.add(mUserAccounts.get(i).getAccountName());
+            search_accounts_array.add(mUserAccounts.get(i).getAccountCategory());
+
             if(!headerList.contains(mUserAccounts.get(i).getAccountCategory())) {
                 childList = new ArrayList<>();
                 headerList.add(mUserAccounts.get(i).getAccountCategory());
@@ -324,6 +362,10 @@ public class AccountsActivity extends FullscreenActivity implements OnAccountCli
                 expandableListDetail.put(mUserAccounts.get(i).getAccountCategory(), childList);
             }
         }
+
+        ArrayAdapter<String> searchAdapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, search_accounts_array.stream().distinct().collect(Collectors.toList()));
+        et_search_accounts.setAdapter(searchAdapter);
+
         /*for (String key: expandableListDetail.keySet()) {
             String value = expandableListDetail.get(key).toString();
             Log.d("key "+key, "value "+value);
