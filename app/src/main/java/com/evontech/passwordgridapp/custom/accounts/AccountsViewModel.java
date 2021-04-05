@@ -14,6 +14,8 @@ import java.util.List;
 public class AccountsViewModel extends ViewModel {
 
     private int userId;
+    private final AccountDataSource accountDataSource;
+    private MutableLiveData<AccountState> mOnAccountState;
 
     public int getUserId() {
         return userId;
@@ -34,11 +36,6 @@ public class AccountsViewModel extends ViewModel {
             accountList = userAccounts;
         }
     }
-    private AccountDataSource accountDataSource;
-    private List<UserAccount> mAllAccountsData;
-
-    private AccountState mCurrentState = null;
-    private MutableLiveData<AccountState> mOnAccountState;
 
     public AccountsViewModel(AccountDataSource dataSource) {
         accountDataSource = dataSource;
@@ -52,7 +49,7 @@ public class AccountsViewModel extends ViewModel {
     }
 
     public void loadAccounts() {
-            mAllAccountsData = new ArrayList<>();
+        List<UserAccount> mAllAccountsData = new ArrayList<>();
             mAllAccountsData = accountDataSource.getAllAccountData(userId);
             setAccountState(new Loaded(mAllAccountsData));
     }
@@ -67,7 +64,6 @@ public class AccountsViewModel extends ViewModel {
     }
 
     private void setAccountState(AccountState state) {
-        mCurrentState = state;
-        mOnAccountState.setValue(mCurrentState);
+        mOnAccountState.setValue(state);
     }
 }

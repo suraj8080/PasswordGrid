@@ -5,10 +5,8 @@ import android.content.Context;
 import com.evontech.passwordgridapp.custom.UserLoginDataSource;
 import com.evontech.passwordgridapp.custom.data.AccountDataSource;
 import com.evontech.passwordgridapp.custom.data.GridDataSource;
-import com.evontech.passwordgridapp.custom.data.WordDataSource;
 import com.evontech.passwordgridapp.custom.data.sqlite.DbHelper;
 import com.evontech.passwordgridapp.custom.data.sqlite.GridDataSQLiteDataSource;
-import com.evontech.passwordgridapp.custom.data.xml.WordXmlDataSource;
 
 import javax.inject.Singleton;
 
@@ -46,16 +44,5 @@ public class DataSourceModule {
         return new GridDataSQLiteDataSource(dbHelper);
     }
 
-//    @Provides
-//    @Singleton
-//    WordDataSource provideWordDataSource(DbHelper dbHelper) {
-//        return new WordSQLiteDataSource(dbHelper);
-//    }
-
-    @Provides
-    @Singleton
-    WordDataSource provideWordDataSource(Context context) {
-        return new WordXmlDataSource(context);
-    }
 
 }

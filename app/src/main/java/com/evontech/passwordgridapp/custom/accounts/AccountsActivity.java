@@ -23,14 +23,13 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.widget.PopupMenu;
+import androidx.core.content.ContextCompat;
 import androidx.lifecycle.ViewModelProviders;
-import androidx.recyclerview.widget.RecyclerView;
 
 import com.evontech.passwordgridapp.R;
 import com.evontech.passwordgridapp.custom.AppUser.Login;
 import com.evontech.passwordgridapp.custom.FullscreenActivity;
 import com.evontech.passwordgridapp.custom.PasswordGridApp;
-import com.evontech.passwordgridapp.custom.common.Util;
 import com.evontech.passwordgridapp.custom.grid.GridActivity;
 import com.evontech.passwordgridapp.custom.models.UserAccount;
 import com.evontech.passwordgridapp.custom.settings.Preferences;
@@ -49,22 +48,17 @@ import javax.inject.Inject;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 
-public class AccountsActivity extends FullscreenActivity implements OnAccountClickListner {
+public class AccountsActivity extends FullscreenActivity {
 
-    private List<UserAccount> mUserAccounts;
-    @BindView(R.id.recycler_account)
-    RecyclerView recyclerView;
     @BindView(R.id.expandableListView)
     ExpandableListView expandableListView;
     @BindView(R.id.addAccount)
     FloatingActionButton addAccount;
     @BindView(R.id.loadingText)
     TextView loadingText;
-    @Inject
-    Preferences mPreferences;
+    @Inject Preferences mPreferences;
     @Inject ViewModelFactory mViewModelFactory;
     private AccountsViewModel mViewModel;
-
     @BindView(R.id.iconFilter)
     ImageView filterIcon;
     @BindView(R.id.tv_filter)
@@ -73,10 +67,8 @@ public class AccountsActivity extends FullscreenActivity implements OnAccountCli
     ImageView searchIcon;
     @BindView(R.id.et_search_accounts)
     AutoCompleteTextView et_search_accounts;
-
     @BindView(R.id.bottom_sheet)
     LinearLayout layoutBottomSheet;
-
     @BindView(R.id.et_account_name)
     AutoCompleteTextView et_account_name;
     @BindView(R.id.et_account_username)
@@ -89,7 +81,6 @@ public class AccountsActivity extends FullscreenActivity implements OnAccountCli
     Button buttonAdd;
     @BindView(R.id.buttonCancel)
     Button buttonCancel;
-
     @BindView(R.id.tv_name)
     TextView tv_name;
     @BindView(R.id.tv_mobile)
@@ -98,14 +89,14 @@ public class AccountsActivity extends FullscreenActivity implements OnAccountCli
     ImageView iconLogout;
 
     private BottomSheetBehavior sheetBehavior;
-
     private final ArrayList<String> search_accounts_array = new ArrayList<>();
     private final ArrayList<String> accounts_name_array = new ArrayList<>();
     private final ArrayList<String> accounts_url_array = new ArrayList<>();
     private final ArrayList<String> accounts_category_array = new ArrayList<>();
     private final ArrayList<String> accounts_username_array = new ArrayList<>();
-
-
+    private List<UserAccount> mUserAccounts;
+    private List<UserAccount> mTempUserAccounts;
+    private int expandedPosition = -1;
     private List<String> expandableListTitle = new ArrayList<>();
     private HashMap<String, List<UserAccount>> expandableListDetail = new HashMap<>();
 
@@ -113,14 +104,13 @@ public class AccountsActivity extends FullscreenActivity implements OnAccountCli
     protected void onCreate(Bundle savedInstanceState) {
         ((PasswordGridApp) getApplication()).getAppComponent().inject(this);
         requestWindowFeature(Window.FEATURE_NO_TITLE);
-        getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
-                WindowManager.LayoutParams.FLAG_FULLSCREEN);
+        getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_user_accounts);
         ButterKnife.bind(this);
         sheetBehavior = BottomSheetBehavior.from(layoutBottomSheet);
 
-        sheetBehavior.setBottomSheetCallback(new BottomSheetBehavior.BottomSheetCallback() {
+        sheetBehavior.addBottomSheetCallback(new BottomSheetBehavior.BottomSheetCallback() {
             @Override
             public void onStateChanged(@NonNull View bottomSheet, int newState) {
                 switch (newState) {
@@ -175,8 +165,7 @@ public class AccountsActivity extends FullscreenActivity implements OnAccountCli
             }
         });
 
-
-        setUpRecyclerView();
+        setUpExpandableView();
         addAccount.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -193,7 +182,7 @@ public class AccountsActivity extends FullscreenActivity implements OnAccountCli
                 }
             }
         });
-        String fName[] = getPreferences().getName().split(" ");
+        String[] fName = getPreferences().getName().split(" ");
         tv_name.setText(fName[0]);
         tv_mobile.setText(getPreferences().getMObile());
         iconLogout.setOnClickListener(new View.OnClickListener() {
@@ -259,7 +248,7 @@ public class AccountsActivity extends FullscreenActivity implements OnAccountCli
         et_search_accounts.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-               applySearch(et_search_accounts.getText().toString());
+               applySearch(et_search_accounts.getText().toString().toLowerCase());
             }
         });
         et_search_accounts.addTextChangedListener(new TextWatcher() {
@@ -267,11 +256,20 @@ public class AccountsActivity extends FullscreenActivity implements OnAccountCli
             public void onTextChanged(CharSequence s, int start, int before, int count) {
                 Log.d("textChanged ", ""+s);
                 if(TextUtils.isEmpty(s)){
+                    expandedPosition = -1;
+                    expandableListView.setVisibility(View.VISIBLE);
                     mUserAccounts.clear();
                     mViewModel.loadAccounts();
                 }else if(!search_accounts_array.contains(String.valueOf(s))) {
+                    searchIcon.setImageDrawable(ContextCompat.getDrawable(AccountsActivity.this,R.drawable.ic_twotone_cancel_24));
+                    expandableListView.setVisibility(View.GONE);
                     loadingText.setText("No record found.");
                     loadingText.setVisibility(View.VISIBLE);
+                }else {
+                    searchIcon.setImageDrawable(ContextCompat.getDrawable(AccountsActivity.this,R.drawable.ic_twotone_cancel_24));
+                    loadingText.setVisibility(View.GONE);
+                    expandableListView.setVisibility(View.VISIBLE);
+                    applySearch(String.valueOf(s).toLowerCase());
                 }
             }
             @Override
@@ -282,7 +280,8 @@ public class AccountsActivity extends FullscreenActivity implements OnAccountCli
         searchIcon.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
+                et_search_accounts.setText("");
+                searchIcon.setImageDrawable(ContextCompat.getDrawable(AccountsActivity.this,R.drawable.ic_baseline_search_24));
             }
         });
     }
@@ -294,14 +293,16 @@ public class AccountsActivity extends FullscreenActivity implements OnAccountCli
     private void applySearch(String searchItem){
         Log.d("searchItem ", searchItem);
         List<UserAccount> tempUserAccounts = new ArrayList<>();
-        for (UserAccount account:mUserAccounts){
-            if(account.getAccountName().contains(searchItem) || account.getAccountCategory().contains(searchItem))
+        for (UserAccount account:mTempUserAccounts){
+            if(account.getAccountName().toLowerCase().contains(searchItem) || account.getAccountCategory().toLowerCase().contains(searchItem)) {
                 tempUserAccounts.add(account);
+            }
         }
         if(tempUserAccounts.size()>0) {
             Log.d("tempUserAccount ", tempUserAccounts.size()+"");
             mUserAccounts.clear();
             mUserAccounts.addAll(tempUserAccounts);
+            expandedPosition = 0;
             onAccountLoaded();
         }
     }
@@ -310,12 +311,16 @@ public class AccountsActivity extends FullscreenActivity implements OnAccountCli
         if (accountState instanceof AccountsViewModel.Loading) {
             Log.d("accountState: ", "Loading...");
         }else if(accountState instanceof AccountsViewModel.Loaded){
+            mTempUserAccounts.clear();
             mUserAccounts.addAll(((AccountsViewModel.Loaded) accountState).accountList);
+            mTempUserAccounts.addAll(((AccountsViewModel.Loaded) accountState).accountList);
             if(mUserAccounts.size()>0) loadingText.setVisibility(View.GONE);
             else sheetBehavior.setState(BottomSheetBehavior.STATE_EXPANDED);
             Log.d("accountState: ", "Loaded...");
             Log.d("mUserAccounts Size : ", ""+mUserAccounts.size());
+            if(TextUtils.isEmpty(et_search_accounts.getText().toString()))
             onAccountLoaded();
+            else applySearch(et_search_accounts.getText().toString());
         }
     }
 
@@ -337,7 +342,7 @@ public class AccountsActivity extends FullscreenActivity implements OnAccountCli
         accounts_category_array.addAll(Arrays.asList(category_array));
 
         List<String> headerList = new ArrayList<>();
-        List<UserAccount> childList = new ArrayList<>();
+        List<UserAccount> childList;
         for(int i=0;i<size;i++){
             if(!accounts_name_array.contains(mUserAccounts.get(i).getAccountName())) {
                 Log.d("adding account ", mUserAccounts.get(i).getAccountName());
@@ -347,9 +352,6 @@ public class AccountsActivity extends FullscreenActivity implements OnAccountCli
             }
             if(!accounts_username_array.contains(mUserAccounts.get(i).getUserName()))
             accounts_username_array.add(mUserAccounts.get(i).getUserName());
-
-            search_accounts_array.add(mUserAccounts.get(i).getAccountName());
-            search_accounts_array.add(mUserAccounts.get(i).getAccountCategory());
 
             if(!headerList.contains(mUserAccounts.get(i).getAccountCategory())) {
                 childList = new ArrayList<>();
@@ -361,6 +363,9 @@ public class AccountsActivity extends FullscreenActivity implements OnAccountCli
                 childList.add(mUserAccounts.get(i));
                 expandableListDetail.put(mUserAccounts.get(i).getAccountCategory(), childList);
             }
+
+            search_accounts_array.add(mUserAccounts.get(i).getAccountName().toLowerCase());
+            search_accounts_array.add(mUserAccounts.get(i).getAccountCategory().toLowerCase());
         }
 
         ArrayAdapter<String> searchAdapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, search_accounts_array.stream().distinct().collect(Collectors.toList()));
@@ -374,6 +379,9 @@ public class AccountsActivity extends FullscreenActivity implements OnAccountCli
         ExpandableListAdapter expandableListAdapter = new CustomExpandableListAdapter(this, expandableListTitle, expandableListDetail);
         expandableListView.setAdapter(expandableListAdapter);
 
+        if(expandedPosition>=0)
+        expandableListView.expandGroup(expandedPosition);
+
         ArrayAdapter<String> adapter1 = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, accounts_username_array);
         et_account_username.setAdapter(adapter1);
         ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, accounts_name_array);
@@ -384,152 +392,36 @@ public class AccountsActivity extends FullscreenActivity implements OnAccountCli
         et_account_category.setAdapter(adapter3);
     }
 
-    private void setUpRecyclerView(){
+    private void setUpExpandableView(){
         expandableListDetail =  new HashMap<>();
         expandableListView.setOnGroupExpandListener(new ExpandableListView.OnGroupExpandListener() {
             @Override
             public void onGroupExpand(int groupPosition) {
-                Toast.makeText(getApplicationContext(), expandableListTitle.get(groupPosition) + " List Expanded.", Toast.LENGTH_SHORT).show();
+                //Toast.makeText(getApplicationContext(), expandableListTitle.get(groupPosition) + " List Expanded.", Toast.LENGTH_SHORT).show();
             }
         });
         expandableListView.setOnGroupCollapseListener(new ExpandableListView.OnGroupCollapseListener() {
             @Override
             public void onGroupCollapse(int groupPosition) {
-                Toast.makeText(getApplicationContext(), expandableListTitle.get(groupPosition) + " List Collapsed.", Toast.LENGTH_SHORT).show();
+                //Toast.makeText(getApplicationContext(), expandableListTitle.get(groupPosition) + " List Collapsed.", Toast.LENGTH_SHORT).show();
             }
         });
         expandableListView.setOnChildClickListener(new ExpandableListView.OnChildClickListener() {
             @Override
             public boolean onChildClick(ExpandableListView parent, View v, int groupPosition, int childPosition, long id) {
+                expandedPosition = groupPosition;
                 UserAccount userAccount = expandableListDetail.get(expandableListTitle.get(groupPosition)).get(childPosition);
-                Toast.makeText(getApplicationContext(), expandableListTitle.get(groupPosition) + " -> " + userAccount.getAccountName(), Toast.LENGTH_SHORT).show();
-                if(userAccount.getAccountGridId()<=0) setDefaultCriteria();
+               // Toast.makeText(getApplicationContext(), expandableListTitle.get(groupPosition) + " -> " + userAccount.getAccountName(), Toast.LENGTH_SHORT).show();
+                //if(userAccount.getAccountGridId()<=0) setDefaultCriteria();
                 startGrid(userAccount);
                 return false;
             }
         });
         mUserAccounts = new ArrayList<>();
+        mTempUserAccounts = new ArrayList<>();
         if(mUserAccounts.size()>0) loadingText.setVisibility(View.GONE);
-        /*adapter = new AccountAdapter(mUserAccounts, this);
-        recyclerView.setAdapter(adapter);
-        recyclerView.setLayoutManager(new LinearLayoutManager(this));*/
     }
 
-
-    @Override
-    public void onAccountSelected(int position) {
-        UserAccount userAccount = mUserAccounts.get(position);
-        Log.d("Account: ", userAccount.getAccountName());
-        Log.d("Account Id: ", ""+userAccount.getId());
-        Log.d("Account GridId: ", ""+userAccount.getAccountGridId());
-        if(userAccount.getAccountGridId()<=0)
-        setDefaultCriteria();
-        startGrid(userAccount);
-    }
-
-    private void setDefaultCriteria(){
-        //set default selection method here.
-
-        if(!mPreferences.userSelectedDirection()) { //default direction
-            int randomdirections = Util.getRandomIntRange(1,6);
-            switch (randomdirections){
-                case 1:
-                    mPreferences.selectDirection("EAST");
-                    break;
-                case 2:
-                    mPreferences.selectDirection("WEST");
-                    break;
-                case 3:
-                    mPreferences.selectDirection("SOUTH");
-                    break;
-                case 4:
-                    mPreferences.selectDirection("NORTH");
-                    break;
-                case 5:
-                    mPreferences.selectDirection("SOUTH_EAST");
-                    break;
-                case 6:
-                    mPreferences.selectDirection("NORTH_WEST");
-                    break;
-            }
-        }
-        if(!mPreferences.userSelectedChosenOption()){
-            int randomSelectionOption = Util.getRandomIntRange(1,6);
-            Log.d("randomSelectionOption ", ""+randomSelectionOption);
-            switch (randomSelectionOption){
-                case 1:
-                    mPreferences.setDragManually(true);
-
-                    mPreferences.setGridPattern(false);
-                    mPreferences.setGridDirection(false);
-                    mPreferences.setWordFromBorder(false);
-                    mPreferences.setStartEndGrid(false);
-                    mPreferences.setTypeManually(false);
-                    break;
-                case 2:
-                    mPreferences.setStartEndGrid(true);
-
-                    mPreferences.setGridPattern(false);
-                    mPreferences.setGridDirection(false);
-                    mPreferences.setWordFromBorder(false);
-                    mPreferences.setDragManually(false);
-                    mPreferences.setTypeManually(false);
-                    break;
-                case 3:
-                    mPreferences.setGridDirection(true);
-
-                    mPreferences.setGridPattern(false);
-                    mPreferences.setWordFromBorder(false);
-                    mPreferences.setDragManually(false);
-                    mPreferences.setStartEndGrid(false);
-                    mPreferences.setTypeManually(false);
-                    break;
-                case 4:
-                    mPreferences.setGridPattern(true);
-
-                    mPreferences.setGridDirection(false);
-                    mPreferences.setWordFromBorder(false);
-                    mPreferences.setDragManually(false);
-                    mPreferences.setStartEndGrid(false);
-                    mPreferences.setTypeManually(false);
-                    break;
-                case 5:
-                    mPreferences.setWordFromBorder(true);
-
-                    mPreferences.setGridPattern(false);
-                    mPreferences.setGridDirection(false);
-                    mPreferences.setDragManually(false);
-                    mPreferences.setStartEndGrid(false);
-                    mPreferences.setTypeManually(false);
-                    break;
-                case 6:
-                    mPreferences.setTypeManually(true);
-
-                    mPreferences.setGridPattern(false);
-                    mPreferences.setGridDirection(false);
-                    mPreferences.setWordFromBorder(false);
-                    mPreferences.setDragManually(false);
-                    mPreferences.setStartEndGrid(false);
-                    break;
-            }
-        }
-        if(!mPreferences.showSpecialCharacters() && !mPreferences.showUpperCharacters() && !mPreferences.showLowerCharacters() && !mPreferences.showNumberCharacters() ){
-            mPreferences.setSpecialCharacters(true);
-            mPreferences.setUpperCharacters(true);
-            mPreferences.setLowerCharacters(true);
-            mPreferences.setNumberCharacters(true);
-        }
-        if(mPreferences.isPasswordSelected() && mPreferences.getPasswordLength()<=0){
-            mPreferences.setPasswordLength(14);
-            mPreferences.setGridRow(14);
-            mPreferences.setGridCol(14);
-        }else if(mPreferences.isPinSelected() && mPreferences.getPinLength()<=0){
-            mPreferences.setPinLength(6);
-            mPreferences.setGridRow(6);
-            mPreferences.setGridCol(6);
-        }
-        if(mPreferences.showWordFromBorder() ||  mPreferences.selectedTypeManually()) mPreferences.setGridCol(26);
-    }
     private void startGrid(UserAccount userAccount){
         Intent intent = new Intent(this, GridActivity.class);
         intent.putExtra(GridActivity.EXTRA_ROW_COUNT, mPreferences.getGridRow());
@@ -538,13 +430,14 @@ public class AccountsActivity extends FullscreenActivity implements OnAccountCli
         if(userAccount.getAccountGridId()>0)  intent.putExtra(GridActivity.EXTRA_GRID_ID, userAccount.getAccountGridId());
         intent.putExtra("account", userAccount);
         startActivity(intent);
-        overridePendingTransition(R.anim.slide_in, R.anim.slide_out);
+        //overridePendingTransition(R.anim.slide_in, R.anim.slide_out);
     }
 
     @Override
     protected void onResume() {
         super.onResume();
-        mUserAccounts.clear();
-        mViewModel.loadAccounts();
+            mUserAccounts.clear();
+            mTempUserAccounts.clear();
+            mViewModel.loadAccounts();
     }
 }
