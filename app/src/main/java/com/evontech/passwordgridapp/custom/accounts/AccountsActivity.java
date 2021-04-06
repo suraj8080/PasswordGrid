@@ -39,8 +39,13 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
+import java.util.TreeMap;
 import java.util.stream.Collectors;
 
 import javax.inject.Inject;
@@ -97,6 +102,7 @@ public class AccountsActivity extends FullscreenActivity {
     private List<UserAccount> mUserAccounts;
     private List<UserAccount> mTempUserAccounts;
     private int expandedPosition = -1;
+    private String filterOption = "";
     private List<String> expandableListTitle = new ArrayList<>();
     private HashMap<String, List<UserAccount>> expandableListDetail = new HashMap<>();
 
@@ -236,7 +242,8 @@ public class AccountsActivity extends FullscreenActivity {
                 popup.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
                     public boolean onMenuItemClick(MenuItem item) {
                         tv_filter.setText(item.getTitle());
-                        applyFilter(item.getTitle().toString());
+                        filterOption = item.getTitle().toString();
+                        applySearchFilter();
                         //Toast.makeText(AccountsActivity.this,"You Clicked : " + item.getTitle(), Toast.LENGTH_SHORT).show();
                         return true;
                     }
@@ -286,10 +293,6 @@ public class AccountsActivity extends FullscreenActivity {
         });
     }
 
-    private void applyFilter(String filterOption){
-        Log.d("filterOption ", filterOption);
-    }
-
     private void applySearch(String searchItem){
         Log.d("searchItem ", searchItem);
         List<UserAccount> tempUserAccounts = new ArrayList<>();
@@ -303,8 +306,78 @@ public class AccountsActivity extends FullscreenActivity {
             mUserAccounts.clear();
             mUserAccounts.addAll(tempUserAccounts);
             expandedPosition = 0;
-            onAccountLoaded();
+            applySearchFilter();
         }
+    }
+
+    private void applySearchFilter(){
+        expandableListTitle.clear();
+        expandableListDetail.clear();
+        search_accounts_array.clear();
+        List<String> headerList = new ArrayList<>();
+        List<UserAccount> childList;
+        for(int i=0;i<mUserAccounts.size();i++){
+            if(!headerList.contains(mUserAccounts.get(i).getAccountCategory())) {
+                childList = new ArrayList<>();
+                headerList.add(mUserAccounts.get(i).getAccountCategory());
+                childList.add(mUserAccounts.get(i));
+                expandableListDetail.put(mUserAccounts.get(i).getAccountCategory(), childList);
+            }else {
+                childList = expandableListDetail.get(mUserAccounts.get(i).getAccountCategory());
+                childList.add(mUserAccounts.get(i));
+                expandableListDetail.put(mUserAccounts.get(i).getAccountCategory(), childList);
+            }
+            search_accounts_array.add(mUserAccounts.get(i).getAccountName().toLowerCase());
+            search_accounts_array.add(mUserAccounts.get(i).getAccountCategory().toLowerCase());
+        }
+        ArrayAdapter<String> searchAdapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, search_accounts_array.stream().distinct().collect(Collectors.toList()));
+        et_search_accounts.setAdapter(searchAdapter);
+
+        expandableListTitle = new ArrayList<String>(expandableListDetail.keySet());
+        if(filterOption.equals("a-z"))
+        Collections.sort(expandableListTitle);
+        else if(filterOption.equals("z-a"))
+        Collections.sort(expandableListTitle, Collections.reverseOrder());
+        else {
+            expandableListTitle = new ArrayList<String>(expandableListDetail.keySet());
+            //convert HashMap into List
+            List<Map.Entry<String, List<UserAccount>>> list = new LinkedList<>(expandableListDetail.entrySet());
+            //sorting the list elements
+            Collections.sort(list, new Comparator<Map.Entry<String, List<UserAccount>>>()
+            {
+                public int compare(Map.Entry<String, List<UserAccount>> o1, Map.Entry<String, List<UserAccount>> o2)
+                {
+                    Integer obj1 = 0;
+                    Integer obj2 = 0;
+                    for (UserAccount  account: o1.getValue())
+                        if(obj1<account.getId()) obj1 = account.getId();
+                    for (UserAccount  account: o2.getValue())
+                        if(obj2<account.getId()) obj2 = account.getId();
+
+                        Log.d("obj1 "+obj1, " obj2 "+obj2);
+                   return obj1.compareTo(obj2);
+
+                    /*if (order) {//compare two object and return an integer
+                        return o1.getValue().compareTo(o2.getValue());}
+                    else {
+                        return o2.getValue().compareTo(o1.getValue());
+                    }*/
+                }
+            });
+            expandableListDetail.clear();
+            expandableListTitle.clear();
+            for (Map.Entry<String, List<UserAccount>> entry : list) {
+                Log.d("keys "+entry.getKey(), "value "+entry.getValue().toString());
+                expandableListDetail.put(entry.getKey(), entry.getValue());
+            }
+            expandableListTitle = new ArrayList<String>(expandableListDetail.keySet());
+        }
+
+        ExpandableListAdapter expandableListAdapter = new CustomExpandableListAdapter(this, expandableListTitle, expandableListDetail);
+        expandableListView.setAdapter(expandableListAdapter);
+
+        if(expandedPosition>=0)
+            expandableListView.expandGroup(expandedPosition);
     }
 
     private void onAccountStateChanged(AccountsViewModel.AccountState accountState) {
@@ -325,25 +398,18 @@ public class AccountsActivity extends FullscreenActivity {
     }
 
     private void onAccountLoaded(){
+        applySearchFilter();
         accounts_name_array.clear();
         accounts_category_array.clear();
         accounts_url_array.clear();
         accounts_username_array.clear();
-        expandableListTitle.clear();
-        expandableListDetail.clear();
-        int size = 0;
-        if(mUserAccounts!=null) size = mUserAccounts.size();
-
         String[] name_array = getResources().getStringArray(R.array.account_name_array);
         String[] url_array = getResources().getStringArray(R.array.account_url_array);
         String[] category_array = getResources().getStringArray(R.array.account_category_array);
         accounts_name_array.addAll(Arrays.asList(name_array));
         accounts_url_array.addAll(Arrays.asList(url_array));
         accounts_category_array.addAll(Arrays.asList(category_array));
-
-        List<String> headerList = new ArrayList<>();
-        List<UserAccount> childList;
-        for(int i=0;i<size;i++){
+        for(int i=0;i<mUserAccounts.size();i++){
             if(!accounts_name_array.contains(mUserAccounts.get(i).getAccountName())) {
                 Log.d("adding account ", mUserAccounts.get(i).getAccountName());
                 accounts_name_array.add(mUserAccounts.get(i).getAccountName());
@@ -352,36 +418,7 @@ public class AccountsActivity extends FullscreenActivity {
             }
             if(!accounts_username_array.contains(mUserAccounts.get(i).getUserName()))
             accounts_username_array.add(mUserAccounts.get(i).getUserName());
-
-            if(!headerList.contains(mUserAccounts.get(i).getAccountCategory())) {
-                childList = new ArrayList<>();
-                headerList.add(mUserAccounts.get(i).getAccountCategory());
-                childList.add(mUserAccounts.get(i));
-                expandableListDetail.put(mUserAccounts.get(i).getAccountCategory(), childList);
-            }else {
-                childList = expandableListDetail.get(mUserAccounts.get(i).getAccountCategory());
-                childList.add(mUserAccounts.get(i));
-                expandableListDetail.put(mUserAccounts.get(i).getAccountCategory(), childList);
-            }
-
-            search_accounts_array.add(mUserAccounts.get(i).getAccountName().toLowerCase());
-            search_accounts_array.add(mUserAccounts.get(i).getAccountCategory().toLowerCase());
         }
-
-        ArrayAdapter<String> searchAdapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, search_accounts_array.stream().distinct().collect(Collectors.toList()));
-        et_search_accounts.setAdapter(searchAdapter);
-
-        /*for (String key: expandableListDetail.keySet()) {
-            String value = expandableListDetail.get(key).toString();
-            Log.d("key "+key, "value "+value);
-        }*/
-        expandableListTitle = new ArrayList<String>(expandableListDetail.keySet());
-        ExpandableListAdapter expandableListAdapter = new CustomExpandableListAdapter(this, expandableListTitle, expandableListDetail);
-        expandableListView.setAdapter(expandableListAdapter);
-
-        if(expandedPosition>=0)
-        expandableListView.expandGroup(expandedPosition);
-
         ArrayAdapter<String> adapter1 = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, accounts_username_array);
         et_account_username.setAdapter(adapter1);
         ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, accounts_name_array);

@@ -2,7 +2,7 @@ package com.evontech.passwordgridapp.custom.models;
 
 import java.io.Serializable;
 
-public class UserAccount implements Serializable {
+public class UserAccount implements Serializable{
     private int id;
     private int userId;
     private String accountName;
