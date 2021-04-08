@@ -1,10 +1,15 @@
 package com.evontech.passwordgridapp.custom.AppUser;
 
+import android.annotation.TargetApi;
 import android.app.ProgressDialog;
 import android.content.Intent;
+import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
+import android.provider.Settings;
 import android.util.Log;
 import android.view.View;
+import android.view.autofill.AutofillManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
@@ -17,6 +22,7 @@ import com.evontech.passwordgridapp.custom.FullscreenActivity;
 import com.evontech.passwordgridapp.custom.PasswordGridApp;
 import com.evontech.passwordgridapp.custom.accounts.AccountsActivity;
 import com.evontech.passwordgridapp.custom.models.AppUser;
+import com.evontech.passwordgridapp.custom.services.GridLockService;
 import com.evontech.passwordgridapp.custom.settings.ViewModelFactory;
 
 import javax.inject.Inject;
@@ -49,6 +55,7 @@ public class Login extends FullscreenActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.login);
         ButterKnife.bind(this);
+        checkAutofillService();
         progressDialog = new ProgressDialog(Login.this,
                 R.style.AppTheme_Dark_Dialog);
         _loginButton.setOnClickListener(new View.OnClickListener() {
@@ -79,6 +86,17 @@ public class Login extends FullscreenActivity {
             mViewModel = ViewModelProviders.of(this, mViewModelFactory).get(LoginViewModel.class);
             mViewModel.resetLiveData();
             mViewModel.getOnAccountState().observe(this, this::onAccountStateChanged);
+        }
+    }
+
+    private static final int REQUEST_CODE_SET_DEFAULT = 10;
+    @TargetApi(Build.VERSION_CODES.O)
+    private void checkAutofillService(){
+        AutofillManager mAutofillManager = getSystemService(AutofillManager.class);
+        if (mAutofillManager != null && !mAutofillManager.hasEnabledAutofillServices()) {
+            Intent intent = new Intent(Settings.ACTION_REQUEST_SET_AUTOFILL_SERVICE);
+            intent.setData(Uri.parse("package:com.example.android"));
+            startActivityForResult(intent, REQUEST_CODE_SET_DEFAULT);
         }
     }
 
