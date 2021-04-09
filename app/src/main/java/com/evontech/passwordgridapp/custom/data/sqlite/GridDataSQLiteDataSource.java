@@ -230,10 +230,10 @@ public class GridDataSQLiteDataSource implements GridDataSource, AccountDataSour
                     userAccount.setAccountUrl(c.getString(4));
                     userAccount.setAccountCategory(c.getString(5));
                     userAccount.setAccountGridId(c.getInt(6));
-                    Log.d("Getting accountData ", c.getString(2));
+                  //  Log.d("Getting accountData ", c.getString(2));
                     allAccounts.add(userAccount);
                     c.moveToNext();
-                    Log.d("UserAccounts userId ", ""+userAccount.getUserId());
+                  //  Log.d("UserAccounts userId ", ""+userAccount.getUserId());
                 }
             }
             c.close();
