@@ -42,6 +42,7 @@ import com.evontech.passwordgridapp.custom.common.Direction;
 import com.evontech.passwordgridapp.custom.common.GridIndex;
 import com.evontech.passwordgridapp.custom.common.Util;
 import com.evontech.passwordgridapp.custom.common.generator.StringListGridGenerator;
+import com.evontech.passwordgridapp.custom.data.entity.GridDataMapper;
 import com.evontech.passwordgridapp.custom.mcustom.LetterBoard;
 import com.evontech.passwordgridapp.custom.mcustom.StreakView;
 import com.evontech.passwordgridapp.custom.models.GridData;
@@ -71,6 +72,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
+import java.util.Objects;
 import java.util.regex.Pattern;
 
 import javax.inject.Inject;
@@ -396,7 +398,7 @@ public class GridActivity extends FullscreenActivity {
                 //defaultBoardWidth();
                 Preferences preferences = getPreferences();
                 mViewModel.setGridGenerationCriteria(preferences.showUpperCharacters(), preferences.showLowerCharacters(),preferences.showNumberCharacters(), preferences.showSpecialCharacters());
-                mViewModel.setSelectedTypedWord(mTextFromBorder.getText().toString());
+                mViewModel.setSelectedTypedWord(Objects.requireNonNull(mTextFromBorder.getText()).toString());
                 //mViewModel.setGridChosenOption(getCurrentChosenOption());
                 mViewModel.loadGridRound(gid);
             } else {
@@ -409,7 +411,7 @@ public class GridActivity extends FullscreenActivity {
                 mViewModel.setGridGenerationCriteria(preferences.showUpperCharacters(), preferences.showLowerCharacters(),preferences.showNumberCharacters(), preferences.showSpecialCharacters());
                 mViewModel.setGridChosenOption(getCurrentChosenOption());
                 //mViewModel.setPasswordLength(getPreferences().getPasswordLength());
-                mViewModel.setSelectedTypedWord(mTextFromBorder.getText().toString());
+                mViewModel.setSelectedTypedWord(Objects.requireNonNull(mTextFromBorder.getText()).toString());
                 mViewModel.generateNewGridRound(rowCount, colCount);
             }
             grid_account_name.setText(userAccount.getAccountName());
@@ -2008,6 +2010,8 @@ public class GridActivity extends FullscreenActivity {
     private GridData mGridData;
     private void onGridRoundLoaded(GridData gridData) {
         mGridData = gridData;
+        Log.d("updatedPassword ", mGridData.getUpdatedPassword());
+
         /* restore stored griddata selected pin/password mode, selected character case, and selected password chosen option.
            restored typed/selected word from border if chosen option is word from border or type manually,
            fix random new password generation crash on word from border and type manually chosen option.
@@ -2075,7 +2079,6 @@ public class GridActivity extends FullscreenActivity {
                // }
             }
         }
-
         passwordStrengthIndicator(mTextSelection.getText().toString());
         doneLoadingContent();
     }

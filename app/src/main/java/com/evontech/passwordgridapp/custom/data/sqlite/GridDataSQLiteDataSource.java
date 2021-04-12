@@ -39,17 +39,17 @@ public class GridDataSQLiteDataSource implements GridDataSource, AccountDataSour
         String cols[] = {
                 DbContract.GRID._ID,
                 DbContract.GRID.COL_NAME,
-                DbContract.GRID.COL_DURATION,
                 DbContract.GRID.COL_GRID_ROW_COUNT,
                 DbContract.GRID.COL_GRID_COL_COUNT,
                 DbContract.GRID.COL_GRID_DATA,
                 DbContract.GRID.COL_SELECTION_CRITERIA,
                 DbContract.GRID.COL_CHOSEN_OPTION,
-                DbContract.GRID.COL_SELECTED_TYPED_WORD
+                DbContract.GRID.COL_SELECTED_TYPED_WORD,
+                DbContract.GRID.COL_GRID_UPDATED_PASSWORD
                 //DbContract.GRID.COL_GRID_PASSWORD_LENGTH
         };
         String sel = DbContract.GRID._ID + "=? AND " + DbContract.GRID.COL_USER_ID + " = ?";
-        String selArgs[] = {String.valueOf(gid), String.valueOf(userId)};
+        String[] selArgs = {String.valueOf(gid), String.valueOf(userId)};
 
         Cursor c = db.query(DbContract.GRID.TABLE_NAME, cols, sel, selArgs, null, null, null);
         GridDataEntity ent = null;
@@ -57,16 +57,16 @@ public class GridDataSQLiteDataSource implements GridDataSource, AccountDataSour
             ent = new GridDataEntity();
             ent.setId(c.getInt(0));
             ent.setName(c.getString(1));
-            ent.setDuration(c.getInt(2));
-            ent.setGridRowCount(c.getInt(3));
-            ent.setGridColCount(c.getInt(4));
-            ent.setGridData(c.getString(5));
-            ent.setmSelectionCriteria(c.getString(6));
-            ent.setmChosenOption(c.getString(7));
-            ent.setmSelectedTypedWord(c.getString(8));
+            ent.setGridRowCount(c.getInt(2));
+            ent.setGridColCount(c.getInt(3));
+            ent.setGridData(c.getString(4));
+            ent.setmSelectionCriteria(c.getString(5));
+            ent.setmChosenOption(c.getString(6));
+            ent.setmSelectedTypedWord(c.getString(7));
+            ent.setUpdatedPassword(c.getString(8));
            // ent.setmGridPasswordLength(c.getInt(9));
-            Log.d("Getting GridData ", c.getString(5));
-            Log.d("Getting SelectedTypedWord ", c.getString(8));
+            Log.d("Getting GridData ", c.getString(4));
+            Log.d("Getting SelectedTypedWord ", c.getString(7));
             Log.d("Getting userId ", userId+"");
             ent.setUsedWords(getUsedWords(gid, userId));
         }
@@ -108,7 +108,6 @@ public class GridDataSQLiteDataSource implements GridDataSource, AccountDataSour
         ContentValues values = new ContentValues();
         values.put(DbContract.GRID.COL_USER_ID, userId);
         values.put(DbContract.GRID.COL_NAME, gameRound.getName());
-        values.put(DbContract.GRID.COL_DURATION, gameRound.getDuration());
         values.put(DbContract.GRID.COL_GRID_ROW_COUNT, gameRound.getGridRowCount());
         values.put(DbContract.GRID.COL_GRID_COL_COUNT, gameRound.getGridColCount());
         //values.put(DbContract.GRID.COL_GRID_PASSWORD_LENGTH, gameRound.getmGridPasswordLength());
@@ -121,12 +120,13 @@ public class GridDataSQLiteDataSource implements GridDataSource, AccountDataSour
         Log.d("Saving GridData ", gameRound.getGridData());
         Log.d("Saving userId ", userId+"");
         values.put(DbContract.GRID.COL_GRID_DATA, gameRound.getGridData());
+        values.put(DbContract.GRID.COL_GRID_UPDATED_PASSWORD, gameRound.getUpdatedPassword());
 
         long gid;
         if(gameRound.getId()>0){
             gid = gameRound.getId();
             String where = DbContract.GRID._ID + "=? AND " + DbContract.GRID.COL_USER_ID + " = ?";
-            String whereArgs[] = {String.valueOf(gid), String.valueOf(userId)};
+            String[] whereArgs = {String.valueOf(gid), String.valueOf(userId)};
             int updateStatus = db.update(DbContract.GRID.TABLE_NAME, values,where, whereArgs);
             Log.d("saveGridData updateStatus ", ""+updateStatus);
         }else {
@@ -170,12 +170,13 @@ public class GridDataSQLiteDataSource implements GridDataSource, AccountDataSour
         Log.d("Saving AccountData ", ""+userAccount.getId());
         Log.d("UserAccounts userId ", ""+userAccount.getUserId());
         values.put(DbContract.UserAccounts.COL_ACCOUNT_GRID_ID, userAccount.getAccountGridId());
+        values.put(DbContract.UserAccounts.COL_ACCOUNT_PASSWORD, userAccount.getAccountPwd());
 
         long acId;
         if(userAccount.getId()>0){
             acId = userAccount.getId();
             String where = DbContract.UserAccounts._ID + "=?  AND " + DbContract.UserAccounts.COL_USER_ID + " = ?";
-            String whereArgs[] = {String.valueOf(acId), String.valueOf(userAccount.getUserId())};
+            String[] whereArgs = {String.valueOf(acId), String.valueOf(userAccount.getUserId())};
             int updateStatus = db.update(DbContract.UserAccounts.TABLE_NAME, values,where, whereArgs);
             Log.d("saveAccountData updateStatus ", ""+updateStatus);
         }else {
@@ -192,7 +193,7 @@ public class GridDataSQLiteDataSource implements GridDataSource, AccountDataSour
         ContentValues values = new ContentValues();
         values.put(DbContract.UserAccounts.COL_ACCOUNT_GRID_ID, account.getAccountGridId());
         String where = DbContract.UserAccounts._ID + "=?  AND " + DbContract.UserAccounts.COL_USER_ID + " = ?";
-        String whereArgs[] = {String.valueOf(account.getId()), String.valueOf(account.getUserId())};
+        String[] whereArgs = {String.valueOf(account.getId()), String.valueOf(account.getUserId())};
         int updateStatus = db.update(DbContract.UserAccounts.TABLE_NAME, values,where, whereArgs);
         Log.d("UserAccounts userId ", ""+account.getUserId());
         Log.d("updateAccountInfo gridId ", ""+account.getAccountGridId());
@@ -204,17 +205,18 @@ public class GridDataSQLiteDataSource implements GridDataSource, AccountDataSour
     public List<UserAccount> getAllAccountData(int userId) {
         SQLiteDatabase db = mHelper.getReadableDatabase();
 
-        String cols[] = {
+        String[] cols = {
                 DbContract.UserAccounts._ID,
                 DbContract.UserAccounts.COL_USER_ID,
                 DbContract.UserAccounts.COL_ACCOUNT_NAME,
                 DbContract.UserAccounts.COL_ACCOUNT_USER_NAME,
                 DbContract.UserAccounts.COL_ACCOUNT_URL,
                 DbContract.UserAccounts.COL_ACCOUNT_CATEGORY,
-                DbContract.UserAccounts.COL_ACCOUNT_GRID_ID
+                DbContract.UserAccounts.COL_ACCOUNT_GRID_ID,
+                DbContract.UserAccounts.COL_ACCOUNT_PASSWORD
         };
         String sel = DbContract.UserAccounts.COL_USER_ID + "=?";
-        String selArgs[] = {String.valueOf(userId)};
+        String[] selArgs = {String.valueOf(userId)};
 
         List<UserAccount> allAccounts = new ArrayList<>();
         try {
@@ -230,6 +232,7 @@ public class GridDataSQLiteDataSource implements GridDataSource, AccountDataSour
                     userAccount.setAccountUrl(c.getString(4));
                     userAccount.setAccountCategory(c.getString(5));
                     userAccount.setAccountGridId(c.getInt(6));
+                    userAccount.setAccountPwd(c.getString(7));
                   //  Log.d("Getting accountData ", c.getString(2));
                     allAccounts.add(userAccount);
                     c.moveToNext();
@@ -245,16 +248,17 @@ public class GridDataSQLiteDataSource implements GridDataSource, AccountDataSour
     public UserAccount getAccountData(int accountId, int userId) {
         SQLiteDatabase db = mHelper.getReadableDatabase();
 
-        String cols[] = {
+        String[] cols = {
                 DbContract.UserAccounts._ID,
                 DbContract.UserAccounts.COL_ACCOUNT_NAME,
                 DbContract.UserAccounts.COL_ACCOUNT_USER_NAME,
                 DbContract.UserAccounts.COL_ACCOUNT_URL,
                 DbContract.UserAccounts.COL_ACCOUNT_CATEGORY,
-                DbContract.UserAccounts.COL_ACCOUNT_GRID_ID
+                DbContract.UserAccounts.COL_ACCOUNT_GRID_ID,
+                DbContract.UserAccounts.COL_ACCOUNT_PASSWORD
         };
         String where = DbContract.UserAccounts._ID + "=?  AND " + DbContract.UserAccounts.COL_USER_ID + " = ?";
-        String whereArgs[] = {String.valueOf(accountId), String.valueOf(userId)};
+        String[] whereArgs = {String.valueOf(accountId), String.valueOf(userId)};
 
         Cursor c = db.query(DbContract.UserAccounts.TABLE_NAME, cols, where, whereArgs, null, null, null);
         UserAccount userAccount = null;
@@ -266,6 +270,7 @@ public class GridDataSQLiteDataSource implements GridDataSource, AccountDataSour
             userAccount.setAccountUrl(c.getString(3));
             userAccount.setAccountCategory(c.getString(4));
             userAccount.setAccountGridId(c.getInt(5));
+            userAccount.setAccountPwd(c.getString(6));
             Log.d("Getting accountData ", c.getString(1));
         }
         c.close();
@@ -334,16 +339,16 @@ public class GridDataSQLiteDataSource implements GridDataSource, AccountDataSour
 
         db.delete(DbContract.GRID.TABLE_NAME, sel, selArgs);
 
-        sel = com.evontech.passwordgridapp.custom.data.sqlite.DbContract.UsedWord.COL_GRID_ID + "=?";
-        db.delete(com.evontech.passwordgridapp.custom.data.sqlite.DbContract.UsedWord.TABLE_NAME, sel, selArgs);
+        sel = DbContract.UsedLine.COL_GRID_ID + "=?";
+        db.delete(DbContract.UsedLine.TABLE_NAME, sel, selArgs);
     }
 
     @Override
     public void deleteAllLines(int gid, int userId) {
         SQLiteDatabase db = mHelper.getWritableDatabase();
-        String sel = DbContract.UsedWord.COL_GRID_ID + "=? AND " + DbContract.GRID.COL_USER_ID + " = ?";
-        String selArgs[] = {String.valueOf(gid), String.valueOf(userId)};
-        db.delete(com.evontech.passwordgridapp.custom.data.sqlite.DbContract.UsedWord.TABLE_NAME, sel, selArgs);
+        String sel = DbContract.UsedLine.COL_GRID_ID + "=? AND " + DbContract.GRID.COL_USER_ID + " = ?";
+        String[] selArgs = {String.valueOf(gid), String.valueOf(userId)};
+        db.delete(DbContract.UsedLine.TABLE_NAME, sel, selArgs);
     }
 
 
@@ -351,37 +356,37 @@ public class GridDataSQLiteDataSource implements GridDataSource, AccountDataSour
     public void deleteGridDatas() {
         SQLiteDatabase db = mHelper.getWritableDatabase();
         db.delete(DbContract.GRID.TABLE_NAME, null, null);
-        db.delete(com.evontech.passwordgridapp.custom.data.sqlite.DbContract.UsedWord.TABLE_NAME, null, null);
+        db.delete(DbContract.UsedLine.TABLE_NAME, null, null);
     }
 
     @Override
     public void saveGridDataDuration(int gid, int newDuration) {
-        SQLiteDatabase db = mHelper.getReadableDatabase();
+        /*SQLiteDatabase db = mHelper.getReadableDatabase();
         ContentValues values = new ContentValues();
         values.put(DbContract.GRID.COL_DURATION, newDuration);
 
         String where = DbContract.GRID._ID + "=?";
         String whereArgs[] = {String.valueOf(gid)};
 
-        db.update(DbContract.GRID.TABLE_NAME, values, where, whereArgs);
+        db.update(DbContract.GRID.TABLE_NAME, values, where, whereArgs);*/
     }
 
     @Override
     public void markWordAsAnswered(int index, int userId, UsedWord usedWord) {
         SQLiteDatabase db = mHelper.getWritableDatabase();
         if(index==0) {
-            String sel = DbContract.UsedWord.COL_GRID_ID + "=?  AND " + DbContract.UsedWord.COL_USER_ID + " = ?";
-            String selArgs[] = {String.valueOf(usedWord.getId()), String.valueOf(userId)};
-            int status = db.delete(DbContract.UsedWord.TABLE_NAME, sel, selArgs);
+            String sel = DbContract.UsedLine.COL_GRID_ID + "=?  AND " + DbContract.UsedLine.COL_USER_ID + " = ?";
+            String[] selArgs = {String.valueOf(usedWord.getId()), String.valueOf(userId)};
+            int status = db.delete(DbContract.UsedLine.TABLE_NAME, sel, selArgs);
             Log.d("markWordAsAnswered deleteStatus ", "" + status);
         }
         ContentValues values = new ContentValues();
-        values.put(DbContract.UsedWord.COL_USER_ID, userId);
-        values.put(DbContract.UsedWord.COL_ANSWER_LINE_DATA, usedWord.getAnswerLine().toString());
-        values.put(DbContract.UsedWord.COL_LINE_COLOR, usedWord.getAnswerLine().color);
-        values.put(DbContract.UsedWord.COL_GRID_ID, usedWord.getId());
-        values.put(DbContract.UsedWord.COL_WORD_STRING, usedWord.getString());
-        long insertedId = db.insert(DbContract.UsedWord.TABLE_NAME, "null", values);
+        values.put(DbContract.UsedLine.COL_USER_ID, userId);
+        values.put(DbContract.UsedLine.COL_ANSWER_LINE_DATA, usedWord.getAnswerLine().toString());
+        values.put(DbContract.UsedLine.COL_LINE_COLOR, usedWord.getAnswerLine().color);
+        values.put(DbContract.UsedLine.COL_GRID_ID, usedWord.getId());
+        values.put(DbContract.UsedLine.COL_WORD_STRING, usedWord.getString());
+        long insertedId = db.insert(DbContract.UsedLine.TABLE_NAME, "null", values);
         usedWord.setId((int) insertedId);
         Log.d("markWordAsAnswered updateStatus ", ""+insertedId);
         Log.d("Saving userId ", userId+"");
@@ -397,17 +402,15 @@ public class GridDataSQLiteDataSource implements GridDataSource, AccountDataSour
 
     private List<UsedWord> getUsedWords(int gid, int userId) {
         SQLiteDatabase db = mHelper.getReadableDatabase();
-        String cols[] = {
-                DbContract.UsedWord._ID,
-                DbContract.UsedWord.COL_WORD_STRING,
-                DbContract.UsedWord.COL_ANSWER_LINE_DATA,
-                DbContract.UsedWord.COL_LINE_COLOR,
-                DbContract.UsedWord.COL_IS_MYSTERY,
-                DbContract.UsedWord.COL_REVEAL_COUNT
+        String[] cols = {
+                DbContract.UsedLine._ID,
+                DbContract.UsedLine.COL_WORD_STRING,
+                DbContract.UsedLine.COL_ANSWER_LINE_DATA,
+                DbContract.UsedLine.COL_LINE_COLOR
         };
-        String sel = DbContract.UsedWord.COL_GRID_ID + "=? AND " + DbContract.UsedWord.COL_USER_ID + " = ?";
-        String selArgs[] = {String.valueOf(gid), String.valueOf(userId)};
-        Cursor c = db.query(DbContract.UsedWord.TABLE_NAME, cols, sel, selArgs, null, null, null);
+        String sel = DbContract.UsedLine.COL_GRID_ID + "=? AND " + DbContract.UsedLine.COL_USER_ID + " = ?";
+        String[] selArgs = {String.valueOf(gid), String.valueOf(userId)};
+        Cursor c = db.query(DbContract.UsedLine.TABLE_NAME, cols, sel, selArgs, null, null, null);
         List<UsedWord> usedWordList = new ArrayList<>();
         if (c.moveToFirst()) {
             while (!c.isAfterLast()) {
@@ -426,8 +429,6 @@ public class GridDataSQLiteDataSource implements GridDataSource, AccountDataSour
                 usedWord.setString(str);
                 usedWord.setAnswered(lineData != null);
                 usedWord.setAnswerLine(answerLine);
-                usedWord.setIsMystery(Boolean.valueOf(c.getString(4)));
-                usedWord.setRevealCount(c.getInt(5));
                 usedWordList.add(usedWord);
                 c.moveToNext();
             }
@@ -437,19 +438,18 @@ public class GridDataSQLiteDataSource implements GridDataSource, AccountDataSour
     }
 
     private String getGameDataInfoQuery(int gid) {
-        String subQ = "(SELECT COUNT(*) FROM " + com.evontech.passwordgridapp.custom.data.sqlite.DbContract.UsedWord.TABLE_NAME + " WHERE " +
-                com.evontech.passwordgridapp.custom.data.sqlite.DbContract.UsedWord.COL_GRID_ID + "=" + DbContract.GRID.TABLE_NAME + "." + DbContract.GRID._ID + ")";
+        String subQ = "(SELECT COUNT(*) FROM " + DbContract.UsedLine.TABLE_NAME + " WHERE " +
+                DbContract.UsedLine.COL_GRID_ID + "=" + DbContract.GRID.TABLE_NAME + "." + DbContract.GRID._ID + ")";
         String order = " ORDER BY " + DbContract.GRID._ID + " DESC";
         if (gid > 0) {
-            subQ = "(SELECT COUNT(*) FROM " + com.evontech.passwordgridapp.custom.data.sqlite.DbContract.UsedWord.TABLE_NAME + " WHERE " +
-                    com.evontech.passwordgridapp.custom.data.sqlite.DbContract.UsedWord.COL_GRID_ID + "=" + gid + ")";
-            order = " WHERE " + com.evontech.passwordgridapp.custom.data.sqlite.DbContract.UsedWord._ID + "=" + gid;
+            subQ = "(SELECT COUNT(*) FROM " + DbContract.UsedLine.TABLE_NAME + " WHERE " +
+                    DbContract.UsedLine.COL_GRID_ID + "=" + gid + ")";
+            order = " WHERE " + DbContract.UsedLine._ID + "=" + gid;
         }
 
         return "SELECT " +
                 DbContract.GRID._ID + "," +
                 DbContract.GRID.COL_NAME + "," +
-                DbContract.GRID.COL_DURATION + "," +
                 DbContract.GRID.COL_GRID_ROW_COUNT + "," +
                 DbContract.GRID.COL_GRID_COL_COUNT + "," +
                 subQ +
@@ -460,7 +460,6 @@ public class GridDataSQLiteDataSource implements GridDataSource, AccountDataSour
         GridDataInfo gdi = new GridDataInfo();
         gdi.setId(c.getInt(0));
         gdi.setName(c.getString(1));
-        gdi.setDuration(c.getInt(2));
         gdi.setGridRowCount(c.getInt(3));
         gdi.setGridColCount(c.getInt(4));
         gdi.setUsedWordsCount(c.getInt(5));

@@ -20,12 +20,13 @@ public class GridData {
     private String mSelectedTypedWord;
     private int mGridPasswordLength;
     private List<UsedWord> mUsedWords;
+    private String updatedPassword;
 
     public GridData() {
-        this(0, "", 0, null, new ArrayList<>(), "", "", "", 0);
+        this(0, "", 0, null, new ArrayList<>(), "", "", "", 0, "");
     }
 
-    public GridData(int id, String name, int duration, Grid grid, List<UsedWord> usedWords, String selectionCriteria, String chosenOption, String selectedTypedWord, int passwordLength) {
+    public GridData(int id, String name, int duration, Grid grid, List<UsedWord> usedWords, String selectionCriteria, String chosenOption, String selectedTypedWord, int passwordLength, String updatedPassword) {
         mId = id;
         mName = name;
         mDuration = duration;
@@ -35,6 +36,15 @@ public class GridData {
         mChosenOption = chosenOption;
         mSelectedTypedWord = selectedTypedWord;
         mGridPasswordLength = passwordLength;
+        this.updatedPassword = updatedPassword;
+    }
+
+    public String getUpdatedPassword() {
+        return updatedPassword;
+    }
+
+    public void setUpdatedPassword(String updatedPassword) {
+        this.updatedPassword = updatedPassword;
     }
 
     public int getmGridPasswordLength() {

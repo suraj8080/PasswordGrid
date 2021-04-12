@@ -22,6 +22,7 @@ public class GridDataEntity {
     private String mChosenOption;
     private String mSelectedTypedWord;
     private List<UsedWord> mUsedWords;
+    private String updatedPassword;
 
     public GridDataEntity() {
         mId = 0;
@@ -35,6 +36,15 @@ public class GridDataEntity {
         mChosenOption = null;
         mSelectedTypedWord = null;
         mGridPasswordLength = 0;
+        updatedPassword = "";
+    }
+
+    public String getUpdatedPassword() {
+        return updatedPassword;
+    }
+
+    public void setUpdatedPassword(String updatedPassword) {
+        this.updatedPassword = updatedPassword;
     }
 
     public int getmGridPasswordLength() {

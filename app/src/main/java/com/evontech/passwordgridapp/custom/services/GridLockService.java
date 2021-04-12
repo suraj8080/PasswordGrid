@@ -98,7 +98,8 @@ public class GridLockService extends AutofillService {
                     .build();
             callback.onSuccess(fillResponse);
         } else if(userData != null){
-            Log.d("parsedStructure ", parsedStructure.usernameId.toString());
+            Log.d("parsedStructure u ", parsedStructure.usernameId.toString());
+            Log.d("parsedStructure p ", parsedStructure.passwordId.toString());
             FillResponse fillResponse = new FillResponse.Builder()
                     .addDataset(new Dataset.Builder()
                             .setValue(parsedStructure.usernameId,
@@ -121,12 +122,14 @@ public class GridLockService extends AutofillService {
             // If there are no errors, call onSuccess() and pass the response
             callback.onSuccess(fillResponse);
         }else {
+            Log.d("parsedStructure ", "else part");
             callback.onSuccess(null);
         }
     }
 
     @Override
     public void onSaveRequest(@NonNull SaveRequest request, @NonNull SaveCallback callback) {
+        Log.d("onSaveRequest ", "called");
         // Get the structure from the request
         List<FillContext> context = request.getFillContexts();
         AssistStructure structure = context.get(context.size() - 1).getStructure();
@@ -213,16 +216,18 @@ public class GridLockService extends AutofillService {
         for (UserAccount account: accountList) {
             if (structure.getActivityComponent().getPackageName().contains(account.getAccountName())) {
                 userData = new UserData();
-                gridDataSource.getGridData(account.getAccountGridId(), userId, gridRound -> {
-                    GridData mCurrentGridData = new GridDataMapper().map(gridRound);
-                    String pwd = "";
-                    for (UsedWord word : mCurrentGridData.getUsedWords()) {
-                        if (word.isAnswered()) pwd = pwd.concat(word.getString());
-                    }
-                    account.setAccountPwd(pwd);
-                    Log.d("account name ", account.getAccountName());
-                    Log.d("username " + account.getUserName(), " pwd " + pwd);
-                });
+                if(account.getAccountGridId()>0) {
+                    gridDataSource.getGridData(account.getAccountGridId(), userId, gridRound -> {
+                        GridData mCurrentGridData = new GridDataMapper().map(gridRound);
+                        String pwd = "";
+                        for (UsedWord word : mCurrentGridData.getUsedWords()) {
+                            if (word.isAnswered()) pwd = pwd.concat(word.getString());
+                        }
+                        account.setAccountPwd(pwd);
+                        Log.d("account name ", account.getAccountName());
+                        Log.d("username " + account.getUserName(), " pwd " + pwd);
+                    });
+                }
                 userData.username = account.getUserName();
                 userData.password = account.getAccountPwd();
                 return userData;
@@ -241,6 +246,25 @@ public class GridLockService extends AutofillService {
                 account.setUserName(userData.username);
                 account.setAccountPwd(userData.password);
                 accountDataSource.saveAccountData(account);
+
+                if(account.getAccountGridId()>0) {
+                    gridDataSource.getGridData(account.getAccountGridId(), userId, gridRound -> {
+                        GridData mCurrentGridData = new GridDataMapper().map(gridRound);
+                        String pwd = "";
+                        for (UsedWord word : mCurrentGridData.getUsedWords()) {
+                            if (word.isAnswered()) pwd = pwd.concat(word.getString());
+                        }
+                        Log.d("account name "+ account.getAccountName(), " username "+account.getUserName());
+                        Log.d("autofill pwd " + account.getAccountPwd(), " stored grid pwd " + pwd);
+                        if(!account.getAccountPwd().equals(pwd)){
+                            gridDataSource.deleteAllLines(mCurrentGridData.getId(), userId);
+                            mCurrentGridData.setUpdatedPassword(account.getAccountPwd());
+                            gridDataSource.saveGridData(new GridDataMapper().revMap(mCurrentGridData),userId);
+                        }
+                    });
+                }
+
+
             }
         }
         if(!isAccountMatched) {

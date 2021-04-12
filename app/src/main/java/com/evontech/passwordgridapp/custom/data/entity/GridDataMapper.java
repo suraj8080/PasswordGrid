@@ -32,6 +32,7 @@ public class GridDataMapper extends Mapper<GridDataEntity, GridData> {
             gr.setmChosenOption(obj.getmChosenOption());
             gr.setmSelectedTypedWord(obj.getmSelectedTypedWord());
             gr.setmGridPasswordLength(obj.getmGridPasswordLength());
+            gr.setUpdatedPassword(obj.getUpdatedPassword());
         }
 
         if(obj.getUsedWords()!=null && obj.getUsedWords().size()>0)
@@ -56,6 +57,7 @@ public class GridDataMapper extends Mapper<GridDataEntity, GridData> {
             ent.setmChosenOption(obj.getmChosenOption());
             ent.setmSelectedTypedWord(obj.getmSelectedTypedWord());
             ent.setmGridPasswordLength(obj.getmGridPasswordLength());
+            ent.setUpdatedPassword(obj.getUpdatedPassword());
         }
         if(obj.getUsedWords()!=null && obj.getUsedWords().size()>0)
         ent.setUsedWords(obj.getUsedWords());

@@ -14,28 +14,26 @@ public class DbHelper extends SQLiteOpenHelper {
     private static final int DB_VERSION = 1;
 
     private static final String SQL_CREATE_TABLE_USED_WORD =
-            "CREATE TABLE " + DbContract.UsedWord.TABLE_NAME + " (" +
-                    DbContract.UsedWord._ID + " INTEGER PRIMARY KEY AUTOINCREMENT," +
-                    DbContract.UsedWord.COL_USER_ID + " INTEGER," +
-                    DbContract.UsedWord.COL_GRID_ID + " INTEGER," +
-                    DbContract.UsedWord.COL_WORD_STRING + " TEXT," +
-                    DbContract.UsedWord.COL_ANSWER_LINE_DATA + " TEXT," +
-                    DbContract.UsedWord.COL_LINE_COLOR + " INTEGER," +
-                    DbContract.UsedWord.COL_IS_MYSTERY + " TEXT," +
-                    DbContract.UsedWord.COL_REVEAL_COUNT + " INTEGER)";
+            "CREATE TABLE " + DbContract.UsedLine.TABLE_NAME + " (" +
+                    DbContract.UsedLine._ID + " INTEGER PRIMARY KEY AUTOINCREMENT," +
+                    DbContract.UsedLine.COL_USER_ID + " INTEGER," +
+                    DbContract.UsedLine.COL_GRID_ID + " INTEGER," +
+                    DbContract.UsedLine.COL_WORD_STRING + " TEXT," +
+                    DbContract.UsedLine.COL_ANSWER_LINE_DATA + " TEXT," +
+                    DbContract.UsedLine.COL_LINE_COLOR + " INTEGER)";
 
     private static final String SQL_CREATE_TABLE_GRID =
             "CREATE TABLE " + DbContract.GRID.TABLE_NAME + " (" +
                     DbContract.GRID._ID + " INTEGER PRIMARY KEY AUTOINCREMENT," +
                     DbContract.GRID.COL_USER_ID + " TEXT," +
                     DbContract.GRID.COL_NAME + " TEXT," +
-                    DbContract.GRID.COL_DURATION + " INTEGER," +
                     DbContract.GRID.COL_GRID_ROW_COUNT + " INTEGER," +
                     DbContract.GRID.COL_GRID_COL_COUNT + " INTEGER," +
                     DbContract.GRID.COL_GRID_PASSWORD_LENGTH + " INTEGER," +
                     DbContract.GRID.COL_SELECTION_CRITERIA + " TEXT," +
                     DbContract.GRID.COL_CHOSEN_OPTION + " TEXT," +
                     DbContract.GRID.COL_SELECTED_TYPED_WORD + " TEXT," +
+                    DbContract.GRID.COL_GRID_UPDATED_PASSWORD + " TEXT, " +
                     DbContract.GRID.COL_GRID_DATA + " TEXT)";
 
     private static final String SQL_CREATE_TABLE_USER_ACCOUNT =
@@ -46,6 +44,7 @@ public class DbHelper extends SQLiteOpenHelper {
                     DbContract.UserAccounts.COL_ACCOUNT_USER_NAME + " TEXT," +
                     DbContract.UserAccounts.COL_ACCOUNT_URL + " TEXT," +
                     DbContract.UserAccounts.COL_ACCOUNT_CATEGORY + " TEXT," +
+                    DbContract.UserAccounts.COL_ACCOUNT_PASSWORD + " TEXT," +
                     DbContract.UserAccounts.COL_ACCOUNT_GRID_ID + " INTEGER)";
 
     private static final String SQL_CREATE_TABLE_USER_LOGIN =
