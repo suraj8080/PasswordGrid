@@ -400,7 +400,25 @@ public class GridActivity extends FullscreenActivity {
                 mViewModel.setGridGenerationCriteria(preferences.showUpperCharacters(), preferences.showLowerCharacters(),preferences.showNumberCharacters(), preferences.showSpecialCharacters());
                 mViewModel.setSelectedTypedWord(Objects.requireNonNull(mTextFromBorder.getText()).toString());
                 //mViewModel.setGridChosenOption(getCurrentChosenOption());
-                mViewModel.loadGridRound(gid);
+
+                if(!TextUtils.isEmpty(userAccount.getAccountPwd())){
+                    mViewModel.setGridChosenOption(getCurrentChosenOption());
+                    updatedPassword = userAccount.getAccountPwd();
+                    if (getPreferences().isPasswordSelected()) {
+                        getPreferences().setPasswordLength(updatedPassword.length());
+                        rowCount = getPreferences().getPasswordLength();
+                        colCount = getPreferences().getPasswordLength();
+                    } else {
+                        getPreferences().setPinLength(updatedPassword.length());
+                        rowCount = getPreferences().getPasswordLength();
+                        colCount = getPreferences().getPasswordLength();
+                    }
+                    if(getPreferences().showWordFromBorder() || getPreferences().selectedTypeManually())
+                        colCount = 26;
+                    if(rowCount>26) rowCount =26;
+                    if(colCount>26) colCount =26;
+                    mViewModel.generateNewGridRound(rowCount, colCount);
+                }else mViewModel.loadGridRound(gid);
             } else {
                 rowCount = extras.getInt(EXTRA_ROW_COUNT);
                 colCount = extras.getInt(EXTRA_COL_COUNT);
@@ -1568,7 +1586,7 @@ public class GridActivity extends FullscreenActivity {
                     newStreakLine1.getEndIndex().set(tempLineEndRow, tempLineEndcol);
                     mLetterBoard.addStreakLine(newStreakLine1);
                     if (Direction.fromLine(newStreakLine1.getStartIndex(), newStreakLine1.getEndIndex()) == Direction.NONE) {
-                        char mgrid[][] = mLetterAdapter.getGrid();
+                        char[][] mgrid = mLetterAdapter.getGrid();
                         lastPartPwd.add(String.valueOf(mgrid[newStreakLine1.getStartIndex().row][newStreakLine1.getStartIndex().col]));
                         Log.d("startRow " + newStreakLine1.getStartIndex().row, "startrCol " + newStreakLine1.getStartIndex().col);
                         Log.d("endRow " + newStreakLine1.getEndIndex().row, "endCol " + newStreakLine1.getEndIndex().col);
@@ -1783,7 +1801,7 @@ public class GridActivity extends FullscreenActivity {
             else newStreakLine1.getEndIndex().set(newLineEndRow, newLineEndCol);
             mLetterBoard.addStreakLine(newStreakLine1);
             if (Direction.fromLine(newStreakLine1.getStartIndex(), newStreakLine1.getEndIndex()) == Direction.NONE) {
-                char mgrid[][] = mLetterAdapter.getGrid();
+                char[][] mgrid = mLetterAdapter.getGrid();
                 lastPartPwd.add(String.valueOf(mgrid[newStreakLine1.getStartIndex().row][newStreakLine1.getStartIndex().col]));
                 Log.d("row " + newStreakLine1.getStartIndex().row, "row " + newStreakLine1.getStartIndex().col);
             } else
@@ -1791,28 +1809,32 @@ public class GridActivity extends FullscreenActivity {
         }
     }
 
-    private void checkPasswordCriteria(List<String> lastPartPwd){
+    private void checkPasswordCriteria(List<String> lastPartPwd) {
         List<StreakView.StreakLine> streakLineList = mLetterBoard.getStreakView().getmLines();
         String password = "";
-        if(lastPartPwd!=null && lastPartPwd.size()>0)
-        for (String pwd: lastPartPwd) password = password.concat(pwd);
+        if (lastPartPwd != null && lastPartPwd.size() > 0)
+            for (String pwd : lastPartPwd) password = password.concat(pwd);
 
-        Log.d("password ", password);
-        String passwordAlert = GridDataCreator.checkPasswordCriteria(password);
+        Log.d("password "+ password ," updatedPassword "+updatedPassword);
+        String passwordAlert = "";
+        if (!TextUtils.isEmpty(updatedPassword) && !updatedPassword.equals(password))
+            updatePasswordOnGrid(updatedPassword);
+        else{
+            passwordAlert = GridDataCreator.checkPasswordCriteria(password);
         int passwordLength = 0;
-        if(getPreferences().isPasswordSelected()) passwordLength = getPreferences().getPasswordLength();
+        if (getPreferences().isPasswordSelected())
+            passwordLength = getPreferences().getPasswordLength();
         else passwordLength = getPreferences().getPinLength();
-        if(!passwordAlert.equals("true")) {
-            if(password.length()>=passwordLength){ //replace it automatically when password select actual length but not get desired password
-                if(streakLineList!=null) {
-                    int randomPwdLengh =0;
-                    if(lastPartPwd!=null) {
-                        /*for (String pwd:lastPartPwd){
-                            if(randomPwdLengh<pwd.length()) randomPwdLengh = pwd.length();
-                        }*/
-
+        if (!passwordAlert.equals("true")) {
+            if (password.length() >= passwordLength) { //replace it automatically when password select actual length but not get desired password
+                showPasswordAlertDialog(passwordAlert);
+                /*if (streakLineList != null) {
+                    int randomPwdLengh = 0;
+                    if (lastPartPwd != null) {
                         if (getPreferences().selectedTypeManually() || getPreferences().showWordFromBorder() || getPreferences().showGridPattern()) {
                             String randomPassword = GridDataCreator.getRandomWords(mTextSelection.getText().toString().length());
+                            if (!TextUtils.isEmpty(updatedPassword) && !updatedPassword.equals(password))
+                                randomPassword = updatedPassword;
                             Log.d("new randomPassword ", randomPassword);
                             mTextSelection.setText(randomPassword);
                             int index = 0;
@@ -1821,9 +1843,9 @@ public class GridActivity extends FullscreenActivity {
                                 Direction direction = Direction.fromLine(streakLine.getStartIndex(), streakLine.getEndIndex());
                                 //Log.d("password direction ", direction+"");
                                 char[][] tempArray = mLetterAdapter.getGrid().clone();  // update griddata and streakline in db also
-                                StringListGridGenerator.placeRandomWordAt(streakLine.getStartIndex().row, streakLine.getStartIndex().col, direction, tempArray, ""+randompwdArray[index]);
+                                StringListGridGenerator.placeRandomWordAt(streakLine.getStartIndex().row, streakLine.getStartIndex().col, direction, tempArray, "" + randompwdArray[index]);
                                 mLetterAdapter.setGrid(tempArray);
-                                mViewModel.answerWord(index, ""+randompwdArray[index], STREAK_LINE_MAPPER.revMap(streakLine), true /*getPreferences().reverseMatching()*/);
+                                mViewModel.answerWord(index, "" + randompwdArray[index], STREAK_LINE_MAPPER.revMap(streakLine), true *//*getPreferences().reverseMatching()*//*);
                                 mViewModel.setSelectedTypedWord(mTextFromBorder.getText().toString());
                                 mViewModel.updateGridData();
                                 index++;
@@ -1858,23 +1880,25 @@ public class GridActivity extends FullscreenActivity {
                             randomPwdLengh = Math.max(maxXDiff, maxYDiff) + 1;
                             Log.d("maxDiff ", Math.max(maxXDiff, maxYDiff) + "");
                         }
-
                         if (randomPwdLengh >= 4) {
                             String randomPassword = GridDataCreator.getRandomWords(randomPwdLengh);
+                            if (!TextUtils.isEmpty(updatedPassword) && !updatedPassword.equals(password))
+                                randomPassword = updatedPassword;
                             mTextSelection.setText("");
                             Log.d("new randomPassword " + randomPwdLengh, randomPassword + " " + randomPassword.length());
                             Log.d("streakLine length ", streakLineList.size() + "");
                             Log.d("lastPartPwd length ", lastPartPwd.size() + "");
                             int index = 0;
                             String usedPwd = "";
-                            if(randomPassword.length()<password.length()){ // not tested
+                            if (randomPassword.length() < password.length()) { // not tested
                                 String temp = randomPassword;
                                 int iteration = password.length() / randomPassword.length();
                                 int reminder = password.length() % randomPassword.length();
-                                for (int i=0;i<iteration-1;i++){
+                                for (int i = 0; i < iteration - 1; i++) {
                                     randomPassword = randomPassword.concat(temp);
                                 }
-                                if (reminder > 0) randomPassword = randomPassword.concat(temp.substring(0, reminder));
+                                if (reminder > 0)
+                                    randomPassword = randomPassword.concat(temp.substring(0, reminder));
                                 Log.d("after merge new randomPassword " + randomPwdLengh, randomPassword + " " + randomPassword.length());
                             }
                             for (StreakView.StreakLine streakLine : streakLineList) {
@@ -1883,12 +1907,11 @@ public class GridActivity extends FullscreenActivity {
                                 if (index == 0) {
                                     partPwd = randomPassword.substring(0, lastPartPwd.get(0).length());
                                     usedPwd = partPwd;
-                                }
-                                else {
-                                    if(randomPassword.length()-usedPwd.length()<=0){ //not tested
+                                } else {
+                                    if (randomPassword.length() - usedPwd.length() <= 0) { //not tested
                                         partPwd = randomPassword.substring(0, lastPartPwd.get(index).length());
                                         usedPwd = usedPwd.concat(partPwd);
-                                    }else {
+                                    } else {
                                         if (lastPartPwd.get(index).length() > randomPassword.length() - usedPwd.length())
                                             partPwd = randomPassword.substring(usedPwd.length());
                                         else
@@ -1908,7 +1931,7 @@ public class GridActivity extends FullscreenActivity {
                                 char[][] tempArray = mLetterAdapter.getGrid().clone();  // update griddata and streakline in db also
                                 StringListGridGenerator.placeRandomWordAt(streakLine.getStartIndex().row, streakLine.getStartIndex().col, direction, tempArray, partPwd);
                                 mLetterAdapter.setGrid(tempArray);
-                                mViewModel.answerWord(index, partPwd, STREAK_LINE_MAPPER.revMap(streakLine), true /*getPreferences().reverseMatching()*/);
+                                mViewModel.answerWord(index, partPwd, STREAK_LINE_MAPPER.revMap(streakLine), true *//*getPreferences().reverseMatching()*//*);
                                 mViewModel.setSelectedTypedWord(mTextFromBorder.getText().toString());
                                 mViewModel.updateGridData();
                                 index++;
@@ -1917,22 +1940,24 @@ public class GridActivity extends FullscreenActivity {
                     }
 
                     passwordStrengthIndicator(mTextSelection.getText().toString());
-                }
-            }else Toast.makeText(GridActivity.this, "Alert: " + passwordAlert, Toast.LENGTH_SHORT).show();
-        }
-        else if(password.length()< passwordLength)
-            Toast.makeText(GridActivity.this, "Alert: generated password length is less than password criteria",Toast.LENGTH_SHORT).show();
+                }*/
+            } else {
+                Toast.makeText(GridActivity.this, "Alert: " + passwordAlert, Toast.LENGTH_SHORT).show();
+            }
+        } else if (password.length() < passwordLength)
+            Toast.makeText(GridActivity.this, "Alert: generated password length is less than password criteria", Toast.LENGTH_SHORT).show();
         else {//if(passwordAlert.equals("true") && mTextSelection.getText().toString().length()>= getPreferences().getPasswordLength())
             Toast.makeText(GridActivity.this, "Your grid will stored in secure wallet ", Toast.LENGTH_SHORT).show();
-            if(streakLineList!=null && streakLineList.size()>0) {
-                for (StreakView.StreakLine streakLine: streakLineList) {
+            if (streakLineList != null && streakLineList.size() > 0) {
+                for (StreakView.StreakLine streakLine : streakLineList) {
                     int index = streakLineList.indexOf(streakLine);
-                    if(lastPartPwd!=null && lastPartPwd.size() == streakLineList.size())
-                    mViewModel.answerWord(index, lastPartPwd.get(index), STREAK_LINE_MAPPER.revMap(streakLine), true /*getPreferences().reverseMatching()*/);
-                    else if(lastPartPwd!=null && lastPartPwd.size()==0) mViewModel.answerWord(0, lastPartPwd.get(0), STREAK_LINE_MAPPER.revMap(streakLine), true /*getPreferences().reverseMatching()*/);
-                    else{
+                    if (lastPartPwd != null && lastPartPwd.size() == streakLineList.size())
+                        mViewModel.answerWord(index, lastPartPwd.get(index), STREAK_LINE_MAPPER.revMap(streakLine), true /*getPreferences().reverseMatching()*/);
+                    else if (lastPartPwd != null && lastPartPwd.size() == 0)
+                        mViewModel.answerWord(0, lastPartPwd.get(0), STREAK_LINE_MAPPER.revMap(streakLine), true /*getPreferences().reverseMatching()*/);
+                    else {
                         Direction direction = Direction.fromLine(streakLine.getStartIndex(), streakLine.getEndIndex());
-                        String word = StringListGridGenerator.getWordByDirection(direction,streakLine.getStartIndex().row, streakLine.getStartIndex().col,
+                        String word = StringListGridGenerator.getWordByDirection(direction, streakLine.getStartIndex().row, streakLine.getStartIndex().col,
                                 streakLine.getEndIndex().row, streakLine.getEndIndex().col, mLetterAdapter.getGrid());
                         mViewModel.answerWord(index, word, STREAK_LINE_MAPPER.revMap(streakLine), true /*getPreferences().reverseMatching()*/);
                     }
@@ -1942,6 +1967,7 @@ public class GridActivity extends FullscreenActivity {
             }
             passwordStrengthIndicator(mTextSelection.getText().toString());
         }
+    }
     }
 
     private void scrollByPosition(int randomRowIndex){
@@ -2008,40 +2034,77 @@ public class GridActivity extends FullscreenActivity {
     }
 
     private GridData mGridData;
+    private String updatedPassword;
     private void onGridRoundLoaded(GridData gridData) {
         mGridData = gridData;
-        Log.d("updatedPassword ", mGridData.getUpdatedPassword());
+        /*updatedPassword = mGridData.getUpdatedPassword();
+        Log.d("updatedPassword ", "Hi");
+        Log.d("updatedPassword ", updatedPassword);
+        String pwd = "";
+        for (UsedWord word : gridData.getUsedWords()) {
+            if (word.isAnswered()) pwd = pwd.concat(word.getString());
+        }
+        if (!TextUtils.isEmpty(updatedPassword) && !updatedPassword.equals(pwd)) {
+            // change chosen option if updated password contains any special characters or number
+            if (getPreferences().isPasswordSelected()) {
+                getPreferences().setPasswordLength(updatedPassword.length());
+                rowCount = getPreferences().getPasswordLength();
+                colCount = getPreferences().getPasswordLength();
+            } else {
+                getPreferences().setPinLength(updatedPassword.length());
+                rowCount = getPreferences().getPasswordLength();
+                colCount = getPreferences().getPasswordLength();
+            }
+            if(getPreferences().showWordFromBorder() || getPreferences().selectedTypeManually())
+                colCount = 26;
+            if(rowCount>26) rowCount =26;
+            if(colCount>26) colCount =26;
+            // write special logic for update manual/autofill updated password.
+            resetGrid();
+            isInitialized = false;
+            //if(!getPreferences().showWordFromBorder() && !getPreferences().selectedTypeManually())
+            isScaled = false;
+            topBorderLeftMargin = 0;
+            defaultBoardWidth();
+            Preferences preferences = getPreferences();
+            mViewModel.setGridGenerationCriteria(preferences.showUpperCharacters(), preferences.showLowerCharacters(), preferences.showNumberCharacters(), preferences.showSpecialCharacters());
+            mViewModel.setGridChosenOption(getCurrentChosenOption());
+            //mViewModel.setPasswordLength(getPreferences().getPasswordLength());
+            mViewModel.setSelectedTypedWord(mTextFromBorder.getText().toString());
+            mViewModel.generateNewGridRound(rowCount, colCount);
+        }else {*/
 
         /* restore stored griddata selected pin/password mode, selected character case, and selected password chosen option.
            restored typed/selected word from border if chosen option is word from border or type manually,
            fix random new password generation crash on word from border and type manually chosen option.
          */
-            String generationCriteria = gridData.getmSelectionCriteria();
-            if(generationCriteria.contains("isUpperCase")) getPreferences().setUpperCharacters(true);
-            else getPreferences().setUpperCharacters(false);
-            if(generationCriteria.contains("isLowerCase")) getPreferences().setLowerCharacters(true);
-            else getPreferences().setLowerCharacters(false);
-            if(generationCriteria.contains("isNumbers")) getPreferences().setNumberCharacters(true);
-            else getPreferences().setNumberCharacters(false);
-            if(generationCriteria.contains("isSpecialCharacters")) getPreferences().setSpecialCharacters(true);
-            else getPreferences().setSpecialCharacters(false);
+        String generationCriteria = gridData.getmSelectionCriteria();
+        if (generationCriteria.contains("isUpperCase")) getPreferences().setUpperCharacters(true);
+        else getPreferences().setUpperCharacters(false);
+        if (generationCriteria.contains("isLowerCase")) getPreferences().setLowerCharacters(true);
+        else getPreferences().setLowerCharacters(false);
+        if (generationCriteria.contains("isNumbers")) getPreferences().setNumberCharacters(true);
+        else getPreferences().setNumberCharacters(false);
+        if (generationCriteria.contains("isSpecialCharacters"))
+            getPreferences().setSpecialCharacters(true);
+        else getPreferences().setSpecialCharacters(false);
 
         String chosenOption = gridData.getmChosenOption();
         mViewModel.setGridChosenOption(chosenOption);
-        if(chosenOption.contains("selectedDragManually")) getPreferences().setDragManually(true);
+        if (chosenOption.contains("selectedDragManually")) getPreferences().setDragManually(true);
         else getPreferences().setDragManually(false);
-        if(chosenOption.contains("selectedStartEndGrid")) getPreferences().setStartEndGrid(true);
+        if (chosenOption.contains("selectedStartEndGrid")) getPreferences().setStartEndGrid(true);
         else getPreferences().setStartEndGrid(false);
-        if(chosenOption.contains("showgridDirection")) getPreferences().setGridDirection(true);
+        if (chosenOption.contains("showgridDirection")) getPreferences().setGridDirection(true);
         else getPreferences().setGridDirection(false);
-        if(chosenOption.contains("showGridPattern")) getPreferences().setGridPattern(true);
+        if (chosenOption.contains("showGridPattern")) getPreferences().setGridPattern(true);
         else getPreferences().setGridPattern(false);
-        if(chosenOption.contains("showWordFromBorder")) getPreferences().setWordFromBorder(true);
+        if (chosenOption.contains("showWordFromBorder")) getPreferences().setWordFromBorder(true);
         else getPreferences().setWordFromBorder(false);
-        if(chosenOption.contains("selectedTypeManually")) getPreferences().setTypeManually(true);
+        if (chosenOption.contains("selectedTypeManually")) getPreferences().setTypeManually(true);
         else getPreferences().setTypeManually(false);
 
-        if(getPreferences().showWordFromBorder() || getPreferences().selectedTypeManually()){
+        if (getPreferences().showWordFromBorder() || getPreferences().selectedTypeManually()) {
             mTextFromBorder.setText(gridData.getmSelectedTypedWord());
         }
 
@@ -2051,7 +2114,7 @@ public class GridActivity extends FullscreenActivity {
         rowCount = gridData.getGrid().getRowCount();
         colCount = gridData.getGrid().getColCount();
         defaultBoardWidth();
-       // doneLoadingContent();  //call it accordingly
+        // doneLoadingContent();  //call it accordingly
         userAccount.setAccountGridId(gridData.getId());
         mViewModel.updateAccountInfo(userAccount);
 
@@ -2059,28 +2122,29 @@ public class GridActivity extends FullscreenActivity {
         mLetterBoard.setVisibility(View.VISIBLE);
         mLetterBoardTop.setVisibility(View.VISIBLE);
         mLetterBoardLeft.setVisibility(View.VISIBLE);
-        for (UsedWord word: gridData.getUsedWords()) {
-            if(word.isAnswered()){
+        for (UsedWord word : gridData.getUsedWords()) {
+            if (word.isAnswered()) {
                 Log.d("savedPassword ", word.getString());
                 UsedWord.AnswerLine line = word.getAnswerLine();
-                Log.d("line color ", ""+line.color);
-                Log.d("line startRow startCol ", ""+line.startRow + line.startCol);
-                Log.d("line endRow endCol ", ""+line.endRow + line.endCol);
+                Log.d("line color ", "" + line.color);
+                Log.d("line startRow startCol ", "" + line.startRow + line.startCol);
+                Log.d("line endRow endCol ", "" + line.endRow + line.endCol);
                 StreakView.StreakLine newStreakLine = new StreakView.StreakLine();
                 newStreakLine.setColor(line.color);
-                newStreakLine.getStartIndex().set(line.startRow,line.startCol);
-                newStreakLine.getEndIndex().set(line.endRow,line.endCol);
+                newStreakLine.getStartIndex().set(line.startRow, line.startCol);
+                newStreakLine.getEndIndex().set(line.endRow, line.endCol);
                 Direction direction = Direction.fromLine(newStreakLine.getStartIndex(), newStreakLine.getEndIndex());
                 Log.d("direction ", direction.name());
-                Log.d("all lines ", ""+mLetterBoard.getStreakView().getmLines().size());
+                Log.d("all lines ", "" + mLetterBoard.getStreakView().getmLines().size());
                 //if( direction!= Direction.NONE){
-                    mLetterBoard.addStreakLine(newStreakLine);
-                    mTextSelection.setText(mTextSelection.getText().toString().concat(word.getString()));
-               // }
+                mLetterBoard.addStreakLine(newStreakLine);
+                mTextSelection.setText(mTextSelection.getText().toString().concat(word.getString()));
+                // }
             }
         }
         passwordStrengthIndicator(mTextSelection.getText().toString());
         doneLoadingContent();
+   // }
     }
 
     private void tryScale() {
@@ -2323,6 +2387,27 @@ public class GridActivity extends FullscreenActivity {
         alert.show();
     }
 
+    private void showPasswordAlertDialog(String passwordAlert){
+        AlertDialog.Builder dialog = new AlertDialog.Builder(this);
+        dialog.setCancelable(false);
+        dialog.setTitle("Password Alert");
+        dialog.setMessage(passwordAlert);
+        dialog.setPositiveButton("Generate Random Password", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int id) {
+                updatePasswordOnGrid(updatedPassword);
+            }
+        }).setNegativeButton("Save ", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                //Action for "Save".
+
+            }
+        });
+        final AlertDialog alert = dialog.create();
+        alert.show();
+    }
+
     private void defaultPasswordStrengthIndicator(){
         indicatorAmber.setBackground(ContextCompat.getDrawable(this,R.drawable.default_indicator));
         indicatorGreen.setBackground(ContextCompat.getDrawable(this,R.drawable.default_indicator));
@@ -2438,4 +2523,129 @@ public class GridActivity extends FullscreenActivity {
             mLetterBoardLeft.setLetterSize(Util.spToPx(15f, this));
             if(colCount>18) mLetterBoardLeft.setLetterSize(Util.spToPx(13f, this));
         }
+
+        private void updatePasswordOnGrid(String updatedPassword){
+            String password = "";
+            if (lastPartPwd != null && lastPartPwd.size() > 0)
+                for (String pwd : lastPartPwd) password = password.concat(pwd);
+            List<StreakView.StreakLine> streakLineList = mLetterBoard.getStreakView().getmLines();
+            int passwordLength = 0;
+            int randomPwdLengh = 0;
+            if (getPreferences().isPasswordSelected())
+                passwordLength = getPreferences().getPasswordLength();
+            else passwordLength = getPreferences().getPinLength();
+            if (lastPartPwd != null) {
+                if (getPreferences().selectedTypeManually() || getPreferences().showWordFromBorder() || getPreferences().showGridPattern()) {
+                    String randomPassword = GridDataCreator.getRandomWords(mTextSelection.getText().toString().length());
+                    if (!TextUtils.isEmpty(updatedPassword) && !updatedPassword.equals(password))
+                        randomPassword = updatedPassword;
+                    Log.d("new randomPassword ", randomPassword);
+                    mTextSelection.setText(randomPassword);
+                    int index = 0;
+                    char[] randompwdArray = randomPassword.toCharArray();
+                    for (StreakView.StreakLine streakLine : streakLineList) {
+                        Direction direction = Direction.fromLine(streakLine.getStartIndex(), streakLine.getEndIndex());
+                        //Log.d("password direction ", direction+"");
+                        char[][] tempArray = mLetterAdapter.getGrid().clone();  // update griddata and streakline in db also
+                        StringListGridGenerator.placeRandomWordAt(streakLine.getStartIndex().row, streakLine.getStartIndex().col, direction, tempArray, "" + randompwdArray[index]);
+                        mLetterAdapter.setGrid(tempArray);
+                        mViewModel.answerWord(index, "" + randompwdArray[index], STREAK_LINE_MAPPER.revMap(streakLine), true /*getPreferences().reverseMatching()*/);
+                        mViewModel.setSelectedTypedWord(mTextFromBorder.getText().toString());
+                        mViewModel.updateGridData();
+                        index++;
+                    }
+                } else {
+                    int xMin = 100, yMin = 100, xMax = 0, yMax = 0;
+                    for (StreakView.StreakLine line : streakLineList) {
+                        Direction direction = Direction.fromLine(line.getStartIndex(), line.getEndIndex());
+                        if (direction == Direction.SOUTH_EAST || direction == Direction.SOUTH) {
+                            if (xMax < line.getEndIndex().col)
+                                xMax = line.getEndIndex().col;
+                            if (yMax < line.getEndIndex().row)
+                                yMax = line.getEndIndex().row;
+                            if (xMin > line.getStartIndex().col)
+
+                                xMin = line.getStartIndex().col;
+                            if (yMin > line.getStartIndex().row)
+                                yMin = line.getStartIndex().row;
+                        } else {
+                            if (xMin > line.getEndIndex().col)
+                                xMin = line.getEndIndex().col;
+                            if (yMin > line.getEndIndex().row)
+                                yMin = line.getEndIndex().row;
+                            if (xMax < line.getStartIndex().col)
+                                xMax = line.getStartIndex().col;
+                            if (yMax < line.getStartIndex().row)
+                                yMax = line.getStartIndex().row;
+                        }
+                    }
+                    int maxXDiff = xMax - xMin;
+                    int maxYDiff = yMax - yMin;
+                    randomPwdLengh = Math.max(maxXDiff, maxYDiff) + 1;
+                    Log.d("maxDiff ", Math.max(maxXDiff, maxYDiff) + "");
+                }
+                if (randomPwdLengh >= 4) {
+                    String randomPassword = GridDataCreator.getRandomWords(randomPwdLengh);
+                    if (!TextUtils.isEmpty(updatedPassword) && !updatedPassword.equals(password))
+                        randomPassword = updatedPassword;
+                    mTextSelection.setText("");
+                    Log.d("new randomPassword " + randomPwdLengh, randomPassword + " " + randomPassword.length());
+                    Log.d("streakLine length ", streakLineList.size() + "");
+                    Log.d("lastPartPwd length ", lastPartPwd.size() + "");
+                    int index = 0;
+                    String usedPwd = "";
+                    if (randomPassword.length() < password.length()) { // not tested
+                        String temp = randomPassword;
+                        int iteration = password.length() / randomPassword.length();
+                        int reminder = password.length() % randomPassword.length();
+                        for (int i = 0; i < iteration - 1; i++) {
+                            randomPassword = randomPassword.concat(temp);
+                        }
+                        if (reminder > 0)
+                            randomPassword = randomPassword.concat(temp.substring(0, reminder));
+                        Log.d("after merge new randomPassword " + randomPwdLengh, randomPassword + " " + randomPassword.length());
+                    }
+                    for (StreakView.StreakLine streakLine : streakLineList) {
+                        Log.d("indexOf Streakline " + streakLineList.indexOf(streakLine), streakLine + "");
+                        String partPwd = "";
+                        if (index == 0) {
+                            partPwd = randomPassword.substring(0, lastPartPwd.get(0).length());
+                            usedPwd = partPwd;
+                        } else {
+                            if (randomPassword.length() - usedPwd.length() <= 0) { //not tested
+                                partPwd = randomPassword.substring(0, lastPartPwd.get(index).length());
+                                usedPwd = usedPwd.concat(partPwd);
+                            } else {
+                                if (lastPartPwd.get(index).length() > randomPassword.length() - usedPwd.length())
+                                    partPwd = randomPassword.substring(usedPwd.length());
+                                else
+                                    partPwd = randomPassword.substring(usedPwd.length(), usedPwd.length() + lastPartPwd.get(index).length());
+                                if (lastPartPwd.get(index).length() > partPwd.length()) {
+                                    String lPart = randomPassword.substring(0, lastPartPwd.get(index).length() - partPwd.length());
+                                    partPwd = partPwd.concat(lPart);
+                                }
+                                usedPwd = usedPwd.concat(partPwd);
+                            }
+                        }
+                        Log.d("start " + lastPartPwd.get(0).length(), "end " + lastPartPwd.get(index).length());
+                        Log.d("partPwd ", partPwd);
+                        mTextSelection.setText(mTextSelection.getText().toString().concat(partPwd));
+                        Direction direction = Direction.fromLine(streakLine.getStartIndex(), streakLine.getEndIndex());
+                        //Log.d("password direction ", direction+"");
+                        char[][] tempArray = mLetterAdapter.getGrid().clone();  // update griddata and streakline in db also
+                        StringListGridGenerator.placeRandomWordAt(streakLine.getStartIndex().row, streakLine.getStartIndex().col, direction, tempArray, partPwd);
+                        mLetterAdapter.setGrid(tempArray);
+                        mViewModel.answerWord(index, partPwd, STREAK_LINE_MAPPER.revMap(streakLine), true /*getPreferences().reverseMatching()*/);
+                        mViewModel.setSelectedTypedWord(mTextFromBorder.getText().toString());
+                        mViewModel.updateGridData();
+                        userAccount.setAccountPwd("");
+                        mViewModel.updateAccountInfo(userAccount);
+                        index++;
+                    }
+                }
+            }
+
+            passwordStrengthIndicator(mTextSelection.getText().toString());
+        }
+
 }

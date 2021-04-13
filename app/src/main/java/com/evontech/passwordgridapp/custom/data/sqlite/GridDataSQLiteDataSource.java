@@ -192,11 +192,13 @@ public class GridDataSQLiteDataSource implements GridDataSource, AccountDataSour
         SQLiteDatabase db = mHelper.getWritableDatabase();
         ContentValues values = new ContentValues();
         values.put(DbContract.UserAccounts.COL_ACCOUNT_GRID_ID, account.getAccountGridId());
+        values.put(DbContract.UserAccounts.COL_ACCOUNT_PASSWORD, account.getAccountPwd());
         String where = DbContract.UserAccounts._ID + "=?  AND " + DbContract.UserAccounts.COL_USER_ID + " = ?";
         String[] whereArgs = {String.valueOf(account.getId()), String.valueOf(account.getUserId())};
         int updateStatus = db.update(DbContract.UserAccounts.TABLE_NAME, values,where, whereArgs);
         Log.d("UserAccounts userId ", ""+account.getUserId());
         Log.d("updateAccountInfo gridId ", ""+account.getAccountGridId());
+        Log.d("updateAccountInfo pwd ", ""+account.getAccountPwd());
         Log.d("updateAccountInfo updateStatus ", ""+updateStatus);
         return updateStatus;
     }
