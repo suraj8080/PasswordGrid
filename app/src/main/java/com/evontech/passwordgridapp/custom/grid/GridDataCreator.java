@@ -261,7 +261,7 @@ public class GridDataCreator {
         else if(!lowerCaseFlag) passwordAlert = "The generated password has neglected to include lowercase characters";
         else if(!numberFlag) passwordAlert = "The generated password has neglected to include number characters";
         else if(!symbolFlag) passwordAlert = "The generated password has neglected to include symbol characters";
-        Log.d("passwordAlert ", passwordAlert+"");
+        Log.d("passwordAlert "+word, passwordAlert+"");
         return passwordAlert;
     }
 

@@ -257,9 +257,9 @@ public class GridLockService extends AutofillService {
                         Log.d("account name "+ account.getAccountName(), " username "+account.getUserName());
                         Log.d("autofill pwd " + account.getAccountPwd(), " stored grid pwd " + pwd);
                         if(!account.getAccountPwd().equals(pwd)){
-                            gridDataSource.deleteAllLines(mCurrentGridData.getId(), userId);
+                            /*gridDataSource.deleteAllLines(mCurrentGridData.getId(), userId);
                             mCurrentGridData.setUpdatedPassword(account.getAccountPwd());
-                            gridDataSource.saveGridData(new GridDataMapper().revMap(mCurrentGridData),userId);
+                            gridDataSource.saveGridData(new GridDataMapper().revMap(mCurrentGridData),userId);*/
                         }
                     });
                 }
