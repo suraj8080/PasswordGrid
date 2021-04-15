@@ -248,7 +248,7 @@ public class StringListGridGenerator extends GridGenerator<List<String>, List<St
         return word.toString();
     }
 
-    public static String getWordByDirection(Direction dir, int row, int col, int endRow, int endCol, char gridArr[][]){
+    public static String getWordByDirection(Direction dir, int row, int col, int endRow, int endCol, char[][] gridArr){
         StringBuilder word = new StringBuilder();
 
 
@@ -274,10 +274,10 @@ public class StringListGridGenerator extends GridGenerator<List<String>, List<St
          */
         if(dir == Direction.NORTH || dir == Direction.SOUTH){
             if(dir==Direction.NORTH){
-                for (int rowIndex = row; rowIndex <= endRow; rowIndex++)
+                for (int rowIndex = row; rowIndex >= endRow; rowIndex--)
                     word.append(gridArr[rowIndex][col]);
             }else {
-                for (int rowIndex = row; rowIndex >= endRow; rowIndex--)
+                for (int rowIndex = row; rowIndex <= endRow; rowIndex++)
                     word.append(gridArr[rowIndex][col]);
             }
         }
@@ -301,6 +301,25 @@ public class StringListGridGenerator extends GridGenerator<List<String>, List<St
                 }
             }
         }
+
+        if(dir == SOUTH_WEST || dir == NORTH_EAST){
+            int startRow = row;
+            int startCol = col;
+            if(dir == SOUTH_WEST){
+                while (startRow<=endRow && startCol>=endCol){
+                    word.append(gridArr[startRow][startCol]);
+                    startRow ++;
+                    startCol --;
+                }
+            }else {
+                while (startRow >= endRow && startCol <= endCol) {
+                    word.append(gridArr[startRow][startCol]);
+                    startRow--;
+                    startCol++;
+                }
+            }
+        }
+
         /*
         Diagonal 0col to row 0 direction
          */
@@ -322,7 +341,6 @@ public class StringListGridGenerator extends GridGenerator<List<String>, List<St
                 }
             }
         }*/
-
         return word.toString();
     }
 }

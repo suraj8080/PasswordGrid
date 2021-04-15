@@ -44,7 +44,8 @@ public class DbHelper extends SQLiteOpenHelper {
                     DbContract.UserAccounts.COL_ACCOUNT_USER_NAME + " TEXT," +
                     DbContract.UserAccounts.COL_ACCOUNT_URL + " TEXT," +
                     DbContract.UserAccounts.COL_ACCOUNT_CATEGORY + " TEXT," +
-                    DbContract.UserAccounts.COL_ACCOUNT_PASSWORD + " TEXT," +
+                    DbContract.UserAccounts.COL_ACCOUNT_CURRENT_PASSWORD + " TEXT," +
+                    DbContract.UserAccounts.COL_ACCOUNT_UPDATED_PASSWORD + " TEXT," +
                     DbContract.UserAccounts.COL_ACCOUNT_GRID_ID + " INTEGER)";
 
     private static final String SQL_CREATE_TABLE_USER_LOGIN =

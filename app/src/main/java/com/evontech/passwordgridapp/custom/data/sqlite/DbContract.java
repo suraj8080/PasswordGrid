@@ -42,7 +42,8 @@ abstract class DbContract {
         static final String COL_ACCOUNT_URL = "account_url";
         static final String COL_ACCOUNT_CATEGORY = "account_category";
         static final String COL_ACCOUNT_GRID_ID = "account_grid_id";
-        static final String COL_ACCOUNT_PASSWORD = "account_password";
+        static final String COL_ACCOUNT_CURRENT_PASSWORD = "account_current_password";
+        static final String COL_ACCOUNT_UPDATED_PASSWORD = "account_updated_password";
     }
 
     static class UserLogin implements BaseColumns {

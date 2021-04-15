@@ -55,7 +55,6 @@ public class Login extends FullscreenActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.login);
         ButterKnife.bind(this);
-        checkAutofillService();
         progressDialog = new ProgressDialog(Login.this,
                 R.style.AppTheme_Dark_Dialog);
         _loginButton.setOnClickListener(new View.OnClickListener() {
@@ -196,5 +195,12 @@ public class Login extends FullscreenActivity {
         }
 
         return valid;
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        if(!getPreferences().getLoginStatus())
+        checkAutofillService();
     }
 }

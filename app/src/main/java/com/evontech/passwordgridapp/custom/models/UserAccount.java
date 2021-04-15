@@ -9,6 +9,7 @@ public class UserAccount implements Serializable{
     private String userName;
     private String accountUrl;
     private String accountPwd;
+    private String accountUpdatedPwd;
     private String accountCategory;
     private int accountGridId;
 
@@ -20,6 +21,14 @@ public class UserAccount implements Serializable{
         this.userName = userName;
         this.accountUrl = accountUrl;
         this.accountCategory = accountCategory;
+    }
+
+    public String getAccountUpdatedPwd() {
+        return accountUpdatedPwd;
+    }
+
+    public void setAccountUpdatedPwd(String accountUpdatedPwd) {
+        this.accountUpdatedPwd = accountUpdatedPwd;
     }
 
     public String getAccountCategory() {

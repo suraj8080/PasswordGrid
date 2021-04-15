@@ -463,7 +463,7 @@ public class AccountsActivity extends FullscreenActivity {
         Intent intent = new Intent(this, GridActivity.class);
         intent.putExtra(GridActivity.EXTRA_ROW_COUNT, mPreferences.getGridRow());
         intent.putExtra(GridActivity.EXTRA_COL_COUNT, mPreferences.getGridCol());
-        Log.d("AccountGridId ", userAccount.getAccountGridId()+" ");
+        Log.d("Starting AccountGridId "+userAccount.getAccountGridId(), " updatePassword "+userAccount.getAccountUpdatedPwd() +" currentPassword "+userAccount.getAccountPwd());
         if(userAccount.getAccountGridId()>0)  intent.putExtra(GridActivity.EXTRA_GRID_ID, userAccount.getAccountGridId());
         intent.putExtra("account", userAccount);
         startActivity(intent);

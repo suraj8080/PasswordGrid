@@ -175,13 +175,13 @@ public class GridViewModel extends ViewModel {
 
             Observable.create((ObservableOnSubscribe<GridData>) emitter -> {
                 List<Word> wordList = new ArrayList<>(); //mWordDataSource.getWords();
-                Log.d("wordList ", wordList.size()+"");
+               // Log.d("wordList ", wordList.size()+"");
                 GridDataCreator.setGridGenerationCriteria(isUpperCase, isLowerCase, isNumbers, isSpecialCharacters);
                 GridData gr = mGridDataCreator.newGridData(wordList, rowCount, colCount, "Play me");
                 List<Word> leftWordList = new ArrayList<Word>();
                 List<Word> topWordList = new ArrayList<Word>();
                 if(userAccount!=null)
-                Log.d("AccountGridId Here...", userAccount.getAccountGridId()+"");
+                Log.d("AccountGridId in userAccount...", userAccount.getAccountGridId()+"");
                 if(userAccount!=null && userAccount.getAccountGridId()>0) gr.setId(userAccount.getAccountGridId());  //great...
                 gr.setmSelectionCriteria(getSelectionCriteria());
                 gr.setmChosenOption(chosenOption);
@@ -196,7 +196,7 @@ public class GridViewModel extends ViewModel {
                     .observeOn(AndroidSchedulers.mainThread())
                     .subscribe(gridRound -> {
                         mCurrentGridData = gridRound;
-                        Log.d("gridId ", mCurrentGridData.getId()+"");
+                        Log.d("gridId after grid generate ", mCurrentGridData.getId()+"");
                         setGridState(new Loaded(mCurrentGridData));
                     });
         }
@@ -252,6 +252,14 @@ public class GridViewModel extends ViewModel {
 
     public void updateAccountInfo(UserAccount userAccount){
         mGridDataSource.updateAccountInfo(userAccount);
+        this.userAccount = userAccount;
+    }
+
+    public void updateAccountPassword(UserAccount userAccount){
+        mGridDataSource.updateAccountPassword(userAccount);
+    }
+
+    public void setUserAccount(UserAccount userAccount){
         this.userAccount = userAccount;
     }
 }

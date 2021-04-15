@@ -49,4 +49,6 @@ public interface GridDataSource {
     void deleteAllLines(int gid, int userId);
 
     int updateAccountInfo(UserAccount account);
+
+    int updateAccountPassword(UserAccount account);
 }

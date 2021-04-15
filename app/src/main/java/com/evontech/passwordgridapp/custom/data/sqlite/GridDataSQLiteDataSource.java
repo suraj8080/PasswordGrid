@@ -67,7 +67,7 @@ public class GridDataSQLiteDataSource implements GridDataSource, AccountDataSour
            // ent.setmGridPasswordLength(c.getInt(9));
             Log.d("Getting GridData ", c.getString(4));
             Log.d("Getting SelectedTypedWord ", c.getString(7));
-            Log.d("Getting userId ", userId+"");
+            Log.d("Getting userId "+userId, "gridId "+gid);
             ent.setUsedWords(getUsedWords(gid, userId));
         }
         c.close();
@@ -114,11 +114,11 @@ public class GridDataSQLiteDataSource implements GridDataSource, AccountDataSour
         values.put(DbContract.GRID.COL_SELECTION_CRITERIA, gameRound.getmSelectionCriteria());
         values.put(DbContract.GRID.COL_CHOSEN_OPTION, gameRound.getmChosenOption());
         values.put(DbContract.GRID.COL_SELECTED_TYPED_WORD, gameRound.getmSelectedTypedWord());
-        Log.d("Saving SELECTION_CRITERIA ", gameRound.getmSelectionCriteria());
-        Log.d("Saving CHOSEN_OPTION ", gameRound.getmChosenOption());
-        Log.d("Saving SELECTED_TYPED_WORD ", gameRound.getmSelectedTypedWord());
+        //Log.d("Saving SELECTION_CRITERIA ", gameRound.getmSelectionCriteria());
+        //Log.d("Saving CHOSEN_OPTION ", gameRound.getmChosenOption());
+        //Log.d("Saving SELECTED_TYPED_WORD ", gameRound.getmSelectedTypedWord());
         Log.d("Saving GridData ", gameRound.getGridData());
-        Log.d("Saving userId ", userId+"");
+        Log.d("Saving userId "+userId, "gridId "+gameRound.getId());
         values.put(DbContract.GRID.COL_GRID_DATA, gameRound.getGridData());
         values.put(DbContract.GRID.COL_GRID_UPDATED_PASSWORD, gameRound.getUpdatedPassword());
 
@@ -167,10 +167,10 @@ public class GridDataSQLiteDataSource implements GridDataSource, AccountDataSour
         values.put(DbContract.UserAccounts.COL_ACCOUNT_USER_NAME, userAccount.getUserName());
         values.put(DbContract.UserAccounts.COL_ACCOUNT_CATEGORY, userAccount.getAccountCategory());
         values.put(DbContract.UserAccounts.COL_ACCOUNT_URL, userAccount.getAccountUrl());
-        Log.d("Saving AccountData ", ""+userAccount.getId());
-        Log.d("UserAccounts userId ", ""+userAccount.getUserId());
+        Log.d("Saving Account Id "+userAccount.getId(), " userId "+userAccount.getUserId());
         values.put(DbContract.UserAccounts.COL_ACCOUNT_GRID_ID, userAccount.getAccountGridId());
-        values.put(DbContract.UserAccounts.COL_ACCOUNT_PASSWORD, userAccount.getAccountPwd());
+        values.put(DbContract.UserAccounts.COL_ACCOUNT_CURRENT_PASSWORD, userAccount.getAccountPwd());
+        values.put(DbContract.UserAccounts.COL_ACCOUNT_UPDATED_PASSWORD, userAccount.getAccountUpdatedPwd());
 
         long acId;
         if(userAccount.getId()>0){
@@ -192,13 +192,29 @@ public class GridDataSQLiteDataSource implements GridDataSource, AccountDataSour
         SQLiteDatabase db = mHelper.getWritableDatabase();
         ContentValues values = new ContentValues();
         values.put(DbContract.UserAccounts.COL_ACCOUNT_GRID_ID, account.getAccountGridId());
-        values.put(DbContract.UserAccounts.COL_ACCOUNT_PASSWORD, account.getAccountPwd());
         String where = DbContract.UserAccounts._ID + "=?  AND " + DbContract.UserAccounts.COL_USER_ID + " = ?";
         String[] whereArgs = {String.valueOf(account.getId()), String.valueOf(account.getUserId())};
         int updateStatus = db.update(DbContract.UserAccounts.TABLE_NAME, values,where, whereArgs);
-        Log.d("UserAccounts userId ", ""+account.getUserId());
-        Log.d("updateAccountInfo gridId ", ""+account.getAccountGridId());
-        Log.d("updateAccountInfo pwd ", ""+account.getAccountPwd());
+        //Log.d("UserAccounts userId ", ""+account.getUserId());
+        //Log.d("updateAccountInfo gridId ", ""+account.getAccountGridId());
+        //Log.d("updateAccountInfo pwd ", ""+account.getAccountPwd());
+        Log.d("updateAccountInfo updateStatus ", ""+updateStatus);
+        return updateStatus;
+    }
+
+    @Override
+    public int updateAccountPassword(UserAccount account) {
+        SQLiteDatabase db = mHelper.getWritableDatabase();
+        ContentValues values = new ContentValues();
+        values.put(DbContract.UserAccounts.COL_ACCOUNT_GRID_ID, account.getAccountGridId());
+        values.put(DbContract.UserAccounts.COL_ACCOUNT_CURRENT_PASSWORD, account.getAccountPwd());
+        values.put(DbContract.UserAccounts.COL_ACCOUNT_UPDATED_PASSWORD, account.getAccountUpdatedPwd());
+        String where = DbContract.UserAccounts._ID + "=?  AND " + DbContract.UserAccounts.COL_USER_ID + " = ?";
+        String[] whereArgs = {String.valueOf(account.getId()), String.valueOf(account.getUserId())};
+        int updateStatus = db.update(DbContract.UserAccounts.TABLE_NAME, values,where, whereArgs);
+        //Log.d("UserAccounts userId ", ""+account.getUserId());
+        //Log.d("updateAccountInfo gridId ", ""+account.getAccountGridId());
+        //Log.d("updateAccountInfo pwd ", ""+account.getAccountPwd());
         Log.d("updateAccountInfo updateStatus ", ""+updateStatus);
         return updateStatus;
     }
@@ -215,7 +231,8 @@ public class GridDataSQLiteDataSource implements GridDataSource, AccountDataSour
                 DbContract.UserAccounts.COL_ACCOUNT_URL,
                 DbContract.UserAccounts.COL_ACCOUNT_CATEGORY,
                 DbContract.UserAccounts.COL_ACCOUNT_GRID_ID,
-                DbContract.UserAccounts.COL_ACCOUNT_PASSWORD
+                DbContract.UserAccounts.COL_ACCOUNT_CURRENT_PASSWORD,
+                DbContract.UserAccounts.COL_ACCOUNT_UPDATED_PASSWORD
         };
         String sel = DbContract.UserAccounts.COL_USER_ID + "=?";
         String[] selArgs = {String.valueOf(userId)};
@@ -235,6 +252,7 @@ public class GridDataSQLiteDataSource implements GridDataSource, AccountDataSour
                     userAccount.setAccountCategory(c.getString(5));
                     userAccount.setAccountGridId(c.getInt(6));
                     userAccount.setAccountPwd(c.getString(7));
+                    userAccount.setAccountUpdatedPwd(c.getString(8));
                   //  Log.d("Getting accountData ", c.getString(2));
                     allAccounts.add(userAccount);
                     c.moveToNext();
@@ -257,7 +275,8 @@ public class GridDataSQLiteDataSource implements GridDataSource, AccountDataSour
                 DbContract.UserAccounts.COL_ACCOUNT_URL,
                 DbContract.UserAccounts.COL_ACCOUNT_CATEGORY,
                 DbContract.UserAccounts.COL_ACCOUNT_GRID_ID,
-                DbContract.UserAccounts.COL_ACCOUNT_PASSWORD
+                DbContract.UserAccounts.COL_ACCOUNT_CURRENT_PASSWORD,
+                DbContract.UserAccounts.COL_ACCOUNT_UPDATED_PASSWORD
         };
         String where = DbContract.UserAccounts._ID + "=?  AND " + DbContract.UserAccounts.COL_USER_ID + " = ?";
         String[] whereArgs = {String.valueOf(accountId), String.valueOf(userId)};
@@ -273,6 +292,7 @@ public class GridDataSQLiteDataSource implements GridDataSource, AccountDataSour
             userAccount.setAccountCategory(c.getString(4));
             userAccount.setAccountGridId(c.getInt(5));
             userAccount.setAccountPwd(c.getString(6));
+            userAccount.setAccountUpdatedPwd(c.getString(7));
             Log.d("Getting accountData ", c.getString(1));
         }
         c.close();
@@ -390,8 +410,7 @@ public class GridDataSQLiteDataSource implements GridDataSource, AccountDataSour
         values.put(DbContract.UsedLine.COL_WORD_STRING, usedWord.getString());
         long insertedId = db.insert(DbContract.UsedLine.TABLE_NAME, "null", values);
         usedWord.setId((int) insertedId);
-        Log.d("markWordAsAnswered updateStatus ", ""+insertedId);
-        Log.d("Saving userId ", userId+"");
+        Log.d("markWordAsAnswered updateStatus "+insertedId, " userId "+userId);
 
         /*String where = com.evontech.passwordgridapp.custom.data.sqlite.DbContract.UsedWord._ID + "=?";
         String whereArgs[] = {String.valueOf(usedWord.getId())};

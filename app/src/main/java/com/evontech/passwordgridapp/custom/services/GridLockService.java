@@ -244,10 +244,9 @@ public class GridLockService extends AutofillService {
             if (structure.getActivityComponent().getPackageName().contains(account.getAccountName())) {
                 isAccountMatched = true;
                 account.setUserName(userData.username);
-                account.setAccountPwd(userData.password);
+                account.setAccountUpdatedPwd(userData.password);
                 accountDataSource.saveAccountData(account);
-
-                if(account.getAccountGridId()>0) {
+                /*if(account.getAccountGridId()>0) {
                     gridDataSource.getGridData(account.getAccountGridId(), userId, gridRound -> {
                         GridData mCurrentGridData = new GridDataMapper().map(gridRound);
                         String pwd = "";
@@ -257,14 +256,12 @@ public class GridLockService extends AutofillService {
                         Log.d("account name "+ account.getAccountName(), " username "+account.getUserName());
                         Log.d("autofill pwd " + account.getAccountPwd(), " stored grid pwd " + pwd);
                         if(!account.getAccountPwd().equals(pwd)){
-                            /*gridDataSource.deleteAllLines(mCurrentGridData.getId(), userId);
+                            gridDataSource.deleteAllLines(mCurrentGridData.getId(), userId);
                             mCurrentGridData.setUpdatedPassword(account.getAccountPwd());
-                            gridDataSource.saveGridData(new GridDataMapper().revMap(mCurrentGridData),userId);*/
+                            gridDataSource.saveGridData(new GridDataMapper().revMap(mCurrentGridData),userId);
                         }
                     });
-                }
-
-
+                }*/
             }
         }
         if(!isAccountMatched) {
@@ -274,7 +271,7 @@ public class GridLockService extends AutofillService {
             account.setAccountCategory(packageName[packageName.length-1]);
             account.setUserId(userId);
             account.setUserName(userData.username);
-            account.setAccountPwd(userData.password);
+            account.setAccountUpdatedPwd(userData.password);
             accountDataSource.saveAccountData(account);
         }
     }
