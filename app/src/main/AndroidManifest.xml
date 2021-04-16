@@ -22,6 +22,9 @@
             android:screenOrientation="locked"/>
         <activity android:name=".custom.grid.MainActivity" />
         <activity
+            android:name=".custom.services.AuthActivity"
+            android:screenOrientation="portrait"/>
+        <activity
             android:name=".custom.grid.GridActivity"
             android:screenOrientation="landscape" />
         <activity

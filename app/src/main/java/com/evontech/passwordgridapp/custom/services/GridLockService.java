@@ -1,6 +1,9 @@
 package com.evontech.passwordgridapp.custom.services;
 
+import android.app.PendingIntent;
 import android.app.assist.AssistStructure;
+import android.content.Intent;
+import android.content.IntentSender;
 import android.os.Build;
 import android.os.CancellationSignal;
 import android.service.autofill.AutofillService;
@@ -22,6 +25,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 
 import com.evontech.passwordgridapp.custom.PasswordGridApp;
+import com.evontech.passwordgridapp.custom.accounts.AccountsViewModel;
 import com.evontech.passwordgridapp.custom.data.AccountDataSource;
 import com.evontech.passwordgridapp.custom.data.GridDataSource;
 import com.evontech.passwordgridapp.custom.data.entity.GridDataMapper;
@@ -38,16 +42,21 @@ import java.util.List;
 
 import javax.inject.Inject;
 
+import static android.view.autofill.AutofillManager.EXTRA_ASSIST_STRUCTURE;
+
 @RequiresApi(api = Build.VERSION_CODES.O)
 public class GridLockService extends AutofillService {
+    private ParsedStructure parsedStructure;
+    private UserData userData;
+
     @Inject
     AccountDataSource accountDataSource;
     @Inject
     GridDataSource gridDataSource;
     @Inject
     Preferences mPreference;
-    private ParsedStructure parsedStructure;
-    private UserData userData;
+    public static final String MY_EXTRA_DATASET_NAME = "my_extra_dataset_name";
+    private final AutofillId[] autofillIds = new AutofillId[2];
 
     @Override
     public void onCreate() {
@@ -67,63 +76,82 @@ public class GridLockService extends AutofillService {
         parsedStructure = new ParsedStructure();
         UserData userData = null;
         ParsedStructure parsedStructure = traverseStructure(structure, "onFillRequest");
-        Log.d("structre class ", structure.getActivityComponent().getClassName());
-        Log.d("structre package ", structure.getActivityComponent().getPackageName());
+        if(!structure.getActivityComponent().getPackageName().equals(getPackageName())) {
+            Log.d("structre class ", structure.getActivityComponent().getClassName());
+            Log.d("structre package ", structure.getActivityComponent().getPackageName());
+            Log.d("app package ", getPackageName());
 
-        // Fetch user data that matches the fields.
-        if(parsedStructure!=null)
-        userData = fetchUserData(structure);
+            // Fetch user data that matches the fields.
+            if (parsedStructure != null)
+                userData = fetchUserData(structure);
 
-        // Build the presentation of the datasets
-        RemoteViews usernamePresentation = new RemoteViews(getPackageName(), android.R.layout.simple_list_item_1);
-        usernamePresentation.setTextViewText(android.R.id.text1, "my_username");
-        /*RemoteViews usernamePresentation = new RemoteViews(getPackageName(), R.layout.autofill_suggenstion);
-        usernamePresentation.setTextViewText(R.id.suggestion_item, "my_username");*/
-        RemoteViews passwordPresentation = new RemoteViews(getPackageName(), android.R.layout.simple_list_item_1);
-        passwordPresentation.setTextViewText(android.R.id.text1, "Password for my_username");
+            // Build the presentation of the datasets
+            RemoteViews usernamePresentation = new RemoteViews(getPackageName(), android.R.layout.simple_list_item_1);
+            RemoteViews passwordPresentation = new RemoteViews(getPackageName(), android.R.layout.simple_list_item_1);
 
-        // Add a dataset to the response
-        if(userData==null && parsedStructure!=null) {
-            FillResponse fillResponse = new FillResponse.Builder()
-                    .addDataset(new Dataset.Builder()
-                            .setValue(parsedStructure.usernameId,
-                                    null, usernamePresentation)
-                            .setValue(parsedStructure.passwordId,
-                                    null, passwordPresentation)
-                            .build())
-                    .setSaveInfo(new SaveInfo.Builder(
-                            SaveInfo.SAVE_DATA_TYPE_USERNAME | SaveInfo.SAVE_DATA_TYPE_PASSWORD,
-                            new AutofillId[]{parsedStructure.usernameId, parsedStructure.passwordId})
-                            .build())
-                    .build();
-            callback.onSuccess(fillResponse);
-        } else if(userData != null){
-            Log.d("parsedStructure u ", parsedStructure.usernameId.toString());
-            Log.d("parsedStructure p ", parsedStructure.passwordId.toString());
-            FillResponse fillResponse = new FillResponse.Builder()
-                    .addDataset(new Dataset.Builder()
-                            .setValue(parsedStructure.usernameId,
-                                    AutofillValue.forText(userData.username), usernamePresentation)
-                            .setValue(parsedStructure.passwordId,
-                                    AutofillValue.forText(userData.password), passwordPresentation)
-                            .build())
-                    /*.addDataset(new Dataset.Builder()
-                            .setValue(parsedStructure.usernameId,
-                                    AutofillValue.forText("priyanka@gmail.com"*//*userData.username*//*), usernamePresentation)
+
+            RemoteViews authPresentation = new RemoteViews(getPackageName(), android.R.layout.simple_list_item_1);
+            authPresentation.setTextViewText(android.R.id.text1, "requires authentication");
+            Intent authIntent = new Intent(this, AuthActivity.class);
+
+// Send any additional data required to complete the request.
+            authIntent.putExtra(MY_EXTRA_DATASET_NAME, "my_dataset");
+            authIntent.putExtra(EXTRA_ASSIST_STRUCTURE, structure);
+            IntentSender intentSender = PendingIntent.getActivity(
+                    this,
+                    1001,
+                    authIntent,
+                    PendingIntent.FLAG_CANCEL_CURRENT
+            ).getIntentSender();
+
+            // Add a dataset to the response
+            if (userData == null && parsedStructure != null) {
+                FillResponse fillResponse = new FillResponse.Builder()
+                        .addDataset(new Dataset.Builder()
+                                .setValue(parsedStructure.usernameId,
+                                        null, usernamePresentation)
+                                .setValue(parsedStructure.passwordId,
+                                        null, passwordPresentation)
+                                .build())
+                        .setSaveInfo(new SaveInfo.Builder(
+                                SaveInfo.SAVE_DATA_TYPE_USERNAME | SaveInfo.SAVE_DATA_TYPE_PASSWORD,
+                                new AutofillId[]{parsedStructure.usernameId, parsedStructure.passwordId})
+                                .build())
+                        .build();
+                callback.onSuccess(fillResponse);
+            } else if (userData != null) {
+                usernamePresentation.setTextViewText(android.R.id.text1, "my_username");
+                passwordPresentation.setTextViewText(android.R.id.text1, "Password for my_username");
+                autofillIds[0] = parsedStructure.usernameId;
+                autofillIds[1] = parsedStructure.passwordId;
+                Log.d("parsedStructure u ", parsedStructure.usernameId.toString());
+                Log.d("parsedStructure p ", parsedStructure.passwordId.toString());
+                FillResponse fillResponse = new FillResponse.Builder()
+                        .setAuthentication(autofillIds, intentSender, authPresentation)
+                        .addDataset(new Dataset.Builder()
+                                .setValue(parsedStructure.usernameId,
+                                        AutofillValue.forText(userData.username), usernamePresentation)
+                                .setValue(parsedStructure.passwordId,
+                                        AutofillValue.forText(userData.password), passwordPresentation)
+                                .build())
+                        /*.addDataset(new Dataset.Builder()
+                                .setValue(parsedStructure.usernameId,
+                                        AutofillValue.forText("priyanka@gmail.com"*//*userData.username*//*), usernamePresentation)
                             .setValue(parsedStructure.passwordId,
                                     AutofillValue.forText("priyanka@12345"*//*userData.password*//*), passwordPresentation)
                             .build())*/
-                    .setSaveInfo(new SaveInfo.Builder(
-                            SaveInfo.SAVE_DATA_TYPE_USERNAME | SaveInfo.SAVE_DATA_TYPE_PASSWORD,
-                            new AutofillId[] {parsedStructure.usernameId, parsedStructure.passwordId})
-                            .build())
-                    .build();
+                        .setSaveInfo(new SaveInfo.Builder(
+                                SaveInfo.SAVE_DATA_TYPE_USERNAME | SaveInfo.SAVE_DATA_TYPE_PASSWORD,
+                                new AutofillId[]{parsedStructure.usernameId, parsedStructure.passwordId})
+                                .build())
+                        .build();
 
-            // If there are no errors, call onSuccess() and pass the response
-            callback.onSuccess(fillResponse);
-        }else {
-            Log.d("parsedStructure ", "else part");
-            callback.onSuccess(null);
+                // If there are no errors, call onSuccess() and pass the response
+                callback.onSuccess(fillResponse);
+            } else {
+                Log.d("parsedStructure ", "else part");
+                callback.onSuccess(null);
+            }
         }
     }
 
@@ -208,7 +236,7 @@ public class GridLockService extends AutofillService {
         }
     }
 
-    private UserData fetchUserData(AssistStructure structure){
+    public UserData fetchUserData(AssistStructure structure){
         int userId = 0;
         if(!TextUtils.isEmpty(mPreference.getUserId())) userId = Integer.parseInt(mPreference.getUserId());
         UserData userData = null;
@@ -275,4 +303,5 @@ public class GridLockService extends AutofillService {
             accountDataSource.saveAccountData(account);
         }
     }
+
 }

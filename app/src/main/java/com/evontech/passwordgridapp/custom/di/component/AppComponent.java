@@ -10,6 +10,7 @@ import com.evontech.passwordgridapp.custom.di.modules.DataSourceModule;
 import com.evontech.passwordgridapp.custom.grid.GridActivity;
 import com.evontech.passwordgridapp.custom.grid.GridCriteriaActivity;
 import com.evontech.passwordgridapp.custom.grid.MainActivity;
+import com.evontech.passwordgridapp.custom.services.AuthActivity;
 import com.evontech.passwordgridapp.custom.services.GridLockService;
 
 import javax.inject.Singleton;
@@ -32,4 +33,5 @@ public interface AppComponent {
     void inject(Registration registrationActivity);
     void inject(Login loginActivity);
     void inject(GridLockService app);
+    void inject(AuthActivity authActivity);
 }
